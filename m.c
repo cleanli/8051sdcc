@@ -62,18 +62,29 @@ void system_init()
 #define KEY_A2 P0_7
 #define KEY_A3 P0_6
 #define KEY_A4 P0_5
+#define LED1 P0_0
+#define LED2 P0_1
+#define BEEPER P0_4
 
 int main()
 {
+    int delayct = 800;
     system_init();
-    P0_0 = 0;
-    P0_1 = 1;
+    LED1 = 0;
+    LED2 = 1;
 a:
     if(!KEY_A2){
-        printf("hello world! Key A2\r\n");
+        delayct/=2;
+        delayct++;
+        printf("Key A2 delayct %d\r\n", delayct);
     }
-    ms_delay(1000);
-    P0_0 = !P0_0;
-    P0_1 = !P0_1;
+    if(!KEY_A3){
+        delayct*=2;
+        printf("Key A1 delayct %d\r\n", delayct);
+    }
+    ms_delay(delayct);
+    LED1 = !LED1;
+    LED2 = !LED2;
+    BEEPER = !BEEPER;
     goto a;
 }
