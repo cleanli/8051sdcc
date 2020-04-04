@@ -90,8 +90,11 @@ __xdata unsigned int y[16]={1390,
 						  657, 586, 522, 493, 439, 391, 348, 0};
 __xdata char fu[200] = {5,5,6,6,5,5,8,8,7,7,15,15,5,5,6,6,5,5,9,9,8,8,15,15,
 				5,5,12,12,10,10,8,8,7,7,6,6,15,15,11,11,10,10,8,8,9,9,8,8,15,15,15,15,0};
+__xdata char shaolshi[] = {
+    5,6,8,8,  8,6,8,8,8,8,8,8,3,8,7,7,7,6,7,7,7,7,0,7,6,3,0
+};
 
-void play_music()
+void play_music(__xdata char*pu)
 {
     /*
     bit fff;
@@ -102,10 +105,10 @@ void play_music()
     unsigned int i = 0;
     unsigned int tk = 0;
 	while(1){
-		if(!fu[tk])break;
-		i = y[fu[tk]];
+		printf("%d tk %d\n", (int)pu[tk], tk);
+		if(!pu[tk])break;
+		i = y[pu[tk]];
 		count_10ms = 0;
-		printf("%d\n", (int)fu[tk]);
 		while(1){
 			time_flag();
 			if(!KEY_A1){
@@ -123,7 +126,7 @@ void play_music()
 				break;
 			}
 		}
-		if (++tk == 100 )
+		if (++tk == 300 )
 			tk = 0;
 	}
 }
@@ -134,7 +137,8 @@ int main()
     system_init();
     LED1 = 0;
     LED2 = 1;
-    play_music();
+    //play_music(fu);
+    play_music(shaolshi);
 a:
     if(!KEY_A2){
         if(delayct>100)
@@ -158,7 +162,6 @@ a:
     us_delay(delayct);
     LED1 = !LED1;
     LED2 = !LED2;
-    BEEPER = !BEEPER;
     goto a;
 }
 
