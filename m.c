@@ -75,7 +75,11 @@ int main()
 a:
     if(!KEY_A2){
         delayct/=2;
-        delayct++;
+        if(delayct==0){
+            //printf("delayct = 0\r\n");
+            delayct=1;
+        }
+        //delayct++;
         printf("Key A2 delayct %d\r\n", delayct);
     }
     if(!KEY_A3){
