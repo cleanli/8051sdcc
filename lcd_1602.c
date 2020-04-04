@@ -1,15 +1,14 @@
-#include "REG51.h"
+#include "stc12.h"
 #include <stdio.h>
-#include "intrins.h" //包含此头文件可直接操作内核的寄存器以及一些定义好的宏
 // this file for MCU I/O port or the orther`s hardware config
 // for LCD Display
 // Define for the port use by LCD Driver
-sbit LCD_EP= 0xc4;
-sbit LCD_RW= 0xc5;
-sbit LCD_RS= 0xc6;
+#define LCD_EP P4_4
+#define LCD_RW P4_5
+#define LCD_RS P4_6
 #define LCD_Data_BUS_Out P2
 #define LCD_Data_BUS_In P2
-code unsigned char LCD_InitialCode[]={0x30,0x30,0x30,0x38,0x01,0x06,0x0c};
+__code unsigned char LCD_InitialCode[]={0x30,0x30,0x30,0x38,0x01,0x06,0x0c};
 
 unsigned char sw_byte(unsigned char a)
 {
@@ -124,6 +123,11 @@ return Read_Dat;
 // 2007/11/14 First version
 //========================================================================
 //延时程序
+
+#define Nop __asm \
+nop \
+__endasm
+
 void TimeDelay(int Time)
 {
 int i;
@@ -131,7 +135,7 @@ while(Time > 0)
 {
 for(i = 0;i < 800;i++)
 {
-_nop_();
+Nop;
 }
 Time --;
 }

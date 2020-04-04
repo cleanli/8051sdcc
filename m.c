@@ -1,10 +1,14 @@
 #include <stc12.h>
 #include <stdio.h>
+#include <string.h>
 
 #define MS_COUNT 687
 volatile unsigned int timer_ct = 0;
 static unsigned char count_10ms=0;
 static unsigned int count_1s=0;
+__xdata unsigned char disp_mem[33];
+void LCD_Init();
+void lcd_update(unsigned char*);
 void us_delay(unsigned int mt)
 {
 	while(mt--);
@@ -55,6 +59,9 @@ void system_init()
 	serial_init();
 	//printf("p4sw is %x\n", P4SW);
 	P4SW = 0x70;//open P4 io function for LCD
+	LCD_Init();
+	memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
+	lcd_update(disp_mem);
 	ms_delay(1000);
 	P1ASF = 0x04;//p12 for ADC
 	AUXR1 |= 0x04;
@@ -101,7 +108,7 @@ void play_music(__xdata char*pu)
 	unsigned int i = 0;
 	unsigned int tk = 0;
     */
-    char fff = 0;
+    __bit fff = 0;
     unsigned int i = 0;
     unsigned int tk = 0;
 	while(1){
@@ -112,8 +119,8 @@ void play_music(__xdata char*pu)
 		while(1){
 			time_flag();
 			if(!KEY_A1){
-				fff = 1-fff;
-				if(fff== 0)
+				fff = !fff;
+				if(!fff)
 					P0M0 = 0x10;//P04 set to 20mA
 				else
 					P0M0 = 0x00;//P04 set to 5mA
