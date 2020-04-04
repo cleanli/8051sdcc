@@ -2,6 +2,9 @@
 #include <stdio.h>
 
 #define MS_COUNT 687
+volatile unsigned int timer_ct = 0;
+static unsigned char count_10ms=0;
+static unsigned int count_1s=0;
 void us_delay(unsigned int mt)
 {
 	while(mt--);
@@ -58,6 +61,21 @@ void system_init()
 	P0M0 = 0x10;//P04 set to 20mA
 }
 
+#define COUNT10MS 83
+void time_flag()
+{
+	if(timer_ct >= COUNT10MS){
+		timer_ct = 0;
+		count_10ms ++;
+		if(count_10ms >= 100 ){
+			//if(!stop){
+				count_1s++;
+				printf("%u\n", count_1s);
+			//}
+			count_10ms = 0;
+		}
+	}
+}
 #define KEY_A1 P3_2
 #define KEY_A2 P0_7
 #define KEY_A3 P0_6
@@ -66,12 +84,57 @@ void system_init()
 #define LED2 P0_1
 #define BEEPER P0_4
 
+//-7,1,2,3,4,5,6,7,1-,2-,
+__xdata unsigned int y[16]={1390,
+                          1312, 1172, 1044, 985, 877, 781, 696,
+						  657, 586, 522, 493, 439, 391, 348, 0};
+__xdata char fu[200] = {5,5,6,6,5,5,8,8,7,7,15,15,5,5,6,6,5,5,9,9,8,8,15,15,
+				5,5,12,12,10,10,8,8,7,7,6,6,15,15,11,11,10,10,8,8,9,9,8,8,15,15,15,15,0};
+
+void play_music()
+{
+    /*
+    bit fff;
+	unsigned int i = 0;
+	unsigned int tk = 0;
+    */
+    char fff = 0;
+    unsigned int i = 0;
+    unsigned int tk = 0;
+	while(1){
+		if(!fu[tk])break;
+		i = y[fu[tk]];
+		count_10ms = 0;
+		printf("%d\n", (int)fu[tk]);
+		while(1){
+			time_flag();
+			if(!KEY_A1){
+				fff = 1-fff;
+				if(fff== 0)
+					P0M0 = 0x10;//P04 set to 20mA
+				else
+					P0M0 = 0x00;//P04 set to 5mA
+			}
+			LED1 = !LED1;
+			if(i)BEEPER = !BEEPER;
+			us_delay(i);
+			if(count_10ms == 25){
+				count_10ms = 0;
+				break;
+			}
+		}
+		if (++tk == 100 )
+			tk = 0;
+	}
+}
+
 int main()
 {
     unsigned int delayct = 60000;
     system_init();
     LED1 = 0;
     LED2 = 1;
+    play_music();
 a:
     if(!KEY_A2){
         if(delayct>100)
@@ -83,7 +146,7 @@ a:
             delayct=1;
         }
         //delayct++;
-        printf("Key A2 delayct %u\r\n", delayct);
+        printf("Key A2 delayct %u t %u\r\n", delayct, timer_ct);
     }
     if(!KEY_A3){
         if(delayct>100)
@@ -97,4 +160,9 @@ a:
     LED2 = !LED2;
     BEEPER = !BEEPER;
     goto a;
+}
+
+void isrtimer0(void) __interrupt 1 __using 1
+{
+	timer_ct++;
 }
