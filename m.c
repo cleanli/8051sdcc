@@ -55,7 +55,7 @@ void system_init()
 	ms_delay(1000);
 	P1ASF = 0x04;//p12 for ADC
 	AUXR1 |= 0x04;
-	//P0M0 = 0x10;//P04 set to 20mA
+	P0M0 = 0x10;//P04 set to 20mA
 }
 
 #define KEY_A1 P3_2
@@ -68,25 +68,31 @@ void system_init()
 
 int main()
 {
-    int delayct = 800;
+    unsigned int delayct = 60000;
     system_init();
     LED1 = 0;
     LED2 = 1;
 a:
     if(!KEY_A2){
-        delayct/=2;
+        if(delayct>100)
+            delayct-=delayct/100;
+        else
+            delayct-=1;
         if(delayct==0){
             //printf("delayct = 0\r\n");
             delayct=1;
         }
         //delayct++;
-        printf("Key A2 delayct %d\r\n", delayct);
+        printf("Key A2 delayct %u\r\n", delayct);
     }
     if(!KEY_A3){
-        delayct*=2;
-        printf("Key A1 delayct %d\r\n", delayct);
+        if(delayct>100)
+            delayct+=delayct/100;
+        else
+            delayct+=1;
+        printf("Key A1 delayct %u\r\n", delayct);
     }
-    ms_delay(delayct);
+    us_delay(delayct);
     LED1 = !LED1;
     LED2 = !LED2;
     BEEPER = !BEEPER;
