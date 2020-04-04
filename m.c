@@ -50,7 +50,7 @@ int putchar (int c) {
 void system_init()
 {
 	serial_init();
-	printf("p4sw is %x\n", P4SW);
+	//printf("p4sw is %x\n", P4SW);
 	P4SW = 0x70;//open P4 io function for LCD
 	ms_delay(1000);
 	P1ASF = 0x04;//p12 for ADC
