@@ -58,13 +58,20 @@ void system_init()
 	//P0M0 = 0x10;//P04 set to 20mA
 }
 
+#define KEY_A1 P3_2
+#define KEY_A2 P0_7
+#define KEY_A3 P0_6
+#define KEY_A4 P0_5
+
 int main()
 {
     system_init();
     P0_0 = 0;
     P0_1 = 1;
 a:
-    printf("hello world!\r\n");
+    if(!KEY_A2){
+        printf("hello world! Key A2\r\n");
+    }
     ms_delay(1000);
     P0_0 = !P0_0;
     P0_1 = !P0_1;
