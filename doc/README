@@ -1,0 +1,36 @@
+STC12C5A60S2
+SDCC
+
+Setup:
+1 HW prepare
+PC Serial Port
+MAX3232 connecter
+Connect the MAX3232 TX & RX together, send byte from PC, if received, PC side
+is OK
+
+MCU board
+Connect following components with MCU 
+Crystal oscillator & 2 capacitor
+10u capacitor & 10k resistence for Reset circuit
+10u capacitor & 0.1u capacitor for power Decoupling and filtering
+2 Light Emitting Diodes in P0_0, P0_1 with 2k Resistence, showing MCU is
+working
+MCU serial port TX & RX connecter
+
+2 SW prepare
+stc-isp-15xx-v6.87B.zip for STC 51 MCU hex download
+sdcc-4.0.0-x64-setup.exe for source code build
+Git for code management
+MinGW for windows development environment
+
+3 Steps
+1 Install the SWs
+2 prepare source code
+3 build and generate hex file
+4 connect PC & MCU board serial ports with MAX3232 connecter
+5 run stc-isp-15xx-v6.87B.exe, choose chip type, choose hex file, click
+"Download/Program"
+6 Power on the board, stc isp download software will show message of MCU
+found, and download the hex to chip
+7 MCU will run immediately after the download complete
+
