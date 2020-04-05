@@ -154,8 +154,8 @@ for(i=0;i<4;i++)
 uiTemp = *Point++;
 LCD_Data_BUS_Out = sw_byte(uiTemp);
 LCD_EP = 1; //EP to Hight
-LCD_EP = 0; //EP to Hight
 TimeDelay(4); //延一定的时间，一般要求4.5ms以上就可以，没有那么严格的了
+LCD_EP = 0; //EP to Hight
 }
 LCD_RegWrite(*Point++);
 LCD_RegWrite(*Point++);
