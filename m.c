@@ -270,6 +270,8 @@ start:
     target = 0;
 	timer_ct = 0;
     count_1s=0;
+    float z = 1.0/3;
+    printf("z %1.4f %1.2f", z, 0.345);
 	while(!target){
 		disp_power();
 		time_flag();
