@@ -63,8 +63,7 @@ void system_init()
 	memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
 	lcd_update(disp_mem);
 	ms_delay(1000);
-	P1ASF = 0x04;//p12 for ADC
-	AUXR1 |= 0x04;
+	//AUXR1 |= 0x04;//high 2 bits of ADC result in ADC_RES
 	P0M0 = 0x10;//P04 set to 20mA
 }
 
@@ -138,14 +137,42 @@ void play_music(__code char*pu)
 	}
 }
 
+unsigned int get_power_votage()
+{
+    unsigned int ret;
+    unsigned char rs;
+    //printf("ADC_CONTR %x\r\n", ADC_CONTR);
+    //printf("AUXR1 %x\r\n", AUXR1);
+    ADC_CONTR = ADC_CONTR | 0x80;//power on adc
+    us_delay(1);
+	P1ASF |= 0x04;//p12 for ADC
+    ADC_CONTR=0x82;//channel p12
+    us_delay(1);
+    ADC_RES = 0;
+    ADC_CONTR|=0x08;//start convert
+    us_delay(1);
+    //printf("ADC_CONTR %x\r\n", ADC_CONTR);
+    while(!(ADC_CONTR & 0x10));
+    //printf("ADC_CONTR %x\r\n", ADC_CONTR);
+    ADC_CONTR &= ~0x18;//clear start & flag
+    rs = (unsigned char)ADC_RES;
+    //printf("ADC_RES %x\r\n", rs);
+    ret = 5 * 128 * 10 / rs;
+    printf("rs %u\r\n", (int)ret);
+	P1ASF &= ~0x04;//p12 recover normal IO
+    ADC_CONTR = ADC_CONTR & ~0x80;//power off
+    return ret;
+}
+
 int main()
 {
-    unsigned int delayct = 60000;
+    unsigned int delayct = 600;
     system_init();
     LED1 = 0;
     LED2 = 1;
+    unsigned int pv;
     //play_music(fu);
-    play_music(shaolshi);
+    //play_music(shaolshi);
 a:
     if(!KEY_A2){
         if(delayct>100)
@@ -166,9 +193,16 @@ a:
             delayct+=1;
         printf("Key A1 delayct %u\r\n", delayct);
     }
-    us_delay(delayct);
+    ms_delay(delayct);
     LED1 = !LED1;
     LED2 = !LED2;
+    pv = get_power_votage();
+    sprintf(disp_mem, "%u V", pv);
+    disp_mem[2] = disp_mem[1];
+    disp_mem[4] = '-';
+    disp_mem[1] = '.';
+    lcd_update(disp_mem);
+    printf("%u V", (int)pv);
     goto a;
 }
 
