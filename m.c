@@ -11,7 +11,7 @@ static unsigned int count_1s=0;
 __xdata unsigned char disp_mem[33];
 bool flag_10ms = 0, flag_1s = 0;
 bool target = 0;
-uint target_hour = 0, target_minute = 5;
+uint target_hour = 0, target_minute = 1;
 void LCD_Init();
 void lcd_update(unsigned char*);
 void us_delay(unsigned int mt)
@@ -83,8 +83,10 @@ void time_update(unsigned int t)
 	s = tm - m * 60;
 	sprintf(&disp_mem[16], "%u:%02u:%02u", (uint)h, (uint)m, (uint)s);
 	disp_mem[23] = ' ';
-    if(h == target_hour && m == target_minute)
+    if(h == target_hour && m == target_minute){
+        printf("set target 1 t %u\r\n", t);
         target = 1;
+    }
 }
 
 void time_flag()
@@ -267,11 +269,13 @@ start:
             }
         }
     }
-	printf("play end...\n");
 	memset(disp_mem, ' ', 32);
-	memcpy(disp_mem, " time    power  ", 16);
+    sprintf(disp_mem, "%u:%02u:00", target_hour, target_minute);
+    sprintf(disp_mem+8, "SupplyVo", target_hour, target_minute);
 	lcd_update(disp_mem);
+    target = 0;
 	timer_ct = 0;
+    count_1s=0;
 	while(!target){
 		disp_power();
 		time_flag();
@@ -283,6 +287,7 @@ start:
 	strcpy(disp_mem, "Playing music 'Shao Lin Shi'");
 	lcd_update(disp_mem);
     play_music(shaolshi);
+	printf("play end...\n");
     LED1 = 0;
     LED2 = 1;
     goto start;
