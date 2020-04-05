@@ -177,6 +177,7 @@ if(*String_s == '\n'){
 	String_s++;
 	break;
 }
+if(*String_s == 0)*String_s = ' ';
 LCD_DataWrite(*String_s);
 String_s++;
 }

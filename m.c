@@ -3,10 +3,13 @@
 #include <string.h>
 
 #define MS_COUNT 687
+typedef unsigned int uint;
+typedef __bit bool;
 volatile unsigned int timer_ct = 0;
 static unsigned char count_10ms=0;
 static unsigned int count_1s=0;
 __xdata unsigned char disp_mem[33];
+bool flag_10ms = 0, flag_1s = 0;
 void LCD_Init();
 void lcd_update(unsigned char*);
 void us_delay(unsigned int mt)
@@ -68,8 +71,22 @@ void system_init()
 }
 
 #define COUNT10MS 83
+void time_update(unsigned int t)
+{
+	uint h, m, tm, s;
+
+	h = t / 3600;
+	tm = t - h * 3600;
+	m = tm / 60;
+	s = tm - m * 60;
+	sprintf(&disp_mem[16], "%u:%02u:%02u", (uint)h, (uint)m, (uint)s);
+	disp_mem[23] = ' ';
+}
+
 void time_flag()
 {
+	flag_1s = 0;
+	flag_10ms = 0;
 	if(timer_ct >= COUNT10MS){
 		timer_ct = 0;
 		count_10ms ++;
@@ -77,8 +94,11 @@ void time_flag()
 			//if(!stop){
 				count_1s++;
 				printf("%u\n", count_1s);
+				time_update(count_1s);
 			//}
 			count_10ms = 0;
+			flag_1s = 1;
+			lcd_update(disp_mem);
 		}
 	}
 }
@@ -107,7 +127,7 @@ void play_music(__code char*pu)
 	unsigned int i = 0;
 	unsigned int tk = 0;
     */
-    __bit fff = 0;
+    bool fff = 0;
     unsigned int i = 0;
     unsigned int tk = 0;
 	while(1){
@@ -164,15 +184,33 @@ unsigned int get_power_votage()
     return ret;
 }
 
-int main()
+void disp_power()
+{
+    unsigned int pv;
+	if(!flag_1s)
+        return;
+    pv = get_power_votage();
+    sprintf(disp_mem+27, "%u", pv);
+    disp_mem[27+2] = disp_mem[27+1];
+    disp_mem[27+4] = 'V';
+    disp_mem[27+1] = '.';
+    lcd_update(disp_mem);
+}
+
+void main()
 {
     unsigned int delayct = 600;
     system_init();
-    unsigned int pv;
+	memset(disp_mem, ' ', 32);
+	strcpy(disp_mem, "Playing music 'Happy Birthday'");
+	lcd_update(disp_mem);
     play_music(fu);
+	strcpy(disp_mem, "Playing music 'Shao Lin Shi'");
+	lcd_update(disp_mem);
     play_music(shaolshi);
     LED1 = 0;
     LED2 = 1;
+#if 0
 a:
     if(!KEY_A2){
         if(delayct>100)
@@ -204,6 +242,16 @@ a:
     lcd_update(disp_mem);
     printf("%u V", (int)pv);
     goto a;
+#endif
+	printf("play end...\n");
+	memset(disp_mem, ' ', 32);
+	memcpy(disp_mem, " time    power  ", 16);
+	lcd_update(disp_mem);
+	timer_ct = 0;
+	while(1){
+		time_flag();
+		disp_power();
+	}
 }
 
 void isrtimer0(void) __interrupt 1 __using 1
