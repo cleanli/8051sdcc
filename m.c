@@ -181,7 +181,7 @@ unsigned int get_power_votage()
     rs = (unsigned char)ADC_RES;
     //printf("ADC_RES %x\r\n", rs);
     ret = 5 * 128 * 10 / rs;
-    printf("rs %u\r\n", (int)ret);
+    //printf("rs %u\r\n", (int)ret);
 	P1ASF &= ~0x04;//p12 recover normal IO
     ADC_CONTR = ADC_CONTR & ~0x80;//power off
     return ret;
@@ -211,9 +211,6 @@ start:
 	memcpy(disp_mem, " hour   minute   ", 16);
     sprintf(disp_mem+17, "%u", target_hour);
     sprintf(disp_mem+27, "%u", target_minute);
-    printf("dispmem 17 %x\r\n", disp_mem[17]);
-    printf("dispmem 18 %x\r\n", disp_mem[18]);
-    printf("dispmem 19 %x\r\n", disp_mem[19]);
     lcd_update(disp_mem);
     while(1){
         if(!KEY_A4){
