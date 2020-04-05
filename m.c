@@ -145,12 +145,8 @@ void play_music(__code char*pu)
 		count_10ms = 0;
 		while(1){
 			time_flag();
-			if(!KEY_A1){
-				fff = !fff;
-				if(!fff)
-					P0M0 = 0x10;//P04 set to 20mA
-				else
-					P0M0 = 0x00;//P04 set to 5mA
+			if(!KEY_A4){
+                return;
 			}
 			if(i)BEEPER = !BEEPER;
 			us_delay(i);
@@ -210,6 +206,7 @@ void main()
     unsigned int delayct = 600;
     system_init();
 start:
+    ms_delay(2000);
 	memset(disp_mem, ' ', 32);
 	memcpy(disp_mem, " hour   minute   ", 16);
     sprintf(disp_mem+17, "%u", target_hour);
