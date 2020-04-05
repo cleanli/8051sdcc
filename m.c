@@ -97,7 +97,7 @@ __code unsigned int y[16]={1390,
 __code char fu[200] = {5,5,6,6,5,5,8,8,7,7,15,15,5,5,6,6,5,5,9,9,8,8,15,15,
 				5,5,12,12,10,10,8,8,7,7,6,6,15,15,11,11,10,10,8,8,9,9,8,8,15,15,15,15,0};
 __code char shaolshi[] = {
-    5,6,8,8,  8,6,8,8,8,8,8,8,3,8,7,7,7,6,7,7,7,7,0,7,6,3,0
+    5,6,8,8,  8,6,8,8,8,8,8,8,3,8,7,7,7,6,7,7,7,7,7,7,6,3,0
 };
 
 void play_music(__code char*pu)
@@ -112,6 +112,7 @@ void play_music(__code char*pu)
     unsigned int tk = 0;
 	while(1){
 		printf("%d tk %d\n", (int)pu[tk], tk);
+        LED1 = !LED1;
 		if(!pu[tk])break;
 		i = y[pu[tk]];
 		count_10ms = 0;
@@ -124,7 +125,6 @@ void play_music(__code char*pu)
 				else
 					P0M0 = 0x00;//P04 set to 5mA
 			}
-			LED1 = !LED1;
 			if(i)BEEPER = !BEEPER;
 			us_delay(i);
 			if(count_10ms == 25){
@@ -168,11 +168,11 @@ int main()
 {
     unsigned int delayct = 600;
     system_init();
+    unsigned int pv;
+    play_music(fu);
+    play_music(shaolshi);
     LED1 = 0;
     LED2 = 1;
-    unsigned int pv;
-    //play_music(fu);
-    //play_music(shaolshi);
 a:
     if(!KEY_A2){
         if(delayct>100)
