@@ -185,6 +185,7 @@ uiTemp = 16;
 LCD_RegWrite(0xc0); //设置地址为第二行第一个字符的位置
 while(uiTemp--)
 {
+if(*String_s == 0)*String_s = ' ';
 LCD_DataWrite(*String_s);
 String_s++;
 }

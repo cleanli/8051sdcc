@@ -10,6 +10,8 @@ static unsigned char count_10ms=0;
 static unsigned int count_1s=0;
 __xdata unsigned char disp_mem[33];
 bool flag_10ms = 0, flag_1s = 0;
+bool target = 0;
+uint target_hour = 0, target_minute = 5;
 void LCD_Init();
 void lcd_update(unsigned char*);
 void us_delay(unsigned int mt)
@@ -81,6 +83,8 @@ void time_update(unsigned int t)
 	s = tm - m * 60;
 	sprintf(&disp_mem[16], "%u:%02u:%02u", (uint)h, (uint)m, (uint)s);
 	disp_mem[23] = ' ';
+    if(h == target_hour && m == target_minute)
+        target = 1;
 }
 
 void time_flag()
@@ -133,6 +137,7 @@ void play_music(__code char*pu)
 	while(1){
 		printf("%d tk %d\n", (int)pu[tk], tk);
         LED1 = !LED1;
+        LED2 = !LED2;
 		if(!pu[tk])break;
 		i = y[pu[tk]];
 		count_10ms = 0;
@@ -199,8 +204,78 @@ void disp_power()
 
 void main()
 {
+    bool last_is_hour = 0;
     unsigned int delayct = 600;
     system_init();
+start:
+	memset(disp_mem, ' ', 32);
+	memcpy(disp_mem, " hour   minute   ", 16);
+    sprintf(disp_mem+17, "%u", target_hour);
+    sprintf(disp_mem+27, "%u", target_minute);
+    printf("dispmem 17 %x\r\n", disp_mem[17]);
+    printf("dispmem 18 %x\r\n", disp_mem[18]);
+    printf("dispmem 19 %x\r\n", disp_mem[19]);
+    lcd_update(disp_mem);
+    while(1){
+        if(!KEY_A4){
+            ms_delay(100);
+            if(!KEY_A4){
+                break;
+            }
+        }
+        if(!KEY_A3){
+            ms_delay(100);
+            if(!KEY_A3){
+                target_minute++;
+                if(target_minute == 60)
+                    target_minute = 1;
+                sprintf(disp_mem+27, "%u", target_minute);
+                lcd_update(disp_mem);
+                last_is_hour=0;
+                ms_delay(500);
+            }
+        }
+        if(!KEY_A1){
+            ms_delay(100);
+            if(!KEY_A1){
+                target_hour++;
+                sprintf(disp_mem+17, "%u", target_hour);
+                lcd_update(disp_mem);
+                last_is_hour=1;
+                ms_delay(500);
+            }
+        }
+        if(!KEY_A2){
+            ms_delay(100);
+            if(!KEY_A2){
+                if(last_is_hour){
+                    if(target_hour>0){
+                        target_hour--;
+                        sprintf(disp_mem+17, "%u", target_hour);
+                        lcd_update(disp_mem);
+                        ms_delay(500);
+                    }
+                }
+                else{
+                    if(target_minute>1){
+                        target_minute--;
+                        sprintf(disp_mem+27, "%u", target_minute);
+                        lcd_update(disp_mem);
+                        ms_delay(500);
+                    }
+                }
+            }
+        }
+    }
+	printf("play end...\n");
+	memset(disp_mem, ' ', 32);
+	memcpy(disp_mem, " time    power  ", 16);
+	lcd_update(disp_mem);
+	timer_ct = 0;
+	while(!target){
+		disp_power();
+		time_flag();
+	}
 	memset(disp_mem, ' ', 32);
 	strcpy(disp_mem, "Playing music 'Happy Birthday'");
 	lcd_update(disp_mem);
@@ -210,48 +285,7 @@ void main()
     play_music(shaolshi);
     LED1 = 0;
     LED2 = 1;
-#if 0
-a:
-    if(!KEY_A2){
-        if(delayct>100)
-            delayct-=delayct/100;
-        else
-            delayct-=1;
-        if(delayct==0){
-            //printf("delayct = 0\r\n");
-            delayct=1;
-        }
-        //delayct++;
-        printf("Key A2 delayct %u t %u\r\n", delayct, timer_ct);
-    }
-    if(!KEY_A3){
-        if(delayct>100)
-            delayct+=delayct/100;
-        else
-            delayct+=1;
-        printf("Key A1 delayct %u\r\n", delayct);
-    }
-    ms_delay(delayct);
-    LED1 = !LED1;
-    LED2 = !LED2;
-    pv = get_power_votage();
-    sprintf(disp_mem, "%u V", pv);
-    disp_mem[2] = disp_mem[1];
-    disp_mem[4] = '-';
-    disp_mem[1] = '.';
-    lcd_update(disp_mem);
-    printf("%u V", (int)pv);
-    goto a;
-#endif
-	printf("play end...\n");
-	memset(disp_mem, ' ', 32);
-	memcpy(disp_mem, " time    power  ", 16);
-	lcd_update(disp_mem);
-	timer_ct = 0;
-	while(1){
-		time_flag();
-		disp_power();
-	}
+    goto start;
 }
 
 void isrtimer0(void) __interrupt 1 __using 1
