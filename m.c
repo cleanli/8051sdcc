@@ -281,17 +281,28 @@ start:
 	while(!target){
 		disp_power(0);
 		time_flag();
+        if(!KEY_A2){
+            ms_delay(100);
+            if(!KEY_A2){
+                sprintf(disp_mem+16, "Cancelled", target_hour, target_minute);
+                lcd_update(disp_mem);
+                ms_delay(2000);
+                break;
+            }
+        }
 	}
-	memset(disp_mem, ' ', 32);
-	strcpy(disp_mem, "Playing music 'Happy Birthday'");
-	lcd_update(disp_mem);
-    play_music(fu);
-	strcpy(disp_mem, "Playing music 'Shao Lin Shi'");
-	lcd_update(disp_mem);
-    play_music(shaolshi);
-	printf("play end...\n");
-    LED1 = 0;
-    LED2 = 1;
+    if(target){
+        LED1 = 0;
+        LED2 = 1;
+        memset(disp_mem, ' ', 32);
+        strcpy(disp_mem, "Playing music 'Happy Birthday'");
+        lcd_update(disp_mem);
+        play_music(fu);
+        strcpy(disp_mem, "Playing music 'Shao Lin Shi'");
+        lcd_update(disp_mem);
+        play_music(shaolshi);
+        printf("play end...\n");
+    }
     goto start;
 }
 
