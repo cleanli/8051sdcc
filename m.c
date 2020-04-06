@@ -199,6 +199,35 @@ void disp_power(bool force)
     lcd_update(disp_mem);
 }
 
+void timer_running(__code char* pu)
+{
+    target = 0;
+	timer_ct = 0;
+    count_1s=0;
+	while(!target){
+		disp_power(0);
+		time_flag();
+        if(!KEY_A2){
+            ms_delay(100);
+            if(!KEY_A2){
+                sprintf(disp_mem+16, "Cancelled", target_hour, target_minute);
+                lcd_update(disp_mem);
+                ms_delay(2000);
+                break;
+            }
+        }
+	}
+    if(target){
+        LED1 = 0;
+        LED2 = 1;
+        memset(disp_mem, ' ', 32);
+        strcpy(disp_mem, "Playing music ...");
+        lcd_update(disp_mem);
+        play_music(pu);
+        printf("play end...\n");
+    }
+}
+
 void main()
 {
     bool last_is_hour = 0;
@@ -270,38 +299,9 @@ start:
     }
 	memset(disp_mem, ' ', 32);
     sprintf(disp_mem, "%u:%02u:00", target_hour, target_minute);
-    sprintf(disp_mem+8, "SupplyVo", target_hour, target_minute);
+    sprintf(disp_mem+8, "SupplyVo");
 	lcd_update(disp_mem);
-    target = 0;
-	timer_ct = 0;
-    count_1s=0;
-    float z = 1.0/3;
-    printf("z %1.4f %1.2f", z, 0.345);
-	while(!target){
-		disp_power(0);
-		time_flag();
-        if(!KEY_A2){
-            ms_delay(100);
-            if(!KEY_A2){
-                sprintf(disp_mem+16, "Cancelled", target_hour, target_minute);
-                lcd_update(disp_mem);
-                ms_delay(2000);
-                break;
-            }
-        }
-	}
-    if(target){
-        LED1 = 0;
-        LED2 = 1;
-        memset(disp_mem, ' ', 32);
-        strcpy(disp_mem, "Playing music 'Happy Birthday'");
-        lcd_update(disp_mem);
-        play_music(fu);
-        strcpy(disp_mem, "Playing music 'Shao Lin Shi'");
-        lcd_update(disp_mem);
-        play_music(shaolshi);
-        printf("play end...\n");
-    }
+    timer_running(shaolshi);
     goto start;
 }
 
