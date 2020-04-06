@@ -126,6 +126,9 @@ __code char fu[200] = {5,5,6,6,5,5,8,8,7,7,15,15,5,5,6,6,5,5,9,9,8,8,15,15,
 __code char shaolshi[] = {
     5,6,8,8,  8,6,8,8,8,8,8,8,3,8,7,7,7,6,7,7,7,7,7,7,6,3,0
 };
+__code char music[] = {
+    1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0
+};
 
 void play_music(__code char*pu)
 {
@@ -255,11 +258,15 @@ void main()
     system_init();
 
     if(!key_down_in_time(3)){
-        target_minute = 1;
+        target_minute = 5;
         target_hour = 0;
-        timer_running(shaolshi);
-        timer_running(shaolshi);
-        timer_running(shaolshi);
+        memset(disp_mem, ' ', 32);
+        strcpy(disp_mem, "Start 3x5min timer");
+        lcd_update(disp_mem);
+        play_music(music);
+        timer_running(music);
+        timer_running(music);
+        timer_running(music);
     }
 start:
     ms_delay(2000);
