@@ -209,6 +209,7 @@ void timer_running(__code char* pu, char message_c)
     target = 0;
 	timer_ct = 0;
     count_1s=0;
+    count_10ms=0;
 	memset(disp_mem, ' ', 32);
     sprintf(disp_mem, "%u:%02u:00", target_hour, target_minute);
     sprintf(disp_mem+8, "SupplyVo");
@@ -268,14 +269,15 @@ uint8 get_key_status()
 uint8 key_down_in_time(uint8 timeout)
 {
     uint8 ret;
-    uint8 c = timeout * 50;
-    while(c--){
+    uint c = timeout * 50;
+    do{
         ret = get_key_status();
         if(ret!=KEY_NONE_DOWN){
             return ret;
         }
         ms_delay(20);
     }
+    while(c--);
     return KEY_NONE_DOWN;
 }
 
@@ -287,7 +289,7 @@ void main()
     system_init();
 
     memset(disp_mem, ' ', 32);
-    strcpy(disp_mem, "Press Key in 3 second to Timer");
+    strcpy(disp_mem, "Press Key in 3 second to LCJ");
     lcd_update(disp_mem);
     uc_tmp = key_down_in_time(3);
     printf("uc_tmp %d", uc_tmp);
@@ -302,6 +304,32 @@ void main()
         timer_running(music, '2');
         timer_running(music, '3');
     }
+    //
+    memset(disp_mem, ' ', 32);
+    strcpy(disp_mem, "Press Key in 3 second to timer");
+    lcd_update(disp_mem);
+    ms_delay(1000);
+    uc_tmp = key_down_in_time(3);
+    if(uc_tmp==KEY_NONE_DOWN){
+        //lcj
+        target_minute = 0;
+        target_hour = 9999;
+        timer_ct = 0;
+        count_1s=0;
+        count_10ms=0;
+        memset(disp_mem, ' ', 32);
+        strcpy(disp_mem, "LCJ");
+        lcd_update(disp_mem);
+        while(1){
+            disp_power(0);
+            time_flag();
+            if(KEY_NONE_DOWN!=get_key_status()){
+                break;
+            }
+        }
+    }
+
+    //
     ulong last_ct;
 start:
     last_ct=timer_ct;
@@ -310,6 +338,8 @@ start:
     last_ct=timer_ct;
     ms_delay(1000);
     printf("1s %lu\r\n", timer_ct-last_ct);
+    target_minute = 1;
+    target_hour = 0;
 	memset(disp_mem, ' ', 32);
 	memcpy(disp_mem, "hour  minute    ", 16);
     sprintf(disp_mem+17, "%u", target_hour);
