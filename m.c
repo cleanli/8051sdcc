@@ -160,10 +160,10 @@ void play_music(__code char*pu)
 	}
 }
 
-unsigned int get_power_votage()
+float get_power_votage()
 {
-    unsigned int ret;
-    unsigned char rs;
+    float ret;
+    uint rs;
     //printf("ADC_CONTR %x\r\n", ADC_CONTR);
     //printf("AUXR1 %x\r\n", AUXR1);
     ADC_CONTR = ADC_CONTR | 0x80;//power on adc
@@ -178,9 +178,11 @@ unsigned int get_power_votage()
     while(!(ADC_CONTR & 0x10));
     //printf("ADC_CONTR %x\r\n", ADC_CONTR);
     ADC_CONTR &= ~0x18;//clear start & flag
-    rs = (unsigned char)ADC_RES;
-    //printf("ADC_RES %x\r\n", rs);
-    ret = 5 * 128 * 10 / rs;
+    rs = (unsigned char)ADC_RES<<2;
+    rs |= ADC_RESL;
+    printf("ADC_RES %x\r\n", rs);
+    printf("ADC_RESL %x\r\n", ADC_RESL);
+    ret = 2.45f * 1024 / rs;
     //printf("rs %u\r\n", (int)ret);
 	P1ASF &= ~0x04;//p12 recover normal IO
     ADC_CONTR = ADC_CONTR & ~0x80;//power off
@@ -189,14 +191,11 @@ unsigned int get_power_votage()
 
 void disp_power(bool force)
 {
-    unsigned int pv;
+    float pv;
 	if(!force && !flag_1s)
         return;
     pv = get_power_votage();
-    sprintf(disp_mem+27, "%u", pv);
-    disp_mem[27+2] = disp_mem[27+1];
-    disp_mem[27+4] = 'V';
-    disp_mem[27+1] = '.';
+    sprintf(disp_mem+27, "%1.2fV", pv);
     lcd_update(disp_mem);
 }
 
