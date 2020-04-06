@@ -187,10 +187,10 @@ unsigned int get_power_votage()
     return ret;
 }
 
-void disp_power()
+void disp_power(bool force)
 {
     unsigned int pv;
-	if(!flag_1s)
+	if(!force && !flag_1s)
         return;
     pv = get_power_votage();
     sprintf(disp_mem+27, "%u", pv);
@@ -208,9 +208,9 @@ void main()
 start:
     ms_delay(2000);
 	memset(disp_mem, ' ', 32);
-	memcpy(disp_mem, " hour   minute   ", 16);
+	memcpy(disp_mem, "hour  minute    ", 16);
     sprintf(disp_mem+17, "%u", target_hour);
-    sprintf(disp_mem+27, "%u", target_minute);
+    sprintf(disp_mem+22, "%u", target_minute);
     lcd_update(disp_mem);
     while(1){
         if(!KEY_A4){
@@ -225,7 +225,7 @@ start:
                 target_minute++;
                 if(target_minute == 60)
                     target_minute = 1;
-                sprintf(disp_mem+27, "%u", target_minute);
+                sprintf(disp_mem+22, "%u", target_minute);
                 lcd_update(disp_mem);
                 last_is_hour=0;
                 ms_delay(500);
@@ -262,6 +262,12 @@ start:
                 }
             }
         }
+        ms_delay(50);
+        static int l_pc = 0;
+        if(l_pc++ > 20){
+            disp_power(1);
+            l_pc = 0;
+        }
     }
 	memset(disp_mem, ' ', 32);
     sprintf(disp_mem, "%u:%02u:00", target_hour, target_minute);
@@ -273,7 +279,7 @@ start:
     float z = 1.0/3;
     printf("z %1.4f %1.2f", z, 0.345);
 	while(!target){
-		disp_power();
+		disp_power(0);
 		time_flag();
 	}
 	memset(disp_mem, ' ', 32);
