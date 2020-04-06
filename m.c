@@ -238,28 +238,60 @@ void timer_running(__code char* pu, char message_c)
     }
 }
 
-bool key_down_in_time(uint8 timeout)
+#define KEY_NONE_A1_DOWN (1<<2)
+#define KEY_NONE_A2_DOWN (1<<7)
+#define KEY_NONE_A3_DOWN (1<<6)
+#define KEY_NONE_A4_DOWN (1<<5)
+#define KEY_NONE_DOWN (KEY_NONE_A1_DOWN|KEY_NONE_A2_DOWN|KEY_NONE_A3_DOWN|KEY_NONE_A4_DOWN)
+uint8 get_key_status()
 {
+    uint8 ret1, ret;
+    ret1 = (P0 & 0xe0)|(P3 & 0x4);
+    printf("ret1 %x\r\n", ret1);
+    if(ret1 != KEY_NONE_DOWN){
+        ms_delay(20);
+        ret = ((P0 & 0xe0)|(P3 & 0x4));
+        if(ret != KEY_NONE_DOWN){
+            ret|=ret1;
+        }
+        if(ret!=KEY_NONE_DOWN){
+            if(!(ret & KEY_NONE_A1_DOWN))printf("Key A1 down\r\n");
+            if(!(ret & KEY_NONE_A2_DOWN))printf("Key A2 down\r\n");
+            if(!(ret & KEY_NONE_A3_DOWN))printf("Key A3 down\r\n");
+            if(!(ret & KEY_NONE_A4_DOWN))printf("Key A4 down\r\n");
+            return ret;
+        }
+    }
+    return KEY_NONE_DOWN;
+}
+
+uint8 key_down_in_time(uint8 timeout)
+{
+    uint8 ret;
     uint8 c = timeout * 50;
-    memset(disp_mem, ' ', 32);
-    strcpy(disp_mem, "Press Key in 2 second to Timer");
-    lcd_update(disp_mem);
     while(c--){
-        if(!KEY_A4 || !KEY_A3 ||
-                !KEY_A2 || !KEY_A1)
-            return 1;
+        ret = get_key_status();
+        if(ret!=KEY_NONE_DOWN){
+            return ret;
+        }
         ms_delay(20);
     }
-    return 0;
+    return KEY_NONE_DOWN;
 }
 
 void main()
 {
+    uint8 uc_tmp;
     bool last_is_hour = 0;
     unsigned int delayct = 600;
     system_init();
 
-    if(!key_down_in_time(3)){
+    memset(disp_mem, ' ', 32);
+    strcpy(disp_mem, "Press Key in 3 second to Timer");
+    lcd_update(disp_mem);
+    uc_tmp = key_down_in_time(3);
+    printf("uc_tmp %d", uc_tmp);
+    if(uc_tmp==KEY_NONE_DOWN){
         target_minute = 5;
         target_hour = 0;
         memset(disp_mem, ' ', 32);
