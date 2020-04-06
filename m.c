@@ -203,7 +203,7 @@ void disp_power(bool force)
     lcd_update(disp_mem);
 }
 
-void timer_running(__code char* pu)
+void timer_running(__code char* pu, char message_c)
 {
     target = 0;
 	timer_ct = 0;
@@ -211,6 +211,7 @@ void timer_running(__code char* pu)
 	memset(disp_mem, ' ', 32);
     sprintf(disp_mem, "%u:%02u:00", target_hour, target_minute);
     sprintf(disp_mem+8, "SupplyVo");
+    disp_mem[25]=message_c;
 	lcd_update(disp_mem);
 	while(!target){
 		disp_power(0);
@@ -264,9 +265,9 @@ void main()
         strcpy(disp_mem, "Start 3x5min timer");
         lcd_update(disp_mem);
         play_music(music);
-        timer_running(music);
-        timer_running(music);
-        timer_running(music);
+        timer_running(music, '1');
+        timer_running(music, '2');
+        timer_running(music, '3');
     }
 start:
     ms_delay(2000);
@@ -332,7 +333,7 @@ start:
             l_pc = 0;
         }
     }
-    timer_running(shaolshi);
+    timer_running(fu, ' ');
     goto start;
 }
 
