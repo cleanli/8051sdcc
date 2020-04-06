@@ -4,6 +4,7 @@
 
 #define MS_COUNT 687
 typedef unsigned int uint;
+typedef unsigned char uint8;
 typedef __bit bool;
 volatile unsigned int timer_ct = 0;
 static unsigned char count_10ms=0;
@@ -204,6 +205,10 @@ void timer_running(__code char* pu)
     target = 0;
 	timer_ct = 0;
     count_1s=0;
+	memset(disp_mem, ' ', 32);
+    sprintf(disp_mem, "%u:%02u:00", target_hour, target_minute);
+    sprintf(disp_mem+8, "SupplyVo");
+	lcd_update(disp_mem);
 	while(!target){
 		disp_power(0);
 		time_flag();
@@ -228,11 +233,34 @@ void timer_running(__code char* pu)
     }
 }
 
+bool key_down_in_time(uint8 timeout)
+{
+    uint8 c = timeout * 50;
+    memset(disp_mem, ' ', 32);
+    strcpy(disp_mem, "Press Key in 2 second to Timer");
+    lcd_update(disp_mem);
+    while(c--){
+        if(!KEY_A4 || !KEY_A3 ||
+                !KEY_A2 || !KEY_A1)
+            return 1;
+        ms_delay(20);
+    }
+    return 0;
+}
+
 void main()
 {
     bool last_is_hour = 0;
     unsigned int delayct = 600;
     system_init();
+
+    if(!key_down_in_time(3)){
+        target_minute = 1;
+        target_hour = 0;
+        timer_running(shaolshi);
+        timer_running(shaolshi);
+        timer_running(shaolshi);
+    }
 start:
     ms_delay(2000);
 	memset(disp_mem, ' ', 32);
@@ -297,10 +325,6 @@ start:
             l_pc = 0;
         }
     }
-	memset(disp_mem, ' ', 32);
-    sprintf(disp_mem, "%u:%02u:00", target_hour, target_minute);
-    sprintf(disp_mem+8, "SupplyVo");
-	lcd_update(disp_mem);
     timer_running(shaolshi);
     goto start;
 }
