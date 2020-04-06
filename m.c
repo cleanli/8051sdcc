@@ -2,17 +2,18 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MS_COUNT 687
+#define MS_COUNT 1279
 typedef unsigned int uint;
 typedef unsigned char uint8;
+typedef unsigned long ulong;
 typedef __bit bool;
-volatile unsigned int timer_ct = 0;
-static unsigned char count_10ms=0;
-static unsigned int count_1s=0;
+volatile unsigned long timer_ct = 0;
+static __xdata unsigned char count_10ms=0;
+static __xdata unsigned int count_1s=0;
 __xdata unsigned char disp_mem[33];
 bool flag_10ms = 0, flag_1s = 0;
 bool target = 0;
-uint target_hour = 0, target_minute = 1;
+__xdata uint target_hour = 0, target_minute = 1;
 void LCD_Init();
 void lcd_update(unsigned char*);
 void us_delay(unsigned int mt)
@@ -269,8 +270,14 @@ void main()
         timer_running(music, '2');
         timer_running(music, '3');
     }
+    ulong last_ct;
 start:
-    ms_delay(2000);
+    last_ct=timer_ct;
+    ms_delay(1000);
+    printf("1s %lu\r\n", timer_ct-last_ct);
+    last_ct=timer_ct;
+    ms_delay(1000);
+    printf("1s %lu\r\n", timer_ct-last_ct);
 	memset(disp_mem, ' ', 32);
 	memcpy(disp_mem, "hour  minute    ", 16);
     sprintf(disp_mem+17, "%u", target_hour);
