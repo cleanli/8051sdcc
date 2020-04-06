@@ -388,7 +388,7 @@ start:
                 else{
                     if(target_minute>1){
                         target_minute--;
-                        sprintf(disp_mem+27, "%u", target_minute);
+                        sprintf(disp_mem+22, "%u", target_minute);
                         lcd_update(disp_mem);
                         ms_delay(500);
                     }
