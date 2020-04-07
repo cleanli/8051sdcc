@@ -8,12 +8,12 @@ typedef unsigned char uint8;
 typedef unsigned long ulong;
 typedef __bit bool;
 volatile unsigned long timer_ct = 0;
-static __xdata unsigned char count_10ms=0;
-static __xdata unsigned int count_1s=0;
+static __idata unsigned char count_10ms=0;
+static __idata unsigned int count_1s=0;
 __xdata unsigned char disp_mem[33];
 bool flag_10ms = 0, flag_1s = 0;
 bool target = 0;
-__xdata uint target_hour = 0, target_minute = 1;
+__idata uint target_hour = 0, target_minute = 1;
 void LCD_Init();
 void lcd_update(unsigned char*);
 void us_delay(unsigned int mt)
@@ -249,7 +249,7 @@ uint8 get_key_status()
 {
     uint8 ret1, ret;
     ret1 = (P0 & 0xe0)|(P3 & 0x4);
-    printf("ret1 %x\r\n", ret1);
+    //printf("ret1 %x\r\n", ret1);
     if(ret1 != KEY_NONE_DOWN){
         ms_delay(20);
         ret = ((P0 & 0xe0)|(P3 & 0x4));
@@ -288,6 +288,11 @@ void main()
     bool last_is_hour = 0;
     unsigned int delayct = 600;
     system_init();
+
+    //variable address
+    printf("disp_mem %p\r\n",disp_mem);
+    printf("timer_ct %p\r\n", timer_ct);
+    printf("count_1s %p\r\n", count_1s);
 
     memset(disp_mem, ' ', 32);
     strcpy(disp_mem, "Press Key in 3 second to LCJ");
