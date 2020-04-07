@@ -115,11 +115,11 @@ void time_flag()
 #define LED1 P0_0
 #define LED2 P0_1
 #define BEEPER P0_4
-#define KEY_NONE_A1_DOWN (1<<2)
-#define KEY_NONE_A2_DOWN (1<<7)
-#define KEY_NONE_A3_DOWN (1<<6)
-#define KEY_NONE_A4_DOWN (1<<5)
-#define KEY_NONE_DOWN (KEY_NONE_A1_DOWN|KEY_NONE_A2_DOWN|KEY_NONE_A3_DOWN|KEY_NONE_A4_DOWN)
+#define NO_KEY_A1_DOWN (1<<2)
+#define NO_KEY_A2_DOWN (1<<7)
+#define NO_KEY_A3_DOWN (1<<6)
+#define NO_KEY_A4_DOWN (1<<5)
+#define NO_KEY_DOWN (NO_KEY_A1_DOWN|NO_KEY_A2_DOWN|NO_KEY_A3_DOWN|NO_KEY_A4_DOWN)
 
 //-7,1,2,3,4,5,6,7,1-,2-,
 __code unsigned int y[16]={1390,
@@ -154,7 +154,7 @@ void play_music(__code char*pu)
 		saved_timer_ct_music = timer_ct;
 		while(1){
 			//time_flag();
-			if(get_key_status_raw() != KEY_NONE_DOWN){
+			if(get_key_status_raw() != NO_KEY_DOWN){
                 return;
 			}
 			if(i)BEEPER = !BEEPER;
@@ -252,21 +252,21 @@ uint8 get_key_status()
     uint8 ret1, ret;
     ret1 = (P0 & 0xe0)|(P3 & 0x4);
     //printf("ret1 %x\r\n", ret1);
-    if(ret1 != KEY_NONE_DOWN){
+    if(ret1 != NO_KEY_DOWN){
         ms_delay(20);
         ret = ((P0 & 0xe0)|(P3 & 0x4));
-        if(ret != KEY_NONE_DOWN){
+        if(ret != NO_KEY_DOWN){
             ret|=ret1;
         }
-        if(ret!=KEY_NONE_DOWN){
-            if(!(ret & KEY_NONE_A1_DOWN))printf("Key A1 down\r\n");
-            if(!(ret & KEY_NONE_A2_DOWN))printf("Key A2 down\r\n");
-            if(!(ret & KEY_NONE_A3_DOWN))printf("Key A3 down\r\n");
-            if(!(ret & KEY_NONE_A4_DOWN))printf("Key A4 down\r\n");
+        if(ret!=NO_KEY_DOWN){
+            if(!(ret & NO_KEY_A1_DOWN))printf("Key A1 down\r\n");
+            if(!(ret & NO_KEY_A2_DOWN))printf("Key A2 down\r\n");
+            if(!(ret & NO_KEY_A3_DOWN))printf("Key A3 down\r\n");
+            if(!(ret & NO_KEY_A4_DOWN))printf("Key A4 down\r\n");
             return ret;
         }
     }
-    return KEY_NONE_DOWN;
+    return NO_KEY_DOWN;
 }
 
 uint8 key_down_in_time(uint8 timeout_in_20ms)
@@ -275,13 +275,13 @@ uint8 key_down_in_time(uint8 timeout_in_20ms)
     uint c = timeout_in_20ms;
     do{
         ret = get_key_status();
-        if(ret!=KEY_NONE_DOWN){
+        if(ret!=NO_KEY_DOWN){
             return ret;
         }
         ms_delay(20);
     }
     while(c--);
-    return KEY_NONE_DOWN;
+    return NO_KEY_DOWN;
 }
 
 void main()
@@ -290,7 +290,7 @@ void main()
     bool last_is_hour = 0;
     unsigned int delayct = 600;
     system_init();
-    if(get_key_status_raw() != KEY_NONE_DOWN){//go test
+    if(get_key_status_raw() != NO_KEY_DOWN){//go test
         bool stop_disp_update = 0;
         memset(disp_mem, '-', 32);
         while(1){
@@ -298,7 +298,7 @@ void main()
                 sprintf(disp_mem, "%lu", timer_ct);
                 lcd_update(disp_mem);
             }
-            if(key_down_in_time(10) != KEY_NONE_DOWN){
+            if(key_down_in_time(10) != NO_KEY_DOWN){
                 stop_disp_update = !stop_disp_update;
                 printf("stop_disp_update %d\r\n", stop_disp_update);
                 ms_delay(500);
@@ -316,7 +316,7 @@ void main()
     lcd_update(disp_mem);
     uc_tmp = key_down_in_time(3*50);
     printf("uc_tmp %d", uc_tmp);
-    if(uc_tmp==KEY_NONE_DOWN){
+    if(uc_tmp==NO_KEY_DOWN){
         target_minute = 5;
         target_hour = 0;
         memset(disp_mem, ' ', 32);
@@ -333,7 +333,7 @@ void main()
     lcd_update(disp_mem);
     ms_delay(1000);
     uc_tmp = key_down_in_time(3*50);
-    if(uc_tmp==KEY_NONE_DOWN){
+    if(uc_tmp==NO_KEY_DOWN){
         //lcj
         target_minute = 0;
         target_hour = 9999;
@@ -346,7 +346,7 @@ void main()
         while(1){
             disp_power(0);
             time_flag();
-            if(KEY_NONE_DOWN!=get_key_status()){
+            if(NO_KEY_DOWN!=get_key_status()){
                 break;
             }
         }
