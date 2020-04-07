@@ -1,5 +1,5 @@
 #CFLAG =--model-large -DUSE_FLOATS=1
-CFLAG =-DUSE_FLOATS=1
+CFLAG =-DUSE_FLOATS=1 --stack-auto
 
 m.hex:m.ihx
 	packihx m.ihx > m.hex
