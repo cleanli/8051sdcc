@@ -9,6 +9,7 @@ typedef unsigned long ulong;
 typedef __bit bool;
 volatile unsigned long timer_ct = 0;
 __idata unsigned long saved_timer_ct = 0;
+__idata unsigned long saved_timer_ct_music = 0;
 static __idata unsigned char count_10ms=0;
 static __idata unsigned int count_1s=0;
 __xdata unsigned char disp_mem[33];
@@ -155,21 +156,20 @@ void play_music(__code char*pu)
     unsigned int i = 0;
     unsigned int tk = 0;
 	while(1){
-		printf("%d tk %d\n", (int)pu[tk], tk);
+		printf("%d tk %d\r\n", (int)pu[tk], tk);
         LED1 = !LED1;
         LED2 = !LED2;
 		if(!pu[tk])break;
 		i = y[pu[tk]];
-		count_10ms = 0;
+		saved_timer_ct_music = timer_ct;
 		while(1){
-			time_flag();
+			//time_flag();
 			if(!KEY_A4){
                 return;
 			}
 			if(i)BEEPER = !BEEPER;
 			us_delay(i);
-			if(count_10ms == 25){
-				count_10ms = 0;
+			if(timer_ct - saved_timer_ct_music >= 25*COUNT10MS){
 				break;
 			}
 		}
