@@ -269,10 +269,10 @@ uint8 get_key_status()
     return KEY_NONE_DOWN;
 }
 
-uint8 key_down_in_time(uint8 timeout)
+uint8 key_down_in_time(uint8 timeout_in_20ms)
 {
     uint8 ret;
-    uint c = timeout * 50;
+    uint c = timeout_in_20ms;
     do{
         ret = get_key_status();
         if(ret!=KEY_NONE_DOWN){
@@ -298,9 +298,10 @@ void main()
                 sprintf(disp_mem, "%lu", timer_ct);
                 lcd_update(disp_mem);
             }
-            if(get_key_status_raw() != KEY_NONE_DOWN){
+            if(key_down_in_time(10) != KEY_NONE_DOWN){
                 stop_disp_update = !stop_disp_update;
                 printf("stop_disp_update %d\r\n", stop_disp_update);
+                ms_delay(500);
             }
         }
     }
@@ -313,7 +314,7 @@ void main()
     memset(disp_mem, ' ', 32);
     strcpy(disp_mem, "Press Key in 3 second to LCJ");
     lcd_update(disp_mem);
-    uc_tmp = key_down_in_time(3);
+    uc_tmp = key_down_in_time(3*50);
     printf("uc_tmp %d", uc_tmp);
     if(uc_tmp==KEY_NONE_DOWN){
         target_minute = 5;
@@ -331,7 +332,7 @@ void main()
     strcpy(disp_mem, "Press Key in 3 second to timer");
     lcd_update(disp_mem);
     ms_delay(1000);
-    uc_tmp = key_down_in_time(3);
+    uc_tmp = key_down_in_time(3*50);
     if(uc_tmp==KEY_NONE_DOWN){
         //lcj
         target_minute = 0;
