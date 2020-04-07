@@ -107,22 +107,6 @@ void time_flag()
         lcd_update(disp_mem);
     }
     last_count_1s = count_1s;
-    /*
-	if(timer_ct >= COUNT10MS){
-		timer_ct = 0;
-		count_10ms ++;
-		if(count_10ms >= 100 ){
-			//if(!stop){
-				count_1s++;
-				printf("%u\n", count_1s);
-				time_update(count_1s);
-			//}
-			count_10ms = 0;
-			flag_1s = 1;
-			lcd_update(disp_mem);
-		}
-	}
-    */
 }
 #define KEY_A1 P3_2
 #define KEY_A2 P0_7
@@ -306,6 +290,20 @@ void main()
     bool last_is_hour = 0;
     unsigned int delayct = 600;
     system_init();
+    if(get_key_status_raw() != KEY_NONE_DOWN){//go test
+        bool stop_disp_update = 0;
+        memset(disp_mem, '-', 32);
+        while(1){
+            if(!stop_disp_update){
+                sprintf(disp_mem, "%lu", timer_ct);
+                lcd_update(disp_mem);
+            }
+            if(get_key_status_raw() != KEY_NONE_DOWN){
+                stop_disp_update = !stop_disp_update;
+                printf("stop_disp_update %d\r\n", stop_disp_update);
+            }
+        }
+    }
 
     //variable address
     printf("disp_mem %p\r\n",disp_mem);
