@@ -8,6 +8,7 @@ typedef unsigned char uint8;
 typedef unsigned long ulong;
 typedef __bit bool;
 volatile unsigned long timer_ct = 0;
+__idata unsigned long saved_timer_ct = 0;
 static __idata unsigned char count_10ms=0;
 static __idata unsigned int count_1s=0;
 __xdata unsigned char disp_mem[33];
@@ -93,8 +94,18 @@ void time_update(unsigned int t)
 
 void time_flag()
 {
+    static uint last_count_1s = 0;
 	flag_1s = 0;
 	flag_10ms = 0;
+    count_10ms = (timer_ct-saved_timer_ct)%COUNT10MS;
+    count_1s = (timer_ct-saved_timer_ct)/100/COUNT10MS;
+    if(count_1s != last_count_1s){
+        time_update(count_1s);
+        flag_1s = 1;
+        lcd_update(disp_mem);
+    }
+    last_count_1s = count_1s;
+    /*
 	if(timer_ct >= COUNT10MS){
 		timer_ct = 0;
 		count_10ms ++;
@@ -109,6 +120,7 @@ void time_flag()
 			lcd_update(disp_mem);
 		}
 	}
+    */
 }
 #define KEY_A1 P3_2
 #define KEY_A2 P0_7
@@ -208,7 +220,7 @@ void disp_power(bool force)
 void timer_running(__code char* pu, char message_c)
 {
     target = 0;
-	timer_ct = 0;
+    saved_timer_ct = timer_ct;
     count_1s=0;
     count_10ms=0;
 	memset(disp_mem, ' ', 32);
@@ -320,7 +332,7 @@ void main()
         //lcj
         target_minute = 0;
         target_hour = 9999;
-        timer_ct = 0;
+        saved_timer_ct = timer_ct;
         count_1s=0;
         count_10ms=0;
         memset(disp_mem, ' ', 32);
