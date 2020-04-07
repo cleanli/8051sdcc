@@ -18,6 +18,7 @@ bool target = 0;
 __idata uint target_hour = 0, target_minute = 1;
 void LCD_Init();
 void lcd_update(unsigned char*);
+uint8 get_key_status_raw();
 void us_delay(unsigned int mt)
 {
 	while(mt--);
@@ -130,6 +131,11 @@ void time_flag()
 #define LED1 P0_0
 #define LED2 P0_1
 #define BEEPER P0_4
+#define KEY_NONE_A1_DOWN (1<<2)
+#define KEY_NONE_A2_DOWN (1<<7)
+#define KEY_NONE_A3_DOWN (1<<6)
+#define KEY_NONE_A4_DOWN (1<<5)
+#define KEY_NONE_DOWN (KEY_NONE_A1_DOWN|KEY_NONE_A2_DOWN|KEY_NONE_A3_DOWN|KEY_NONE_A4_DOWN)
 
 //-7,1,2,3,4,5,6,7,1-,2-,
 __code unsigned int y[16]={1390,
@@ -164,7 +170,7 @@ void play_music(__code char*pu)
 		saved_timer_ct_music = timer_ct;
 		while(1){
 			//time_flag();
-			if(!KEY_A4){
+			if(get_key_status_raw() != KEY_NONE_DOWN){
                 return;
 			}
 			if(i)BEEPER = !BEEPER;
@@ -252,11 +258,11 @@ void timer_running(__code char* pu, char message_c)
     }
 }
 
-#define KEY_NONE_A1_DOWN (1<<2)
-#define KEY_NONE_A2_DOWN (1<<7)
-#define KEY_NONE_A3_DOWN (1<<6)
-#define KEY_NONE_A4_DOWN (1<<5)
-#define KEY_NONE_DOWN (KEY_NONE_A1_DOWN|KEY_NONE_A2_DOWN|KEY_NONE_A3_DOWN|KEY_NONE_A4_DOWN)
+uint8 get_key_status_raw()
+{
+    return (P0 & 0xe0)|(P3 & 0x4);
+}
+
 uint8 get_key_status()
 {
     uint8 ret1, ret;
