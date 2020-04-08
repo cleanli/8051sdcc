@@ -5,6 +5,7 @@
 #define WHEEL_R 197 //mm
 #define WHEEL_CIRCUMFERENCE (WHEEL_R*2*3.14159f)
 #define MS_COUNT 1279
+#define TIMER0_COUNT_PER_SECOND 8296
 typedef unsigned int uint;
 typedef unsigned char uint8;
 typedef unsigned long ulong;
@@ -17,6 +18,8 @@ unsigned long saved_timer_ct_music = 0;
 static unsigned char count_10ms=0;
 static unsigned int count_1s=0;
 unsigned char disp_mem[33];
+float mileage;
+float last_speed;
 bool flag_10ms = 0, flag_1s = 0;
 bool target = 0;
 uint target_hour = 0, target_minute = 1;
@@ -194,8 +197,8 @@ float get_power_votage()
     ADC_CONTR &= ~0x18;//clear start & flag
     rs = (unsigned char)ADC_RES<<2;
     rs |= ADC_RESL;
-    printf("ADC_RES %x\r\n", rs);
-    printf("ADC_RESL %x\r\n", ADC_RESL);
+    //printf("ADC_RES %x\r\n", rs);
+    //printf("ADC_RESL %x\r\n", ADC_RESL);
     ret = 2.45f * 1024 / rs;
     //printf("rs %u\r\n", (int)ret);
 	P1ASF &= ~0x04;//p12 recover normal IO
@@ -355,7 +358,50 @@ void main()
             if(NO_KEY_DOWN!=get_key_status_raw()){
                 break;
             }
-            printf("---%lu\r\n", saved_int_timer_ct);
+            if(last_saved_int_timer_ct != saved_int_timer_ct){
+                if(last_saved_int_timer_ct != 0){
+                    ulong duration = saved_int_timer_ct - last_saved_int_timer_ct;
+                    float speed = (float)WHEEL_CIRCUMFERENCE * TIMER0_COUNT_PER_SECOND / 1000 / (float)duration; //m/s
+                    speed = speed * 3600 / 1000;//km/h
+                    //printf("saved---%lu\r\n", saved_int_timer_ct);
+                    //printf("last saved---%lu\r\n", last_saved_int_timer_ct);
+                    printf("1---%2.1f\r\n", speed);
+                    if(speed < 100){//abnormal if speed > 100km/h, discard the data
+                        last_speed = speed;
+                        mileage += WHEEL_CIRCUMFERENCE;
+                        sprintf(disp_mem, "%02.1fkm/h", speed);
+                        if(mileage<1000000){
+                            sprintf(disp_mem+10, "%03.1fm", mileage/1000);
+                        }
+                        else if(mileage < 10000000){
+                            sprintf(disp_mem+10, "%1.2fkm", mileage/1000000);
+                        }
+                        else{
+                            sprintf(disp_mem+10, "%3.1fkm", mileage/1000000);
+                        }
+                        lcd_update(disp_mem);
+                        last_saved_int_timer_ct = saved_int_timer_ct;
+                    }
+                }
+                else if(saved_int_timer_ct != 0){
+                    last_saved_int_timer_ct = saved_int_timer_ct;
+                }
+            }
+            else if(flag_1s){
+                ulong duration = timer_ct - last_saved_int_timer_ct;
+                //printf("dur %d", duration);
+                float speed = (float)WHEEL_CIRCUMFERENCE * TIMER0_COUNT_PER_SECOND / 1000 / (float)duration; //m/s
+                //printf("2 m/s---%2.1f\r\n", speed);
+                speed = speed * 3600 / 1000;//km/h
+                //printf("saved---%lu\r\n", saved_int_timer_ct);
+                //printf("last saved---%lu\r\n", last_saved_int_timer_ct);
+                printf("2---%2.1f\r\n", speed);
+                if(speed < last_speed){
+                    sprintf(disp_mem, "%02.1fkm/h", speed);
+                    lcd_update(disp_mem);
+                    last_speed = speed;
+                }
+            }
             if(P3_3){
                 LED1 = 0;
             }
