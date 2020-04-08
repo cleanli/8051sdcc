@@ -2,12 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 
+#define WHEEL_R 197 //mm
+#define WHEEL_CIRCUMFERENCE (WHEEL_R*2*3.14159f)
 #define MS_COUNT 1279
 typedef unsigned int uint;
 typedef unsigned char uint8;
 typedef unsigned long ulong;
 typedef __bit bool;
-volatile unsigned long timer_ct = 0;
+volatile ulong timer_ct = 0;
+volatile ulong saved_int_timer_ct = 0;
+ulong last_saved_int_timer_ct = 0;
 unsigned long saved_timer_ct = 0;
 unsigned long saved_timer_ct_music = 0;
 static unsigned char count_10ms=0;
@@ -53,6 +57,8 @@ void serial_init()
 	//AUXR1 = 0x80; //mov serial to P1
 #endif
 	TR0 = 1;
+    EX1 = 1;//P3_3 interrupt enable
+    IT1 = 1;//drop edge trigger interrupt
 	EA = 1;
 	ET0 = 1;
 }
@@ -346,8 +352,15 @@ void main()
         while(1){
             disp_power(0);
             time_flag();
-            if(NO_KEY_DOWN!=get_key_status()){
+            if(NO_KEY_DOWN!=get_key_status_raw()){
                 break;
+            }
+            printf("---%lu\r\n", saved_int_timer_ct);
+            if(P3_3){
+                LED1 = 0;
+            }
+            else{
+                LED1 = 1;
             }
         }
     }
@@ -427,6 +440,11 @@ start:
     }
     timer_running(fu, ' ');
     goto start;
+}
+
+void isr_int1(void) __interrupt 2 __using 2
+{
+	saved_int_timer_ct = timer_ct;
 }
 
 void isrtimer0(void) __interrupt 1 __using 1
