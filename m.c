@@ -443,7 +443,7 @@ start:
                 sprintf(disp_mem+22, "%u", target_minute);
                 lcd_update(disp_mem);
                 last_is_hour=0;
-                ms_delay(200);
+                ms_delay(100);
             }
         }
         if(!KEY_A1){
@@ -453,7 +453,7 @@ start:
                 sprintf(disp_mem+17, "%u", target_hour);
                 lcd_update(disp_mem);
                 last_is_hour=1;
-                ms_delay(200);
+                ms_delay(100);
             }
         }
         if(!KEY_A2){
@@ -464,7 +464,7 @@ start:
                         target_hour--;
                         sprintf(disp_mem+17, "%u", target_hour);
                         lcd_update(disp_mem);
-                        ms_delay(200);
+                        ms_delay(100);
                     }
                 }
                 else{
@@ -472,7 +472,7 @@ start:
                         target_minute--;
                         sprintf(disp_mem+22, "%u", target_minute);
                         lcd_update(disp_mem);
-                        ms_delay(200);
+                        ms_delay(100);
                     }
                 }
             }
