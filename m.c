@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#define VERSION "V0.1"
 #define WHEEL_R 197 //mm
 #define WHEEL_CIRCUMFERENCE (WHEEL_R*2*3.14159f)
 #define MS_COUNT 1279
@@ -302,9 +303,10 @@ void main()
     if(get_key_status_raw() != NO_KEY_DOWN){//go test
         bool stop_disp_update = 0;
         memset(disp_mem, '-', 32);
+        sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
         while(1){
             if(!stop_disp_update){
-                sprintf(disp_mem, "%lu", timer_ct);
+                sprintf(disp_mem+16, "%lu", timer_ct);
                 lcd_update(disp_mem);
             }
             if(key_down_in_time(10) != NO_KEY_DOWN){
