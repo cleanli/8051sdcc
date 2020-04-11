@@ -412,6 +412,7 @@ void main()
                 break;
             }
             if(last_saved_int_timer_ct != saved_int_timer_ct){
+                struct s_lfs_data ld;
                 if(last_saved_int_timer_ct != 0){
                     ulong duration = saved_int_timer_ct - last_saved_int_timer_ct;
                     float speed = (float)WHEEL_CIRCUMFERENCE * TIMER0_COUNT_PER_SECOND / 1000 / (float)duration; //m/s
@@ -422,15 +423,39 @@ void main()
                     if(speed < 100){//abnormal if speed > 100km/h, discard the data
                         last_speed = speed;
                         mileage += WHEEL_CIRCUMFERENCE;
-                        sprintf(disp_mem, "%02.1fkm/h", speed);
+                        //sprintf(disp_mem, "%02.1fkm/h", speed);
+                        ld.buf=disp_mem;
+                        ld.fv = speed;
+                        ld.number_int=2;
+                        ld.number_decimal=1;
+                        ld.follows="km/h";
+                        local_float_sprintf(&ld);
                         if(mileage<1000000){
-                            sprintf(disp_mem+10, "%03.1fm", mileage/1000);
+                            //sprintf(disp_mem+10, "%03.1fm", mileage/1000);
+                            ld.buf=disp_mem+10;
+                            ld.fv = mileage/1000;
+                            ld.number_int=3;
+                            ld.number_decimal=1;
+                            ld.follows="m";
+                            local_float_sprintf(&ld);
                         }
                         else if(mileage < 10000000){
-                            sprintf(disp_mem+10, "%1.2fkm", mileage/1000000);
+                            //sprintf(disp_mem+10, "%1.2fkm", mileage/1000000);
+                            ld.buf=disp_mem+10;
+                            ld.fv = mileage/10000000;
+                            ld.number_int=1;
+                            ld.number_decimal=2;
+                            ld.follows="km";
+                            local_float_sprintf(&ld);
                         }
                         else{
-                            sprintf(disp_mem+10, "%3.1fkm", mileage/1000000);
+                            //sprintf(disp_mem+10, "%3.1fkm", mileage/1000000);
+                            ld.buf=disp_mem+10;
+                            ld.fv = mileage/10000000;
+                            ld.number_int=3;
+                            ld.number_decimal=1;
+                            ld.follows="km";
+                            local_float_sprintf(&ld);
                         }
                         lcd_update(disp_mem);
                         last_saved_int_timer_ct = saved_int_timer_ct;
