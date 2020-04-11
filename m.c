@@ -7,6 +7,8 @@
 #define WHEEL_CIRCUMFERENCE (WHEEL_R*2*3.14159f)
 #define MS_COUNT 1279
 #define TIMER0_COUNT_PER_SECOND 8296
+#define true 1
+#define false 0
 typedef unsigned int uint;
 typedef unsigned char uint8;
 typedef unsigned long ulong;
@@ -22,7 +24,8 @@ unsigned char disp_mem[33];
 float mileage;
 float last_speed;
 bool flag_10ms = 0, flag_1s = 0;
-uint8 target = 0;
+bool target = 0;
+bool disp_left_time=1;
 uint target_hour = 0, target_minute = 1;
 ulong target_seconds;
 void LCD_Init();
@@ -91,19 +94,14 @@ void system_init()
 #define COUNT10MS 83
 void time_update(unsigned int t)
 {
-	uint h, m, tm, s, left_t;
+	uint h, m, tm, s;
 
-    left_t = target_seconds - t;
-	h = left_t / 3600;
-	tm = left_t - h * 3600;
+	h = t / 3600;
+	tm = t - h * 3600;
 	m = tm / 60;
 	s = tm - m * 60;
-	sprintf(&disp_mem[16], "%u:%02u:%02u", (uint)h, (uint)m, (uint)s);
+	sprintf(&disp_mem[16], "%02u:%02u:%02u", (uint)h, (uint)m, (uint)s);
 	disp_mem[23] = ' ';
-    if(t >= target_seconds){
-        printf("set target 1 left_t %u\r\n", left_t);
-        target = 1;
-    }
 }
 
 void time_flag()
@@ -115,7 +113,12 @@ void time_flag()
     count_1s = (timer_ct-saved_timer_ct)/100/COUNT10MS;
     if(count_1s != last_count_1s){
         printf("count 1s: %u\r\n", count_1s);
-        time_update(count_1s);
+        if(disp_left_time){
+            time_update(target_seconds-count_1s);
+        }
+        else{
+            time_update(count_1s);
+        }
         flag_1s = 1;
         lcd_update(disp_mem);
     }
@@ -203,8 +206,8 @@ float get_power_votage()
     rs |= ADC_RESL;
     //printf("ADC_RES %x\r\n", rs);
     //printf("ADC_RESL %x\r\n", ADC_RESL);
-    printf("rs %u\r\n", ret);
     ret = 2.45f * 1024 / rs;
+    printf("rs %u\r\n", ret);
 	P1ASF &= ~0x04;//p12 recover normal IO
     ADC_CONTR = ADC_CONTR & ~0x80;//power off
     return ret;
@@ -272,7 +275,7 @@ void timer_running(__code char* pu, char message_c)
     sprintf(disp_mem+8, "SupplyVo");
     disp_mem[25]=message_c;
 	lcd_update(disp_mem);
-	while(count_1s<target_seconds){
+	while(target){
 		disp_power(0);
 		time_flag();
         if(!KEY_A2){
@@ -283,6 +286,10 @@ void timer_running(__code char* pu, char message_c)
                 ms_delay(2000);
                 break;
             }
+        }
+        if(count_1s >= target_seconds){
+            printf("set target 1 count 1s %u\r\n", count_1s);
+            target = 1;
         }
 	}
     if(target){
@@ -378,6 +385,7 @@ void main()
         strcpy(disp_mem, "Start 3x5min timer");
         lcd_update(disp_mem);
         play_music(music);
+        disp_left_time = false;
         timer_running(music, '1');
         timer_running(music, '2');
         timer_running(music, '3');
@@ -530,6 +538,7 @@ start:
             l_pc = 0;
         }
     }
+    disp_left_time = true;
     timer_running(fu, ' ');
     goto start;
 }
