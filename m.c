@@ -346,7 +346,7 @@ void main()
     memset(disp_mem, ' ', 32);
     strcpy(disp_mem, "Press Key in 3 second to timer");
     lcd_update(disp_mem);
-    ms_delay(1000);
+    ms_delay(200);
     uc_tmp = key_down_in_time(3*50);
     if(uc_tmp==NO_KEY_DOWN){
         //lcj
@@ -421,7 +421,7 @@ void main()
     ulong last_ct;
 start:
     last_ct=timer_ct;
-    ms_delay(1000);
+    ms_delay(200);
     printf("1s %lu\r\n", timer_ct-last_ct);
     last_ct=timer_ct;
     ms_delay(1000);
