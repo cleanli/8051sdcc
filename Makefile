@@ -17,8 +17,8 @@ printf_large.rel:printf_large.c
 crtstart.rel:crtstart.asm
 	sdas8051 -plosgff crtstart.asm
 
-m.ihx:m.c lcd_1602.rel printf_large.rel crtstart.rel
-	sdcc $(CFLAGS) m.c crtstart.rel lcd_1602.rel printf_large.rel -o m.ihx
+m.ihx:m.c lcd_1602.rel crtstart.rel
+	sdcc $(CFLAGS) m.c crtstart.rel lcd_1602.rel -o m.ihx
 
 clean:
 	rm *.hex *.ihx *.lk *.lst *.map *.mem *.rel *.rst *.sym lcd_1602.asm  m.asm  printf_large.asm
