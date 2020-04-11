@@ -384,7 +384,7 @@ void main()
         strcpy(disp_mem, "Start 3x5min timer");
         lcd_update(disp_mem);
         play_music(music);
-        disp_left_time = false;
+        disp_left_time = true;
         timer_running(music, '1');
         timer_running(music, '2');
         timer_running(music, '3');
@@ -399,6 +399,7 @@ void main()
         //lcj
         target_minute = 0;
         target_hour = 9999;
+        disp_left_time = false;
         saved_timer_ct = timer_ct;
         count_1s=0;
         count_10ms=0;
