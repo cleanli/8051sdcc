@@ -407,13 +407,13 @@ void main()
         strcpy(disp_mem, "LCJ");
         lcd_update(disp_mem);
         while(1){
+            struct s_lfs_data ld;
             disp_power(0);
             time_flag();
             if(NO_KEY_DOWN!=get_key_status_raw()){
                 break;
             }
             if(last_saved_int_timer_ct != saved_int_timer_ct){
-                struct s_lfs_data ld;
                 if(last_saved_int_timer_ct != 0){
                     ulong duration = saved_int_timer_ct - last_saved_int_timer_ct;
                     float speed = (float)WHEEL_CIRCUMFERENCE * TIMER0_COUNT_PER_SECOND / 1000 / (float)duration; //m/s
@@ -476,7 +476,13 @@ void main()
                 //printf("last saved---%lu\r\n", last_saved_int_timer_ct);
                 printf("2---%2.1f\r\n", speed);
                 if(speed < last_speed){
-                    sprintf(disp_mem, "%02.1fkm/h", speed);
+                    //sprintf(disp_mem, "%02.1fkm/h", speed);
+                    ld.buf=disp_mem;
+                    ld.fv = speed;
+                    ld.number_int=2;
+                    ld.number_decimal=1;
+                    ld.follows="km/h";
+                    local_float_sprintf(&ld);
                     lcd_update(disp_mem);
                     last_speed = speed;
                 }
