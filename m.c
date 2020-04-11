@@ -203,20 +203,60 @@ float get_power_votage()
     rs |= ADC_RESL;
     //printf("ADC_RES %x\r\n", rs);
     //printf("ADC_RESL %x\r\n", ADC_RESL);
+    printf("rs %u\r\n", ret);
     ret = 2.45f * 1024 / rs;
-    //printf("rs %u\r\n", (int)ret);
 	P1ASF &= ~0x04;//p12 recover normal IO
     ADC_CONTR = ADC_CONTR & ~0x80;//power off
     return ret;
 }
 
+struct s_lfs_data{
+    char*buf;
+    float fv;
+    uint8 number_int;
+    uint8 number_decimal;
+    const char*follows;
+};
+
+void local_float_sprintf(struct s_lfs_data* lfsd)
+{
+    if(lfsd->fv > 65535){
+        strcpy(lfsd->buf, "oo");
+        return;
+    }
+    uint tmp_int = lfsd->fv;
+    sprintf(lfsd->buf, "%u", tmp_int);
+    uint8 tmp=strlen(lfsd->buf);
+    if(tmp<lfsd->number_int){
+        memset(lfsd->buf, '0', lfsd->number_int);
+        sprintf(lfsd->buf+lfsd->number_int-tmp, "%u", tmp_int);
+    }
+    float decimal = lfsd->fv - tmp_int + 1;
+    uint8 n_dec=lfsd->number_decimal;
+    while(n_dec--)decimal*=10;
+    tmp_int=decimal;
+    tmp=strlen(lfsd->buf);
+    sprintf(lfsd->buf+tmp, "%u", tmp_int);
+    lfsd->buf[tmp]='.';
+    if(lfsd->follows){
+        strcat(lfsd->buf, lfsd->follows);
+    }
+}
+
 void disp_power(bool force)
 {
+    struct s_lfs_data ld;
     float pv;
 	if(!force && !flag_1s)
         return;
     pv = get_power_votage();
-    sprintf(disp_mem+27, "%1.2fV", pv);
+    //printf("pv %f\r\n",pv);
+    ld.buf=disp_mem+27;
+    ld.fv = pv;
+    ld.number_int=1;
+    ld.number_decimal=2;
+    ld.follows="V";
+    local_float_sprintf(&ld);
     lcd_update(disp_mem);
 }
 
