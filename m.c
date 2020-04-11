@@ -22,8 +22,9 @@ unsigned char disp_mem[33];
 float mileage;
 float last_speed;
 bool flag_10ms = 0, flag_1s = 0;
-bool target = 0;
+uint8 target = 0;
 uint target_hour = 0, target_minute = 1;
+ulong target_seconds;
 void LCD_Init();
 void lcd_update(unsigned char*);
 uint8 get_key_status_raw();
@@ -90,16 +91,17 @@ void system_init()
 #define COUNT10MS 83
 void time_update(unsigned int t)
 {
-	uint h, m, tm, s;
+	uint h, m, tm, s, left_t;
 
-	h = t / 3600;
-	tm = t - h * 3600;
+    left_t = target_seconds - t;
+	h = left_t / 3600;
+	tm = left_t - h * 3600;
 	m = tm / 60;
 	s = tm - m * 60;
 	sprintf(&disp_mem[16], "%u:%02u:%02u", (uint)h, (uint)m, (uint)s);
 	disp_mem[23] = ' ';
-    if(h == target_hour && m == target_minute){
-        printf("set target 1 t %u\r\n", t);
+    if(t >= target_seconds){
+        printf("set target 1 left_t %u\r\n", left_t);
         target = 1;
     }
 }
@@ -112,6 +114,7 @@ void time_flag()
     count_10ms = (timer_ct-saved_timer_ct)%COUNT10MS;
     count_1s = (timer_ct-saved_timer_ct)/100/COUNT10MS;
     if(count_1s != last_count_1s){
+        printf("count 1s: %u\r\n", count_1s);
         time_update(count_1s);
         flag_1s = 1;
         lcd_update(disp_mem);
@@ -221,6 +224,7 @@ void timer_running(__code char* pu, char message_c)
 {
     target = 0;
     saved_timer_ct = timer_ct;
+    target_seconds = target_hour*3600 + target_minute*60;
     count_1s=0;
     count_10ms=0;
 	memset(disp_mem, ' ', 32);
@@ -228,7 +232,7 @@ void timer_running(__code char* pu, char message_c)
     sprintf(disp_mem+8, "SupplyVo");
     disp_mem[25]=message_c;
 	lcd_update(disp_mem);
-	while(!target){
+	while(count_1s<target_seconds){
 		disp_power(0);
 		time_flag();
         if(!KEY_A2){
@@ -244,9 +248,9 @@ void timer_running(__code char* pu, char message_c)
     if(target){
         LED1 = 0;
         LED2 = 1;
-        memset(disp_mem, ' ', 32);
-        strcpy(disp_mem, "Playing music ...");
-        lcd_update(disp_mem);
+        //memset(disp_mem, ' ', 32);
+        //strcpy(disp_mem, "Playing music ...");
+        //lcd_update(disp_mem);
         play_music(pu);
         printf("play end...\n");
     }
@@ -319,8 +323,8 @@ void main()
 
     //variable address
     printf("disp_mem %p\r\n",disp_mem);
-    printf("timer_ct %p\r\n", timer_ct);
-    printf("count_1s %p\r\n", count_1s);
+    printf("timer_ct %p\r\n", &timer_ct);
+    printf("count_1s %p\r\n", &count_1s);
 
     memset(disp_mem, ' ', 32);
     strcpy(disp_mem, "Press Key in 3 second to LCJ");
