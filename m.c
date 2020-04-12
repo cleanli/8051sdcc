@@ -7,6 +7,7 @@
 #define WHEEL_CIRCUMFERENCE (WHEEL_R*2*3.14159f)
 #define MS_COUNT 1279
 #define TIMER0_COUNT_PER_SECOND 8296
+#define COUNT10MS ((TIMER0_COUNT_PER_SECOND+50)/100)
 #define true 1
 #define false 0
 typedef unsigned int uint;
@@ -18,7 +19,7 @@ volatile ulong saved_int_timer_ct = 0;
 ulong last_saved_int_timer_ct = 0;
 __pdata unsigned long saved_timer_ct = 0;
 __pdata unsigned long saved_timer_ct_music = 0;
-__pdata static unsigned char count_10ms=0;
+//__pdata static unsigned char count_10ms=0;
 __pdata static unsigned int count_1s=0;
 __pdata unsigned char disp_mem[33];
 __pdata float mileage;
@@ -91,7 +92,6 @@ void system_init()
 	P0M0 = 0x10;//P04 set to 20mA
 }
 
-#define COUNT10MS 83
 void time_update(unsigned int t)
 {
 	uint h, m, tm, s;
@@ -108,8 +108,7 @@ void time_flag()
     static uint last_count_1s = 0;
 	flag_1s = 0;
 	flag_10ms = 0;
-    count_10ms = (timer_ct-saved_timer_ct)%COUNT10MS;
-    count_1s = (timer_ct-saved_timer_ct)/100/COUNT10MS;
+    count_1s = (timer_ct-saved_timer_ct)/TIMER0_COUNT_PER_SECOND;
     if(count_1s != last_count_1s){
         printf("count 1s: %u\r\n", count_1s);
         if(disp_left_time){
@@ -268,7 +267,6 @@ void timer_running(__code char* pu, char message_c)
     saved_timer_ct = timer_ct;
     target_seconds = target_hour*3600 + target_minute*60;
     count_1s=0;
-    count_10ms=0;
 	memset(disp_mem, ' ', 32);
     sprintf(disp_mem, "%02u:%02u:00", target_hour, target_minute);
     sprintf(disp_mem+10, "SuppVo");
@@ -402,7 +400,6 @@ void main()
         disp_left_time = false;
         saved_timer_ct = timer_ct;
         count_1s=0;
-        count_10ms=0;
         memset(disp_mem, ' ', 32);
         strcpy(disp_mem, "LCJ");
         lcd_update(disp_mem);
