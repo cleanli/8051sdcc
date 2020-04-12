@@ -443,7 +443,7 @@ void main()
                         else if(mileage < 10000000){
                             //sprintf(disp_mem+10, "%1.2fkm", mileage/1000000);
                             ld.buf=disp_mem+10;
-                            ld.fv = mileage/10000000;
+                            ld.fv = mileage/1000000;
                             ld.number_int=1;
                             ld.number_decimal=2;
                             ld.follows="km";
@@ -452,7 +452,7 @@ void main()
                         else{
                             //sprintf(disp_mem+10, "%3.1fkm", mileage/1000000);
                             ld.buf=disp_mem+10;
-                            ld.fv = mileage/10000000;
+                            ld.fv = mileage/1000000;
                             ld.number_int=3;
                             ld.number_decimal=1;
                             ld.follows="km";
