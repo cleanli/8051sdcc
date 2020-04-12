@@ -10,6 +10,7 @@
 #define COUNT10MS ((TIMER0_COUNT_PER_SECOND+50)/100)
 #define true 1
 #define false 0
+#define TC0PS_EEROM_ADDR 4
 typedef unsigned int uint;
 typedef unsigned char uint8;
 typedef unsigned long ulong;
@@ -24,6 +25,7 @@ __pdata static unsigned int count_1s=0;
 __pdata unsigned char disp_mem[33];
 __pdata float mileage;
 __pdata float last_speed;
+__pdata uint tcops = TIMER0_COUNT_PER_SECOND;
 bool flag_10ms = 0, flag_1s = 0;
 bool target = 0;
 bool disp_left_time=1;
@@ -146,6 +148,13 @@ void system_init()
 	ms_delay(1000);
 	//AUXR1 |= 0x04;//high 2 bits of ADC result in ADC_RES
 	P0M0 = 0x10;//P04 set to 20mA
+    //time calibration
+    uint8 tmp8 = read_rom(TC0PS_EEROM_ADDR);
+    if(tmp8 != 0xff){
+        uint8*ui8p = (uint8*)&tcops;
+        *ui8p = tmp8;
+        *(ui8p+1)= read_rom(TC0PS_EEROM_ADDR+1);
+    }
 }
 
 void time_update(unsigned int t)
@@ -414,16 +423,54 @@ void main()
         bool stop_disp_update = 0;
         memset(disp_mem, '-', 32);
         sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
+        lcd_update(disp_mem);
+        ms_delay(1000);
         while(1){
             if(!stop_disp_update){
-                sprintf(disp_mem+16, "%lu", timer_ct);
+                saved_timer_ct = timer_ct;
+                sprintf(disp_mem+16, "%lu", saved_timer_ct);
+                sprintf(disp_mem+26, "%lu", saved_timer_ct/tcops);
                 lcd_update(disp_mem);
             }
-            if(key_down_in_time(10) != NO_KEY_DOWN){
-                stop_disp_update = !stop_disp_update;
-                printf("stop_disp_update %d\r\n", stop_disp_update);
-                ms_delay(500);
+            if(get_key_status_raw() != NO_KEY_DOWN){
+                ms_delay(400);
+                memset(disp_mem, ' ', 16);
+                count_1s = (saved_timer_ct+tcops/2)/tcops;
+                //stop_disp_update = !stop_disp_update;
+                //printf("stop_disp_update %d\r\n", stop_disp_update);
+                //ms_delay(500);
+disp_c1s:
+                sprintf(disp_mem+0, "%lu", saved_timer_ct);
+                sprintf(disp_mem+10, "%u", count_1s);
+                lcd_update(disp_mem);
+                while(key_down_in_time(10)==NO_KEY_DOWN);
+                uint8 tmp8 = key_down_in_time(2);
+                if((tmp8&NO_KEY_A4_DOWN) == 0){
+                    ms_delay(400);
+                    uint tmp_tcops = saved_timer_ct/count_1s;
+                    memset(disp_mem, ' ', 8);
+                    sprintf(disp_mem+0, "%u", tmp_tcops);
+                    lcd_update(disp_mem);
+                    while(key_down_in_time(10)==NO_KEY_DOWN);
+                    if((key_down_in_time(200)&NO_KEY_A4_DOWN) == 0){
+                        sprintf(disp_mem+8, "Write do");
+                        lcd_update(disp_mem);
+                        ms_delay(400);
+                        printf("go write rom %u", tmp_tcops);
+                    }
+                }
+                else if((tmp8&NO_KEY_A1_DOWN) == 0){
+                    ms_delay(400);
+                    count_1s--;
+                    goto disp_c1s;
+                }
+                else if((tmp8&NO_KEY_A3_DOWN) == 0){
+                    ms_delay(400);
+                    count_1s++;
+                    goto disp_c1s;
+                }
             }
+            ms_delay(400);
         }
     }
 
