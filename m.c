@@ -32,6 +32,62 @@ ulong target_seconds;
 void LCD_Init();
 void lcd_update(unsigned char*);
 uint8 get_key_status_raw();
+/*eerom*/
+#define READ 1
+#define WRITE 2
+#define ERASE 3
+#define WAIT_TIME 2
+
+uint8 read_rom(uint addr)
+{
+	uint8 c;
+	IAP_ADDRH = addr >> 8;
+	IAP_ADDRL = addr & 0xff;
+	IAP_CONTR = WAIT_TIME | 0x80;
+	IAP_CMD = READ;
+	IAP_TRIG = 0x5a;
+	IAP_TRIG = 0xa5;
+	//printf("r %04x = ", addr);
+	c = IAP_DATA;
+	//printf("%02x\n", (unsigned int)c);
+	return c;
+}
+
+bool write_rom(uint addr, uint8 c)
+{
+	IAP_DATA = c;
+	IAP_ADDRH = addr >> 8;
+	IAP_ADDRL = addr & 0xff;
+	IAP_CONTR = WAIT_TIME | 0x80;
+	IAP_CMD = WRITE;
+	IAP_TRIG = 0x5a;
+	IAP_TRIG = 0xa5;
+	//printf("w %04x = %02x\n", addr, (unsigned int)c);
+	return 1;
+}
+
+bool erase_rom(uint addr)
+{
+	IAP_ADDRH = addr >> 8;
+	IAP_ADDRL = addr & 0xff;
+	IAP_CONTR = WAIT_TIME | 0x80;
+	IAP_CMD = ERASE;
+	IAP_TRIG = 0x5a;
+	IAP_TRIG = 0xa5;
+	//printf("erase %04x\n", addr & 0xfe00);
+	return 1;
+}
+void dump_rom()
+{
+	uint addr = 0;
+	while(addr < 0x400){
+		if((addr & 0x7)== 0)
+			printf("\r\n%04x:", addr);
+		printf(" %02x", (uint)read_rom(addr));
+		addr++;
+	}
+}
+/*eerom*/
 void us_delay(unsigned int mt)
 {
 	while(mt--);
@@ -348,6 +404,12 @@ void main()
     bool last_is_hour = 0;
     unsigned int delayct = 600;
     system_init();
+#if 0
+    dump_rom();
+    if(read_rom(0x02) == 0xff){
+        write_rom(0x02, 0xab);
+    }
+#endif
     if(get_key_status_raw() != NO_KEY_DOWN){//go test
         bool stop_disp_update = 0;
         memset(disp_mem, '-', 32);
