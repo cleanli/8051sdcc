@@ -433,6 +433,7 @@ void main()
                 lcd_update(disp_mem);
             }
             if(get_key_status_raw() != NO_KEY_DOWN){
+                if((get_key_status_raw()&NO_KEY_A2_DOWN) == 0)break;
                 ms_delay(400);
                 memset(disp_mem, ' ', 16);
                 count_1s = (saved_timer_ct+tcops/2)/tcops;
@@ -486,6 +487,52 @@ disp_c1s:
             }
             ms_delay(400);
         }
+        //write timer cal directly
+        ms_delay(400);
+        memset(disp_mem, ' ', 33);
+        uint tmp_tcops = tcops;
+        sprintf(disp_mem+0, "TimerInt/s");
+disp_tmp_tcops:
+        sprintf(disp_mem+16, "%u", tmp_tcops);
+        lcd_update(disp_mem);
+        while(key_down_in_time(10)==NO_KEY_DOWN);
+        uint8 tmp8 = key_down_in_time(2);
+        if((tmp8&NO_KEY_A4_DOWN) == 0){
+            ms_delay(400);
+            memset(disp_mem, ' ', 8);
+            sprintf(disp_mem+0, "Confirm:");
+            lcd_update(disp_mem);
+            while(key_down_in_time(10)==NO_KEY_DOWN);
+            if((key_down_in_time(200)&NO_KEY_A4_DOWN) == 0){
+                ms_delay(400);
+                printf("go write rom %u", tmp_tcops);
+                uint8 tmp8_2= read_rom(TC0PS_EEROM_ADDR);
+                if(tmp8_2 != 0xff){
+                    erase_rom(TC0PS_EEROM_ADDR);
+                }
+                tmp8_2= read_rom(TC0PS_EEROM_ADDR+1);
+                if(tmp8_2 != 0xff){
+                    erase_rom(TC0PS_EEROM_ADDR+1);
+                }
+                uint8*ui8p = (uint8*)&tmp_tcops;
+                write_rom(TC0PS_EEROM_ADDR, *ui8p);
+                write_rom(TC0PS_EEROM_ADDR+1, *(ui8p+1));
+                sprintf(disp_mem+8, "Write do");
+                lcd_update(disp_mem);
+                ms_delay(1000);
+            }
+        }
+        else if((tmp8&NO_KEY_A1_DOWN) == 0){
+            ms_delay(200);
+            tmp_tcops--;
+            goto disp_tmp_tcops;
+        }
+        else if((tmp8&NO_KEY_A3_DOWN) == 0){
+            ms_delay(200);
+            tmp_tcops++;
+            goto disp_tmp_tcops;
+        }
+
     }
 
     //variable address
