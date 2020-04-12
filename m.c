@@ -146,7 +146,7 @@ __code char shaolshi[] = {
 };
 __code char music[] = {
     //1,1,4,4,5,5,8,8,8,8,0
-    1,4,5,8,8,8,8,8,0
+    1,1,4,4,5,5,8,8,0
 };
 
 void play_music(__code char*pu)
