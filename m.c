@@ -52,9 +52,9 @@ uint8 read_rom(uint addr)
 	IAP_CMD = READ;
 	IAP_TRIG = 0x5a;
 	IAP_TRIG = 0xa5;
-	//printf("r %04x = ", addr);
+	printf("r %04x = ", addr);
 	c = IAP_DATA;
-	//printf("%02x\n", (unsigned int)c);
+	printf("%02x\r\n", (unsigned int)c);
 	return c;
 }
 
@@ -67,7 +67,7 @@ bool write_rom(uint addr, uint8 c)
 	IAP_CMD = WRITE;
 	IAP_TRIG = 0x5a;
 	IAP_TRIG = 0xa5;
-	//printf("w %04x = %02x\n", addr, (unsigned int)c);
+	printf("w %04x = %02x\r\n", addr, (unsigned int)c);
 	return 1;
 }
 
@@ -79,7 +79,7 @@ bool erase_rom(uint addr)
 	IAP_CMD = ERASE;
 	IAP_TRIG = 0x5a;
 	IAP_TRIG = 0xa5;
-	//printf("erase %04x\n", addr & 0xfe00);
+	printf("erase %04x\r\n", addr);
 	return 1;
 }
 bool write_rom_uint(uint addr, uint data)
@@ -94,8 +94,8 @@ bool write_rom_uint(uint addr, uint data)
         erase_rom(addr+1);
     }
     uint8*ui8p = (uint8*)&d;
-    write_rom(TC0PS_EEROM_ADDR, *ui8p);
-    write_rom(TC0PS_EEROM_ADDR+1, *(ui8p+1));
+    write_rom(addr, *ui8p);
+    write_rom(addr+1, *(ui8p+1));
     return true;
 }
 uint read_rom_uint(uint addr)
@@ -439,11 +439,13 @@ uint8 key_down_in_time(uint8 timeout_in_20ms)
 
 void cal_to_rom(uint addr, char*message)
 {
+    uint dd = 1;
+    bool last_isadd = true;
     ms_delay(400);
     memset(disp_mem, ' ', 33);
     uint tmp_data = read_rom_uint(addr);
     sprintf(disp_mem+0, message);
-    while(key_down_in_time(10)==NO_KEY_DOWN){
+    while(1){
         sprintf(disp_mem+16, "%u", tmp_data);
         lcd_update(disp_mem);
         while(key_down_in_time(10)==NO_KEY_DOWN);
@@ -456,7 +458,7 @@ void cal_to_rom(uint addr, char*message)
             while(key_down_in_time(10)==NO_KEY_DOWN);
             if((key_down_in_time(200)&NO_KEY_A4_DOWN) == 0){
                 ms_delay(400);
-                printf("go write rom %u addr %x", tmp_data, addr);
+                printf("go write rom %u addr %x\r\n", tmp_data, addr);
                 write_rom_uint(addr, tmp_data);
                 sprintf(disp_mem+5, "Write done");
                 lcd_update(disp_mem);
@@ -466,11 +468,28 @@ void cal_to_rom(uint addr, char*message)
         }
         else if((tmp8&NO_KEY_A1_DOWN) == 0){
             ms_delay(200);
-            tmp_data--;
+            if(!last_isadd){
+                if(dd<30000) dd*=2;
+            }
+            else{
+                dd = 1;
+            }
+            last_isadd = false;
+            tmp_data-=dd;
         }
         else if((tmp8&NO_KEY_A3_DOWN) == 0){
             ms_delay(200);
-            tmp_data++;
+            if(last_isadd){
+                if(dd<30000) dd*=2;
+            }
+            else{
+                dd = 1;
+            }
+            last_isadd = true;
+            tmp_data+=dd;
+        }
+        else{
+            break;
         }
     }
 }
@@ -526,7 +545,7 @@ disp_c1s:
                         sprintf(disp_mem+8, "Write do");
                         lcd_update(disp_mem);
                         ms_delay(400);
-                        printf("go write rom %u", tmp_tcops);
+                        printf("go write rom %u\r\n", tmp_tcops);
                         write_rom_uint(TC0PS_EEROM_ADDR, tmp_tcops);
                     }
                 }
