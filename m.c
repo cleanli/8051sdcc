@@ -4,13 +4,14 @@
 
 #define VERSION "V0.1"
 #define WHEEL_R 197 //mm
-#define WHEEL_CIRCUMFERENCE (WHEEL_R*2*3.14159f)
+#define WHEEL_CIRCUMFERENCE (wheelr*2*3.14159f)
 #define MS_COUNT 1279
 #define TIMER0_COUNT_PER_SECOND 8296
 #define COUNT10MS ((TIMER0_COUNT_PER_SECOND+50)/100)
 #define true 1
 #define false 0
 #define TC0PS_EEROM_ADDR 4
+#define WHEEL_R_EEROM_ADDR 6
 typedef unsigned int uint;
 typedef unsigned char uint8;
 typedef unsigned long ulong;
@@ -26,6 +27,7 @@ __pdata unsigned char disp_mem[33];
 __pdata float mileage;
 __pdata float last_speed;
 __pdata uint tcops = TIMER0_COUNT_PER_SECOND;
+__pdata uint wheelr = WHEEL_R;
 bool flag_10ms = 0, flag_1s = 0;
 bool target = 0;
 bool disp_left_time=1;
@@ -34,6 +36,7 @@ ulong target_seconds;
 void LCD_Init();
 void lcd_update(unsigned char*);
 uint8 get_key_status_raw();
+uint8 key_down_in_time(uint8 timeout_in_20ms);
 /*eerom*/
 #define READ 1
 #define WRITE 2
@@ -114,6 +117,7 @@ void dump_rom()
 	}
 }
 /*eerom*/
+
 void us_delay(unsigned int mt)
 {
 	while(mt--);
@@ -173,11 +177,13 @@ void system_init()
 	//AUXR1 |= 0x04;//high 2 bits of ADC result in ADC_RES
 	P0M0 = 0x10;//P04 set to 20mA
     //time calibration
-    uint8 tmp8 = read_rom(TC0PS_EEROM_ADDR);
-    if(tmp8 != 0xff){
-        uint8*ui8p = (uint8*)&tcops;
-        *ui8p = tmp8;
-        *(ui8p+1)= read_rom(TC0PS_EEROM_ADDR+1);
+    uint tmp16 = read_rom_uint(TC0PS_EEROM_ADDR);
+    if(tmp16 != 0xffff){
+        tcops = tmp16;
+    }
+    tmp16 = read_rom_uint(WHEEL_R_EEROM_ADDR);
+    if(tmp16 != 0xffff){
+        wheelr = tmp16;
     }
 }
 
@@ -431,6 +437,44 @@ uint8 key_down_in_time(uint8 timeout_in_20ms)
     return NO_KEY_DOWN;
 }
 
+void cal_to_rom(uint addr, char*message)
+{
+    ms_delay(400);
+    memset(disp_mem, ' ', 33);
+    uint tmp_data = read_rom_uint(addr);
+    sprintf(disp_mem+0, message);
+    while(key_down_in_time(10)==NO_KEY_DOWN){
+        sprintf(disp_mem+16, "%u", tmp_data);
+        lcd_update(disp_mem);
+        while(key_down_in_time(10)==NO_KEY_DOWN);
+        uint8 tmp8 = key_down_in_time(2);
+        if((tmp8&NO_KEY_A4_DOWN) == 0){
+            ms_delay(400);
+            memset(disp_mem, ' ', 8);
+            sprintf(disp_mem+0, "Confirm:");
+            lcd_update(disp_mem);
+            while(key_down_in_time(10)==NO_KEY_DOWN);
+            if((key_down_in_time(200)&NO_KEY_A4_DOWN) == 0){
+                ms_delay(400);
+                printf("go write rom %u addr %x", tmp_data, addr);
+                write_rom_uint(addr, tmp_data);
+                sprintf(disp_mem+5, "Write done");
+                lcd_update(disp_mem);
+                ms_delay(1000);
+                break;
+            }
+        }
+        else if((tmp8&NO_KEY_A1_DOWN) == 0){
+            ms_delay(200);
+            tmp_data--;
+        }
+        else if((tmp8&NO_KEY_A3_DOWN) == 0){
+            ms_delay(200);
+            tmp_data++;
+        }
+    }
+}
+
 void main()
 {
     uint8 uc_tmp;
@@ -444,13 +488,14 @@ void main()
     }
 #endif
     if(get_key_status_raw() != NO_KEY_DOWN){//go test
-        bool stop_disp_update = 0;
+        //bool stop_disp_update = 0;
         memset(disp_mem, '-', 32);
         sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
         lcd_update(disp_mem);
         ms_delay(1000);
         while(1){
-            if(!stop_disp_update){
+            //if(!stop_disp_update){
+            if(1){
                 saved_timer_ct = timer_ct;
                 sprintf(disp_mem+16, "%lu", saved_timer_ct);
                 sprintf(disp_mem+26, "%lu", saved_timer_ct/tcops);
@@ -502,6 +547,9 @@ disp_c1s:
             ms_delay(400);
         }
         //write timer cal directly
+        cal_to_rom(TC0PS_EEROM_ADDR, "TimerInt/s");
+        cal_to_rom(WHEEL_R_EEROM_ADDR, "WheelR");
+#if 0
         ms_delay(400);
         memset(disp_mem, ' ', 33);
         uint tmp_tcops = tcops;
@@ -536,7 +584,7 @@ disp_tmp_tcops:
             tmp_tcops++;
             goto disp_tmp_tcops;
         }
-
+#endif
     }
 
     //variable address
