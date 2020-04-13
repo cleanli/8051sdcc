@@ -173,7 +173,7 @@ void time_flag()
     static uint last_count_1s = 0;
 	flag_1s = 0;
 	flag_10ms = 0;
-    count_1s = (timer_ct-saved_timer_ct)/TIMER0_COUNT_PER_SECOND;
+    count_1s = (timer_ct-saved_timer_ct)/tcops;
     if(count_1s != last_count_1s){
         printf("count 1s: %u\r\n", count_1s);
         if(disp_left_time){
@@ -561,7 +561,7 @@ disp_tmp_tcops:
     memset(disp_mem, ' ', 32);
     strcpy(disp_mem, "Press Key in 3 second to timer");
     lcd_update(disp_mem);
-    ms_delay(200);
+    ms_delay(600);
     uc_tmp = key_down_in_time(3*50);
     if(uc_tmp==NO_KEY_DOWN){
         //lcj
@@ -583,7 +583,7 @@ disp_tmp_tcops:
             if(last_saved_int_timer_ct != saved_int_timer_ct){
                 if(last_saved_int_timer_ct != 0){
                     ulong duration = saved_int_timer_ct - last_saved_int_timer_ct;
-                    float speed = (float)WHEEL_CIRCUMFERENCE * TIMER0_COUNT_PER_SECOND / 1000 / (float)duration; //m/s
+                    float speed = (float)WHEEL_CIRCUMFERENCE * tcops / 1000 / (float)duration; //m/s
                     speed = speed * 3600 / 1000;//km/h
                     //printf("saved---%lu\r\n", saved_int_timer_ct);
                     //printf("last saved---%lu\r\n", last_saved_int_timer_ct);
@@ -636,7 +636,7 @@ disp_tmp_tcops:
             else if(flag_1s){
                 ulong duration = timer_ct - last_saved_int_timer_ct;
                 //printf("dur %d", duration);
-                float speed = (float)WHEEL_CIRCUMFERENCE * TIMER0_COUNT_PER_SECOND / 1000 / (float)duration; //m/s
+                float speed = (float)WHEEL_CIRCUMFERENCE * tcops / 1000 / (float)duration; //m/s
                 //printf("2 m/s---%2.1f\r\n", speed);
                 speed = speed * 3600 / 1000;//km/h
                 //printf("saved---%lu\r\n", saved_int_timer_ct);
