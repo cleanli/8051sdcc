@@ -79,6 +79,30 @@ bool erase_rom(uint addr)
 	//printf("erase %04x\n", addr & 0xfe00);
 	return 1;
 }
+bool write_rom_uint(uint addr, uint data)
+{
+    uint d = data;
+    uint8 tmp8_2= read_rom(addr);
+    if(tmp8_2 != 0xff){
+        erase_rom(addr);
+    }
+    tmp8_2= read_rom(addr+1);
+    if(tmp8_2 != 0xff){
+        erase_rom(addr+1);
+    }
+    uint8*ui8p = (uint8*)&d;
+    write_rom(TC0PS_EEROM_ADDR, *ui8p);
+    write_rom(TC0PS_EEROM_ADDR+1, *(ui8p+1));
+    return true;
+}
+uint read_rom_uint(uint addr)
+{
+    uint d;
+    uint8*ui8p = (uint8*)&d;
+    *ui8p= read_rom(addr);
+    *(ui8p+1)= read_rom(addr+1);
+    return d;
+}
 void dump_rom()
 {
 	uint addr = 0;
@@ -458,17 +482,7 @@ disp_c1s:
                         lcd_update(disp_mem);
                         ms_delay(400);
                         printf("go write rom %u", tmp_tcops);
-                        uint8 tmp8_2= read_rom(TC0PS_EEROM_ADDR);
-                        if(tmp8_2 != 0xff){
-                            erase_rom(TC0PS_EEROM_ADDR);
-                        }
-                        tmp8_2= read_rom(TC0PS_EEROM_ADDR+1);
-                        if(tmp8_2 != 0xff){
-                            erase_rom(TC0PS_EEROM_ADDR+1);
-                        }
-                        uint8*ui8p = (uint8*)&tmp_tcops;
-                        write_rom(TC0PS_EEROM_ADDR, *ui8p);
-                        write_rom(TC0PS_EEROM_ADDR+1, *(ui8p+1));
+                        write_rom_uint(TC0PS_EEROM_ADDR, tmp_tcops);
                     }
                 }
                 else if((tmp8&NO_KEY_A1_DOWN) == 0){
@@ -506,17 +520,7 @@ disp_tmp_tcops:
             if((key_down_in_time(200)&NO_KEY_A4_DOWN) == 0){
                 ms_delay(400);
                 printf("go write rom %u", tmp_tcops);
-                uint8 tmp8_2= read_rom(TC0PS_EEROM_ADDR);
-                if(tmp8_2 != 0xff){
-                    erase_rom(TC0PS_EEROM_ADDR);
-                }
-                tmp8_2= read_rom(TC0PS_EEROM_ADDR+1);
-                if(tmp8_2 != 0xff){
-                    erase_rom(TC0PS_EEROM_ADDR+1);
-                }
-                uint8*ui8p = (uint8*)&tmp_tcops;
-                write_rom(TC0PS_EEROM_ADDR, *ui8p);
-                write_rom(TC0PS_EEROM_ADDR+1, *(ui8p+1));
+                write_rom_uint(TC0PS_EEROM_ADDR, tmp_tcops);
                 sprintf(disp_mem+8, "Write do");
                 lcd_update(disp_mem);
                 ms_delay(1000);
