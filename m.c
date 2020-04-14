@@ -54,7 +54,7 @@ uint8 read_rom(uint addr)
 	IAP_TRIG = 0xa5;
 	printf("r %04x = ", addr);
 	c = IAP_DATA;
-	printf("%02x\r\n", (unsigned int)c);
+	printf("%02x iap_contr %02x\r\n", (unsigned int)c, IAP_CONTR);
 	return c;
 }
 
@@ -165,6 +165,18 @@ int putchar (int c) {
     return c;
 }
 
+void pca_init()
+{
+    CMOD = 0x80;//stop count in idle;source=fosc/12;disable PCA overflow int
+    CCON = 0;//clear flag;
+    CL = 0;
+    CH = 0;
+    CCAP0L = 0x55;
+    CCAP0H = 0x55;
+    CCAPM0 = 0x49;//PCA module 0 is 16 bit timer;ECCF0=1 enable interrupt
+    CR = 1;//enable counter
+}
+
 void system_init()
 {
 	serial_init();
@@ -176,6 +188,8 @@ void system_init()
 	ms_delay(1000);
 	//AUXR1 |= 0x04;//high 2 bits of ADC result in ADC_RES
 	P0M0 = 0x10;//P04 set to 20mA
+    //PCA init
+    pca_init();
     //time calibration
     uint tmp16 = read_rom_uint(TC0PS_EEROM_ADDR);
     if(tmp16 != 0xffff){
@@ -810,6 +824,14 @@ start:
     disp_left_time = true;
     timer_running(fu, ' ');
     goto start;
+}
+
+void isr_pca0(void) __interrupt 7 __using 3
+{
+    //printf("ccon %02x\r\n", CCON);//0x41
+    CCF0 = 0;
+    CH = 0;
+    CL = 0;
 }
 
 void isr_int1(void) __interrupt 2 __using 2
