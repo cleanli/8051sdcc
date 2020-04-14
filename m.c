@@ -172,9 +172,9 @@ void pca_init()
     CL = 0;
     CH = 0;
     CCAP0L = 0x55;
-    CCAP0H = 0x55;
+    CCAP0H = 0x05;
     CCAPM0 = 0x49;//PCA module 0 is 16 bit timer;ECCF0=1 enable interrupt
-    CR = 1;//enable counter
+    //CR = 1;//enable counter
 }
 
 void system_init()
@@ -265,6 +265,7 @@ void play_music(__code char*pu)
 	unsigned int i = 0;
 	unsigned int tk = 0;
     */
+    CR = 1;//enable counter
     bool fff = 0;
     unsigned int i = 0;
     unsigned int tk = 0;
@@ -280,7 +281,7 @@ void play_music(__code char*pu)
 			if(get_key_status_raw() != NO_KEY_DOWN){
                 return;
 			}
-			if(i)BEEPER = !BEEPER;
+			//if(i)BEEPER = !BEEPER;
 			us_delay(i);
 			if(timer_ct - saved_timer_ct_music >= 25*COUNT10MS){
 				break;
@@ -289,6 +290,7 @@ void play_music(__code char*pu)
 		if (++tk == 300 )
 			tk = 0;
 	}
+    CR = 0;
 }
 
 float get_power_votage()
@@ -832,6 +834,7 @@ void isr_pca0(void) __interrupt 7 __using 3
     CCF0 = 0;
     CH = 0;
     CL = 0;
+    BEEPER = !BEEPER;
 }
 
 void isr_int1(void) __interrupt 2 __using 2
