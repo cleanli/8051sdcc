@@ -164,7 +164,7 @@ int putchar (int c) {
 
 void pca_init()
 {
-    CMOD = 0x80;//stop count in idle;source=fosc/12;disable PCA overflow int
+    CMOD = 0x8c;//stop count in idle;source=fosc/6;disable PCA overflow int
     CCON = 0;//clear flag;
     CL = 0;
     CH = 0;
@@ -321,7 +321,7 @@ void play_music(__code char*pu)
         }
         else{
             CR=1;
-            i = musical_scale_regv[pu[tk]+13];
+            i = musical_scale_regv[pu[tk]+6];
             CCAP0L = 0xff & i;
             CCAP0H = i>>8;
         }
