@@ -1,6 +1,7 @@
 #include <stc12.h>
 #include <stdio.h>
 #include <string.h>
+#include "type.h"
 
 #define VERSION "V0.1"
 #define WHEEL_R 197 //mm
@@ -12,10 +13,6 @@
 #define false 0
 #define TC0PS_EEROM_ADDR 4
 #define WHEEL_R_EEROM_ADDR 6
-typedef unsigned int uint;
-typedef unsigned char uint8;
-typedef unsigned long ulong;
-typedef __bit bool;
 volatile ulong timer_ct = 0;
 volatile ulong saved_int_timer_ct = 0;
 ulong last_saved_int_timer_ct = 0;
