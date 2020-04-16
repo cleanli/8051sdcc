@@ -287,22 +287,29 @@ uint8 get_note_index(signed char value)
     return ret;
 }
 
+#define END 127
 //-7,1,2,3,4,5,6,7,1-,2-,
 __code unsigned int y[16]={1390,
                           1312, 1172, 1044, 985, 877, 781, 696,
 						  657, 586, 522, 493, 439, 391, 348, 0};
-__code char fu[200] = {5,5,6,6,5,5,8,8,7,7,127,127,5,5,6,6,5,5,9,9,8,8,127,127,
-				5,5,52,52,32,32,8,8,7,7,6,6,127,127,42,42,32,32,8,8,9,9,8,8,127,127,127,127,0};
+__code char fu[200] = {5,5,6,6,5,5,8,8,7,7,0,0,5,5,6,6,5,5,9,9,8,8,0,0,
+				5,5,52,52,32,32,8,8,7,7,6,6,0,0,42,42,32,32,8,8,9,9,8,8,0,0,0,0,END};
 __code char shaolshi[] = {
-    5,6,8,8,  8,6,8,8,8,8,8,8,3,8,7,7,7,6,7,7,7,7,7,7,6,3,0
+    5,6,8,8,8,6,8,8,8,8,8,8,3,8,  7,7,7,6,  7,7,7,7,7,7,6,3,2,2,2,3,  5,5,5,5,6,2,2,60,
+    1,1,3,5,6,3,5,5,  3,5,6,3,5,5,50,60,  1,1,1,5,3,3,3,2,  3,3,3,3,3,3,50,60,  1,1,1,5,2,2,2,1,
+    2,2,2,2,3,5,  6,6,6,6,6,6,3,5,  1,1,1,3,2,70,60,60,  0,2,2,3,2,2,70,60,  50,50,50,50,50,50,5,6,
+    12,12,12,6,   12,12,12,12,12,12,32,12,  7,7,7,6,  7,7,7,7,7,7,6,3,  2,2,2,3,7,7,7,6,  5,5,5,5,5,5,5,6,
+    12,12,12,6,   12,12,12,12,12,12,32,12,  7,7,7,6,  7,7,7,7,7,7,6,3,  2,2,2,3,  5,5,5,5,0,2,2,60,  1,1,1,1,1,1,5,6,
+    1,1,1,1,1,1,6,3,  2,2,2,3,  5,5,5,5,0,2,2,60,  1,1,1,1,1,1,1,1,  0,0,2,2,2,2,60,60,  1,1,1,1,1,1,1,1,  1,1,
+    END
 };
 __code char music[] = {
     //1,1,4,4,5,5,8,8,8,8,0
-    1,1,4,4,5,5,8,8,0
+    1,1,4,4,5,5,8,8,END
 };
 __code char testmu[] = {
     //1,1,4,4,5,5,8,8,8,8,0
-    1,2,3,4,5,6,7,8,0
+    1,2,3,4,5,6,7,8,END
 };
 
 void play_music(__code char*pu)
@@ -320,8 +327,8 @@ void play_music(__code char*pu)
 		printf("%d tk %d\r\n", (int)pu[tk], tk);
         LED1 = !LED1;
         LED2 = !LED2;
-		if(!pu[tk])break;
-        if(pu[tk]==127){
+        if(pu[tk]==END)break;
+        if(pu[tk]==0){
             CR=0;
         }
         else{
@@ -577,14 +584,26 @@ void main()
         write_rom(0x02, 0xab);
     }
 #endif
-    /*
-    play_music(testmu);
-    ms_delay(500);
-    play_music(fu);
-    ms_delay(500);
-    play_music(shaolshi);
-    */
-    if(get_key_status_raw() != NO_KEY_DOWN){//go test
+    if((NO_KEY_A1_DOWN & key_down_in_time(10)) == 0){
+        ms_delay(1500);
+        while(1){
+            memset(disp_mem, ' ', 32);
+            sprintf(disp_mem, "PLAYING");
+            sprintf(disp_mem+16, "test");
+            lcd_update(disp_mem);
+            ms_delay(500);
+            play_music(testmu);
+            sprintf(disp_mem+16, "happy birthday");
+            lcd_update(disp_mem);
+            ms_delay(500);
+            play_music(fu);
+            sprintf(disp_mem+16, "Shao Lin Shi   ");
+            lcd_update(disp_mem);
+            ms_delay(500);
+            play_music(shaolshi);
+        }
+    }
+    if((NO_KEY_A2_DOWN & key_down_in_time(10)) == 0){//go cal
         //bool stop_disp_update = 0;
         memset(disp_mem, '-', 32);
         sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
