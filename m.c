@@ -572,32 +572,57 @@ void cal_to_rom(uint addr, char*message)
     }
 }
 
-void task_main()
+struct task;
+typedef void (*task_func)(struct task*);
+struct task {
+    task_func t_func;
+    //char flag_1s;
+};
+bool g_flag_1s = false;
+void task_main(struct task*vp)
 {
-    if(timer_ct%tcops==0)
+    if(g_flag_1s)
     printf("%lu second\r\n", timer_ct/tcops);
 }
 
-void task_key_status()
+void task_key_status(struct task*vp)
 {
-    if(get_key_status_raw()!=NO_KEY_DOWN)
-    printf("key pressed\r\n");
+    if(get_key_status_raw()!=NO_KEY_DOWN
+            && g_flag_1s)
+        printf("key pressed\r\n");
 }
 
-typedef void (*task_func)(void);
-task_func tasks[]=
+void task_timer(struct task*vp)
 {
-    task_main,
-    task_key_status,
+    static uint last_count_1s = 0;
+	g_flag_1s = false;
+    count_1s = timer_ct/tcops;
+    if(count_1s != last_count_1s){
+        g_flag_1s = true;
+    }
+    last_count_1s = count_1s;
+}
+
+struct task all_tasks[]=
+{
+    {
+        task_main,
+    },
+    {
+        task_key_status,
+    },
+    {
+        task_timer,
+    },
 };
+
 
 void main()
 {
     system_init();
-
     while(1){
-        for(int i = 0; i<sizeof(tasks)/sizeof(task_func); i++){
-            tasks[i]();
+        for(int i = 0; i<sizeof(all_tasks)/sizeof(struct task); i++){
+            all_tasks[i].t_func(&all_tasks[i]);
         }
     }
 }
