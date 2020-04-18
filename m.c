@@ -42,42 +42,42 @@ uint8 key_down_in_time(uint8 timeout_in_20ms);
 
 uint8 read_rom(uint addr)
 {
-	uint8 c;
-	IAP_ADDRH = addr >> 8;
-	IAP_ADDRL = addr & 0xff;
-	IAP_CONTR = WAIT_TIME | 0x80;
-	IAP_CMD = READ;
-	IAP_TRIG = 0x5a;
-	IAP_TRIG = 0xa5;
-	printf("r %04x = ", addr);
-	c = IAP_DATA;
-	printf("%02x iap_contr %02x\r\n", (unsigned int)c, IAP_CONTR);
-	return c;
+    uint8 c;
+    IAP_ADDRH = addr >> 8;
+    IAP_ADDRL = addr & 0xff;
+    IAP_CONTR = WAIT_TIME | 0x80;
+    IAP_CMD = READ;
+    IAP_TRIG = 0x5a;
+    IAP_TRIG = 0xa5;
+    printf("r %04x = ", addr);
+    c = IAP_DATA;
+    printf("%02x iap_contr %02x\r\n", (unsigned int)c, IAP_CONTR);
+    return c;
 }
 
 bool write_rom(uint addr, uint8 c)
 {
-	IAP_DATA = c;
-	IAP_ADDRH = addr >> 8;
-	IAP_ADDRL = addr & 0xff;
-	IAP_CONTR = WAIT_TIME | 0x80;
-	IAP_CMD = WRITE;
-	IAP_TRIG = 0x5a;
-	IAP_TRIG = 0xa5;
-	printf("w %04x = %02x\r\n", addr, (unsigned int)c);
-	return 1;
+    IAP_DATA = c;
+    IAP_ADDRH = addr >> 8;
+    IAP_ADDRL = addr & 0xff;
+    IAP_CONTR = WAIT_TIME | 0x80;
+    IAP_CMD = WRITE;
+    IAP_TRIG = 0x5a;
+    IAP_TRIG = 0xa5;
+    printf("w %04x = %02x\r\n", addr, (unsigned int)c);
+    return 1;
 }
 
 bool erase_rom(uint addr)
 {
-	IAP_ADDRH = addr >> 8;
-	IAP_ADDRL = addr & 0xff;
-	IAP_CONTR = WAIT_TIME | 0x80;
-	IAP_CMD = ERASE;
-	IAP_TRIG = 0x5a;
-	IAP_TRIG = 0xa5;
-	printf("erase %04x\r\n", addr);
-	return 1;
+    IAP_ADDRH = addr >> 8;
+    IAP_ADDRL = addr & 0xff;
+    IAP_CONTR = WAIT_TIME | 0x80;
+    IAP_CMD = ERASE;
+    IAP_TRIG = 0x5a;
+    IAP_TRIG = 0xa5;
+    printf("erase %04x\r\n", addr);
+    return 1;
 }
 bool write_rom_uint(uint addr, uint data)
 {
@@ -105,54 +105,54 @@ uint read_rom_uint(uint addr)
 }
 void dump_rom()
 {
-	uint addr = 0;
-	while(addr < 0x400){
-		if((addr & 0x7)== 0)
-			printf("\r\n%04x:", addr);
-		printf(" %02x", (uint)read_rom(addr));
-		addr++;
-	}
+    uint addr = 0;
+    while(addr < 0x400){
+        if((addr & 0x7)== 0)
+            printf("\r\n%04x:", addr);
+        printf(" %02x", (uint)read_rom(addr));
+        addr++;
+    }
 }
 /*eerom*/
 
 void us_delay(unsigned int mt)
 {
-	while(mt--);
+    while(mt--);
 }
 
 void ms_delay(unsigned int mt)
 {
-	while(mt--)
-		us_delay(MS_COUNT);
+    while(mt--)
+        us_delay(MS_COUNT);
 }
 
 #define STC
 void serial_init()
 {
-	PCON = 0x80;
-	SCON = 0x50;
-	TMOD = 0x22;
-	TH1 = 0xFd;
-	TL1 = 0xFd;
-	TR1 = 1;
-	TI = 1;
-	TH0 = 5;
+    PCON = 0x80;
+    SCON = 0x50;
+    TMOD = 0x22;
+    TH1 = 0xFd;
+    TL1 = 0xFd;
+    TR1 = 1;
+    TI = 1;
+    TH0 = 5;
 #ifdef STC
-	/*baut 9600*/
-	//BRT = 0xfd;
-	//AUXR = 0x11;
+    /*baut 9600*/
+    //BRT = 0xfd;
+    //AUXR = 0x11;
 
-	/*baut 38400*/
-	BRT = 0xd7;
-	/*AUXR: T0x12 T1x12 UART_M0x6 BRTR ---- BRTx12 XRAM S1BRS*/
-	AUXR = 0x15;
-	//AUXR1 = 0x80; //mov serial to P1
+    /*baut 38400*/
+    BRT = 0xd7;
+    /*AUXR: T0x12 T1x12 UART_M0x6 BRTR ---- BRTx12 XRAM S1BRS*/
+    AUXR = 0x15;
+    //AUXR1 = 0x80; //mov serial to P1
 #endif
-	TR0 = 1;
+    TR0 = 1;
     EX1 = 1;//P3_3 interrupt enable
     IT1 = 1;//drop edge trigger interrupt
-	EA = 1;
-	ET0 = 1;
+    EA = 1;
+    ET0 = 1;
 }
 
 int putchar (int c) {
@@ -176,18 +176,18 @@ void pca_init()
 
 void system_init()
 {
-	serial_init();
-	//printf("p4sw is %x\n", P4SW);
-	P4SW = 0x70;//open P4 io function for LCD
-	LCD_Init();
-	//memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
+    serial_init();
+    //printf("p4sw is %x\n", P4SW);
+    P4SW = 0x70;//open P4 io function for LCD
+    LCD_Init();
+    //memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
     sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
     sprintf(disp_mem+16, "%s", __TIME__);
     sprintf(disp_mem+21, "%s", __DATE__);
-	lcd_update(disp_mem);
-	ms_delay(1000);
-	//AUXR1 |= 0x04;//high 2 bits of ADC result in ADC_RES
-	P0M0 = 0x10;//P04 set to 20mA
+    lcd_update(disp_mem);
+    ms_delay(1000);
+    //AUXR1 |= 0x04;//high 2 bits of ADC result in ADC_RES
+    P0M0 = 0x10;//P04 set to 20mA
     //PCA init
     pca_init();
     //time calibration
@@ -203,20 +203,20 @@ void system_init()
 
 void time_update(unsigned int t)
 {
-	uint h, m, tm, s;
+    uint h, m, tm, s;
 
-	h = t / 3600;
-	tm = t - h * 3600;
-	m = tm / 60;
-	s = tm - m * 60;
-	sprintf(&disp_mem[16], "%02u:%02u:%02u", (uint)h, (uint)m, (uint)s);
+    h = t / 3600;
+    tm = t - h * 3600;
+    m = tm / 60;
+    s = tm - m * 60;
+    sprintf(&disp_mem[16], "%02u:%02u:%02u", (uint)h, (uint)m, (uint)s);
 }
 
 void time_flag()
 {
     static uint last_count_1s = 0;
-	flag_1s = 0;
-	flag_10ms = 0;
+    flag_1s = 0;
+    flag_10ms = 0;
     count_1s = (timer_ct-saved_timer_ct)/tcops;
     if(count_1s != last_count_1s){
         printf("count 1s: %u\r\n", count_1s);
@@ -294,9 +294,9 @@ uint8 get_note_index(signed char value)
 //-7,1,2,3,4,5,6,7,1-,2-,
 __code unsigned int y[16]={1390,
                           1312, 1172, 1044, 985, 877, 781, 696,
-						  657, 586, 522, 493, 439, 391, 348, 0};
+                          657, 586, 522, 493, 439, 391, 348, 0};
 __code char fu[200] = {5,5,6,6,5,5,8,8,7,7,0,0,5,5,6,6,5,5,9,9,8,8,0,0,
-				5,5,52,52,32,32,8,8,7,7,6,6,0,0,42,42,32,32,8,8,9,9,8,8,0,0,0,0,END};
+                5,5,52,52,32,32,8,8,7,7,6,6,0,0,42,42,32,32,8,8,9,9,8,8,0,0,0,0,END};
 __code char shaolshi[] = {
     5,6,8,8,8,6,8,8,8,8,8,8,3,8,  7,7,7,6,  7,7,7,7,7,7,6,3,2,2,2,3,  5,5,5,5,6,2,2,60,
     1,1,3,5,6,3,5,5,  3,5,6,3,5,5,50,60,  1,1,1,5,3,3,3,2,  3,3,3,3,3,3,50,60,  1,1,1,5,2,2,2,1,
@@ -319,15 +319,15 @@ void play_music(__code char*pu)
 {
     /*
     bit fff;
-	unsigned int i = 0;
-	unsigned int tk = 0;
+    unsigned int i = 0;
+    unsigned int tk = 0;
     */
     CR = 0;//enable counter
     bool fff = 0;
     unsigned int i = 0;
     unsigned int tk = 0;
-	while(1){
-		printf("%d tk %d\r\n", (int)pu[tk], tk);
+    while(1){
+        printf("%d tk %d\r\n", (int)pu[tk], tk);
         LED1 = !LED1;
         LED2 = !LED2;
         if(pu[tk]==END)break;
@@ -340,21 +340,21 @@ void play_music(__code char*pu)
             CCAP0L = 0xff & i;
             CCAP0H = i>>8;
         }
-		saved_timer_ct_music = timer_ct;
-		while(1){
-			//time_flag();
-			if(get_key_status_raw() != NO_KEY_DOWN){
+        saved_timer_ct_music = timer_ct;
+        while(1){
+            //time_flag();
+            if(get_key_status_raw() != NO_KEY_DOWN){
                 return;
-			}
-			//if(i)BEEPER = !BEEPER;
-			us_delay(i);
-			if(timer_ct - saved_timer_ct_music >= 25*COUNT10MS){
-				break;
-			}
-		}
-		if (++tk == 300 )
-			tk = 0;
-	}
+            }
+            //if(i)BEEPER = !BEEPER;
+            us_delay(i);
+            if(timer_ct - saved_timer_ct_music >= 25*COUNT10MS){
+                break;
+            }
+        }
+        if (++tk == 300 )
+            tk = 0;
+    }
     CR = 0;
 }
 
@@ -366,7 +366,7 @@ float get_power_votage()
     //printf("AUXR1 %x\r\n", AUXR1);
     ADC_CONTR = ADC_CONTR | 0x80;//power on adc
     us_delay(1);
-	P1ASF |= 0x04;//p12 for ADC
+    P1ASF |= 0x04;//p12 for ADC
     ADC_CONTR=0x82;//channel p12
     us_delay(1);
     ADC_RES = 0;
@@ -382,7 +382,7 @@ float get_power_votage()
     //printf("ADC_RESL %x\r\n", ADC_RESL);
     ret = 2.45f * 1024 / rs;
     printf("rs %u\r\n", ret);
-	P1ASF &= ~0x04;//p12 recover normal IO
+    P1ASF &= ~0x04;//p12 recover normal IO
     ADC_CONTR = ADC_CONTR & ~0x80;//power off
     return ret;
 }
@@ -424,7 +424,7 @@ void disp_power(bool force)
 {
     struct s_lfs_data ld;
     float pv;
-	if(!force && !flag_1s)
+    if(!force && !flag_1s)
         return;
     pv = get_power_votage();
     //printf("pv %f\r\n",pv);
@@ -443,14 +443,14 @@ void timer_running(__code char* pu, char message_c)
     saved_timer_ct = timer_ct;
     target_seconds = target_hour*3600 + target_minute*60;
     count_1s=0;
-	memset(disp_mem, ' ', 32);
+    memset(disp_mem, ' ', 32);
     sprintf(disp_mem, "%02u:%02u:00", target_hour, target_minute);
     sprintf(disp_mem+10, "SuppVo");
     disp_mem[25]=message_c;
-	lcd_update(disp_mem);
-	while(!target){
-		disp_power(0);
-		time_flag();
+    lcd_update(disp_mem);
+    while(!target){
+        disp_power(0);
+        time_flag();
         if(!KEY_A2){
             ms_delay(100);
             if(!KEY_A2){
@@ -464,7 +464,7 @@ void timer_running(__code char* pu, char message_c)
             printf("set target 1 count 1s %u\r\n", count_1s);
             target = 1;
         }
-	}
+    }
     if(target){
         LED1 = 0;
         LED2 = 1;
@@ -641,10 +641,10 @@ void isr_pca0(void) __interrupt 7 __using 3
 
 void isr_int1(void) __interrupt 2 __using 2
 {
-	saved_int_timer_ct = timer_ct;
+    saved_int_timer_ct = timer_ct;
 }
 
 void isrtimer0(void) __interrupt 1 __using 1
 {
-	timer_ct++;
+    timer_ct++;
 }
