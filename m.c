@@ -654,11 +654,16 @@ void task_timer(struct task*vp)
     count_1s = timer_ct/tcops;
     if(count_1s != last_count_1s){
         g_flag_1s = true;
-        printf("cur task timect--- %x\r\n", cur_task_timeout_ct);
+        printf("cur task timect--- %u\r\n", cur_task_timeout_ct);
         if(cur_task_timeout_ct > 0){
             cur_task_timeout_ct--;
             if(cur_task_timeout_ct == 0){
                 cur_task_event_flag |= 1<<EVENT_UI_TIMEOUT;
+            }
+            if(current_ui->time_disp_mode & TIME_DISP_EN){
+                sprintf(disp_mem+current_ui->position_of_dispmem,
+                        "%u", cur_task_timeout_ct);
+                disp_mem_update = true;
             }
         }
     }
