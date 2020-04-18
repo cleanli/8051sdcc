@@ -198,36 +198,6 @@ void system_init()
     }
 }
 
-void time_update(unsigned int t)
-{
-    uint h, m, tm, s;
-
-    h = t / 3600;
-    tm = t - h * 3600;
-    m = tm / 60;
-    s = tm - m * 60;
-    sprintf(&disp_mem[16], "%02u:%02u:%02u", (uint)h, (uint)m, (uint)s);
-}
-
-void time_flag()
-{
-    static uint last_count_1s = 0;
-    flag_1s = 0;
-    flag_10ms = 0;
-    count_1s = (timer_ct-saved_timer_ct)/tcops;
-    if(count_1s != last_count_1s){
-        printf("count 1s: %u\r\n", count_1s);
-        if(disp_left_time){
-            time_update(target_seconds-count_1s);
-        }
-        else{
-            time_update(count_1s);
-        }
-        flag_1s = 1;
-        lcd_update(disp_mem);
-    }
-    last_count_1s = count_1s;
-}
 #define KEY_A1 P3_2
 #define KEY_A2 P0_7
 #define KEY_A3 P0_6
@@ -402,45 +372,6 @@ void disp_power(bool force)
     ld.follows="V";
     local_float_sprintf(&ld);
     lcd_update(disp_mem);
-}
-
-void timer_running(__code char* pu, char message_c)
-{
-    target = 0;
-    saved_timer_ct = timer_ct;
-    target_seconds = target_hour*3600 + target_minute*60;
-    count_1s=0;
-    memset(disp_mem, ' ', 32);
-    sprintf(disp_mem, "%02u:%02u:00", target_hour, target_minute);
-    sprintf(disp_mem+10, "SuppVo");
-    disp_mem[25]=message_c;
-    lcd_update(disp_mem);
-    while(!target){
-        disp_power(0);
-        time_flag();
-        if(!KEY_A2){
-            ms_delay(100);
-            if(!KEY_A2){
-                sprintf(disp_mem+16, "Cancelled", target_hour, target_minute);
-                lcd_update(disp_mem);
-                ms_delay(2000);
-                break;
-            }
-        }
-        if(count_1s >= target_seconds){
-            printf("set target 1 count 1s %u\r\n", count_1s);
-            target = 1;
-        }
-    }
-    if(target){
-        LED1 = 0;
-        LED2 = 1;
-        //memset(disp_mem, ' ', 32);
-        //strcpy(disp_mem, "Playing music ...");
-        //lcd_update(disp_mem);
-        //play_music(pu);
-        printf("play end...\n");
-    }
 }
 
 uint8 get_key_status_raw()
@@ -661,8 +592,28 @@ void task_timer(struct task*vp)
                 cur_task_event_flag |= 1<<EVENT_UI_TIMEOUT;
             }
             if(current_ui->time_disp_mode & TIME_DISP_EN){
-                sprintf(disp_mem+current_ui->position_of_dispmem,
-                        "%u", cur_task_timeout_ct);
+                uint tmp_ct;
+                if(current_ui->time_disp_mode & TIME_DISP_LEFT){
+                    tmp_ct = cur_task_timeout_ct;
+                }
+                else{
+                    tmp_ct = current_ui->timeout - cur_task_timeout_ct;
+                }
+                if(current_ui->time_disp_mode & TIME_DISP_SECOND){
+                    sprintf(disp_mem+current_ui->position_of_dispmem,
+                            "%u", tmp_ct);
+                }
+                else{
+                    uint h, m, tm, s;
+
+                    h = tmp_ct / 3600;
+                    tm = tmp_ct - h * 3600;
+                    m = tm / 60;
+                    s = tm - m * 60;
+                    sprintf(disp_mem+current_ui->position_of_dispmem,
+                            "%02u:%02u:%02u", h, m, s);
+
+                }
                 disp_mem_update = true;
             }
         }
