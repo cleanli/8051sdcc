@@ -543,6 +543,8 @@ __pdata uint keyA2_down_ct;
 __pdata uint keyA3_down_ct;
 __pdata uint keyA4_down_ct;
 __pdata uint cur_task_timeout_ct;
+__pdata int8 cur_ui_index = 0;
+__pdata int8 last_ui_index = 0;
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
@@ -729,22 +731,23 @@ void common_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     cur_task_timeout_ct = uif->timeout;
-    printf("cur task timect---init %x\r\n", cur_task_timeout_ct);
+    //printf("cur task timect---init %x\r\n", cur_task_timeout_ct);
     uif->event_flag = 0;
 }
 
 void common_process_event(void*vp)
 {
-    bool dg = g_flag_1s;
+    //bool dg = g_flag_1s;
     ui_info* uif =(ui_info*)vp;
     for(int8 i = 0; i < EVENT_MAX; i++){
         uint8 evt_flag=1<<i;
-        if(dg)
-        printf("ev flag %x %x i %x\r\n", uif->event_flag, evt_flag, i);
+        //if(dg) printf("ev flag %x %x i %x\r\n", uif->event_flag, evt_flag, i);
         if((uif->event_flag & evt_flag) && uif->ui_event_transfer[i]!=-1){
             if(uif->ui_quit){
                 uif->ui_quit(NULL);
             }
+            last_ui_index = cur_ui_index;
+            cur_ui_index = i;
             current_ui = &all_ui[uif->ui_event_transfer[i]];
             if(current_ui->ui_init){
                 current_ui->ui_init(current_ui);
@@ -780,7 +783,10 @@ void first_process_event(void*vp)
         pause_music();
         printf("key A2 up\r\n");
     }
-    if(keyA3_up)printf("key A3 up\r\n");
+    if(keyA3_up){
+        cur_task_timeout_ct += 9;
+        printf("key A3 up\r\n");
+    }
     if(keyA4_up)printf("key A4 up\r\n");
     common_process_event(vp);
 }
