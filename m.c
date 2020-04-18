@@ -542,6 +542,7 @@ __pdata uint keyA1_down_ct;
 __pdata uint keyA2_down_ct;
 __pdata uint keyA3_down_ct;
 __pdata uint keyA4_down_ct;
+__pdata uint cur_task_timeout_ct;
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
@@ -567,24 +568,13 @@ typedef struct ui_info_ {
     int8 ui_event_transfer[EVENT_MAX];
 } ui_info;
 
-void first_init(void*vp)
-{
-    sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
-    sprintf(disp_mem+16, "%s", __TIME__);
-    sprintf(disp_mem+21, "%s", __DATE__);
-    disp_mem_update = true;
-}
-void second_init(void*vp)
-{
-    memset(disp_mem, 0, 32);
-    disp_mem_update = true;
-}
 ui_info all_ui[]={
     {//0 first
         first_init,
         first_process_event,
         NULL,
         3,
+        0,
         {-1,-1,-1,-1,1,-1},
     },
     {//1 second
@@ -592,16 +582,17 @@ ui_info all_ui[]={
         common_process_event,
         NULL,
         3,
+        0,
         {-1,-1,-1,-1,0,-1},
     },
 };
 
-ui_info* current_ui;
+ui_info* current_ui=NULL;
 
 bool g_flag_1s = false;
 void task_main(struct task*vp)
 {
-    current_ui->ui_process_event(&current_ui);
+    current_ui->ui_process_event(current_ui);
 }
 
 #define KEY_CONFIRM_TIMER_CT 160
@@ -641,14 +632,16 @@ void task_timer(struct task*vp)
     count_1s = timer_ct/tcops;
     if(count_1s != last_count_1s){
         g_flag_1s = true;
-    }
-    last_count_1s = count_1s;
-    if(current_ui->timeout > 0){
-        current_ui->timeout--;
-        if(current_ui->timeout == 0){
-            current_ui->event_flag |= 1<<EVENT_UI_TIMEOUT;
+        printf("cur task timect--- %x\r\n", cur_task_timeout_ct);
+        if(cur_task_timeout_ct > 0){
+            cur_task_timeout_ct--;
+            if(cur_task_timeout_ct == 0){
+                current_ui->event_flag |= 1<<EVENT_UI_TIMEOUT;
+        printf("cur flag %x\r\n", current_ui->event_flag);
+            }
         }
     }
+    last_count_1s = count_1s;
 }
 
 void task_disp(struct task*vp)
@@ -697,6 +690,7 @@ void task_music(struct task*vp)
         music_task_play_info.music_status = MUSIC_END;
         current_ui->event_flag |= 1<<EVENT_MUSIC_PLAY_END;
         printf("play end\r\n");
+        printf("c flag %x\r\n", current_ui->event_flag);
     }
     else if(music_note == 0){
         CR=0;
@@ -731,21 +725,49 @@ void play_music(__code signed char* pu)
     }
 }
 
-void common_process_event(void*vp)
+void common_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
-    uint8 evt_flag=1;
+    cur_task_timeout_ct = uif->timeout;
+    printf("cur task timect---init %x\r\n", cur_task_timeout_ct);
+    uif->event_flag = 0;
+}
+
+void common_process_event(void*vp)
+{
+    bool dg = g_flag_1s;
+    ui_info* uif =(ui_info*)vp;
     for(int8 i = 0; i < EVENT_MAX; i++){
-        evt_flag<<=i;
-        if(uif->event_flag & evt_flag){
+        uint8 evt_flag=1<<i;
+        if(dg)
+        printf("ev flag %x %x i %x\r\n", uif->event_flag, evt_flag, i);
+        if((uif->event_flag & evt_flag) && uif->ui_event_transfer[i]!=-1){
             if(uif->ui_quit){
                 uif->ui_quit(NULL);
             }
             current_ui = &all_ui[uif->ui_event_transfer[i]];
-            current_ui->ui_init(NULL);
+            if(current_ui->ui_init){
+                current_ui->ui_init(current_ui);
+            }
+            printf("cur changed\r\n");
             return;
         }
     }
+}
+
+void first_init(void*vp)
+{
+    common_ui_init(vp);
+    sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
+    sprintf(disp_mem+16, "%s", __TIME__);
+    sprintf(disp_mem+21, "%s", __DATE__);
+    disp_mem_update = true;
+}
+void second_init(void*vp)
+{
+    common_ui_init(vp);
+    memset(disp_mem, 0, 32);
+    disp_mem_update = true;
 }
 
 void first_process_event(void*vp)
@@ -784,7 +806,7 @@ struct task all_tasks[]=
 void task_init()
 {
     current_ui = &all_ui[0];
-    current_ui->ui_init(NULL);
+    current_ui->ui_init(current_ui);
 }
 
 void main()
