@@ -180,10 +180,7 @@ void system_init()
     //printf("p4sw is %x\n", P4SW);
     P4SW = 0x70;//open P4 io function for LCD
     LCD_Init();
-    //memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
-    sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
-    sprintf(disp_mem+16, "%s", __TIME__);
-    sprintf(disp_mem+21, "%s", __DATE__);
+    memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
     lcd_update(disp_mem);
     ms_delay(1000);
     //AUXR1 |= 0x04;//high 2 bits of ADC result in ADC_RES
@@ -574,18 +571,45 @@ void cal_to_rom(uint addr, char*message)
         }
     }
 }
-
+/////////////////////////////new architecture///////////////////////////
+bool disp_mem_update = false;
 struct task;
 typedef void (*task_func)(struct task*);
+typedef void (*func_p)(void*);
 struct task {
     task_func t_func;
     //char flag_1s;
 };
+typedef struct ui_info_ {
+    func_p ui_init;
+    func_p ui_process_event;
+    func_p ui_quit;
+} ui_info;
+
+void first_init(void*vp)
+{
+    sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
+    sprintf(disp_mem+16, "%s", __TIME__);
+    sprintf(disp_mem+21, "%s", __DATE__);
+    disp_mem_update = true;
+}
+void first_process_event(void*vp)
+{
+}
+ui_info all_ui[]={
+    {
+        first_init,
+        first_process_event,
+        NULL,
+    },
+};
+
+ui_info* current_ui;
+
 bool g_flag_1s = false;
 void task_main(struct task*vp)
 {
-    if(g_flag_1s)
-    printf("%lu second\r\n", timer_ct/tcops);
+    current_ui->ui_process_event(NULL);
 }
 
 void task_key_status(struct task*vp)
@@ -606,6 +630,16 @@ void task_timer(struct task*vp)
     last_count_1s = count_1s;
 }
 
+void task_disp(struct task*vp)
+{
+    if(disp_mem_update){
+        saved_timer_ct = timer_ct;
+        lcd_update(disp_mem);
+        printf("lcd update %lu\r\n", timer_ct -saved_timer_ct);
+        disp_mem_update = false;
+    }
+}
+
 struct task all_tasks[]=
 {
     {
@@ -617,17 +651,28 @@ struct task all_tasks[]=
     {
         task_timer,
     },
+    {
+        task_disp,
+    },
 };
 
+void task_init()
+{
+    current_ui = &all_ui[0];
+    current_ui->ui_init(NULL);
+}
 
 void main()
 {
     system_init();
+    task_init();
+#if 1
     while(1){
         for(int i = 0; i<sizeof(all_tasks)/sizeof(struct task); i++){
             all_tasks[i].t_func(&all_tasks[i]);
         }
     }
+#endif
 }
 
 void isr_pca0(void) __interrupt 7 __using 3
