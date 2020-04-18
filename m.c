@@ -3,7 +3,7 @@
 #include <string.h>
 #include "type.h"
 
-#define VERSION "V0.1"
+#define VERSION "0.1"
 #define WHEEL_R 197 //mm
 #define WHEEL_CIRCUMFERENCE (wheelr*2*3.14159f)
 #define MS_COUNT 1279
@@ -180,7 +180,10 @@ void system_init()
 	//printf("p4sw is %x\n", P4SW);
 	P4SW = 0x70;//open P4 io function for LCD
 	LCD_Init();
-	memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
+	//memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
+    sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
+    sprintf(disp_mem+16, "%s", __TIME__);
+    sprintf(disp_mem+21, "%s", __DATE__);
 	lcd_update(disp_mem);
 	ms_delay(1000);
 	//AUXR1 |= 0x04;//high 2 bits of ADC result in ADC_RES
