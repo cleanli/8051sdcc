@@ -852,13 +852,13 @@ start:
     lcd_update(disp_mem);
     while(1){
         if(!KEY_A4){
-            ms_delay(100);
+            ms_delay(20);
             if(!KEY_A4){
                 break;
             }
         }
         if(!KEY_A3){
-            ms_delay(100);
+            ms_delay(20);
             if(!KEY_A3){
                 target_minute++;
                 if(target_minute == 60)
@@ -870,7 +870,7 @@ start:
             }
         }
         if(!KEY_A1){
-            ms_delay(100);
+            ms_delay(20);
             if(!KEY_A1){
                 target_hour++;
                 sprintf(disp_mem+17, "%u", target_hour);
@@ -880,7 +880,7 @@ start:
             }
         }
         if(!KEY_A2){
-            ms_delay(100);
+            ms_delay(20);
             if(!KEY_A2){
                 if(last_is_hour){
                     if(target_hour>0){
