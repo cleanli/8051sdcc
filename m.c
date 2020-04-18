@@ -312,49 +312,6 @@ __code char testmu[] = {
     1,2,3,4,5,6,7,8,END
 };
 
-void play_music(__code char*pu)
-{
-    /*
-    bit fff;
-    unsigned int i = 0;
-    unsigned int tk = 0;
-    */
-    CR = 0;//enable counter
-    bool fff = 0;
-    unsigned int i = 0;
-    unsigned int tk = 0;
-    while(1){
-        printf("%d tk %d\r\n", (int)pu[tk], tk);
-        LED1 = !LED1;
-        LED2 = !LED2;
-        if(pu[tk]==END)break;
-        if(pu[tk]==0){
-            CR=0;
-        }
-        else{
-            CR=1;
-            i = musical_scale_regv[get_note_index(pu[tk])];
-            CCAP0L = 0xff & i;
-            CCAP0H = i>>8;
-        }
-        saved_timer_ct_music = timer_ct;
-        while(1){
-            //time_flag();
-            if(get_key_status_raw() != NO_KEY_DOWN){
-                return;
-            }
-            //if(i)BEEPER = !BEEPER;
-            us_delay(i);
-            if(timer_ct - saved_timer_ct_music >= 25*COUNT10MS){
-                break;
-            }
-        }
-        if (++tk == 300 )
-            tk = 0;
-    }
-    CR = 0;
-}
-
 float get_power_votage()
 {
     float ret;
@@ -468,7 +425,7 @@ void timer_running(__code char* pu, char message_c)
         //memset(disp_mem, ' ', 32);
         //strcpy(disp_mem, "Playing music ...");
         //lcd_update(disp_mem);
-        play_music(pu);
+        //play_music(pu);
         printf("play end...\n");
     }
 }
@@ -605,13 +562,6 @@ void first_init(void*vp)
     sprintf(disp_mem+21, "%s", __DATE__);
     disp_mem_update = true;
 }
-void first_process_event(void*vp)
-{
-    if(keyA1_up)printf("key A1 up\r\n");
-    if(keyA2_up)printf("key A2 up\r\n");
-    if(keyA3_up)printf("key A3 up\r\n");
-    if(keyA4_up)printf("key A4 up\r\n");
-}
 ui_info all_ui[]={
     {
         first_init,
@@ -643,7 +593,7 @@ void task_main(struct task*vp)
             key##AN##_up=false; \
         } \
     } \
-    if(key##AN##_down_ct > KEY_CONFIRM_TIME){ \
+    if(key##AN##_down_ct > KEY_CONFIRM_TIMER_CT){ \
         key##AN##_down=true; \
     } \
     else{ \
@@ -679,6 +629,71 @@ void task_disp(struct task*vp)
     }
 }
 
+enum MUSIC_STATUS {
+    MUSIC_IDLE,
+    MUSIC_PLAYING,
+    MUSIC_PAUSE,
+    MUSIC_END,
+};
+
+struct music_play_info{
+    __code char*pu;
+    uint pu_index;
+    ulong last_note_start_timerct;
+    uint8 music_status;
+} music_task_play_info={
+    NULL,
+    0,
+    0,
+    MUSIC_IDLE
+};
+
+void task_music(struct task*vp)
+{
+    uint8 music_note;
+    uint music_register_value;
+    if(music_task_play_info.pu == NULL ||
+            music_task_play_info.music_status != MUSIC_PLAYING ||
+            ((timer_ct - music_task_play_info.last_note_start_timerct) < 25*COUNT10MS)
+      ){
+        return;
+    }
+    //printf("pu_index %u status %x\r\n", music_task_play_info.pu_index, music_task_play_info.music_status);
+    music_note = music_task_play_info.pu[music_task_play_info.pu_index++];
+    music_register_value = musical_scale_regv[get_note_index(music_note)];
+    //printf("note %x\r\n", music_note);
+    music_task_play_info.last_note_start_timerct = timer_ct;
+    if(music_note==END){
+        music_task_play_info.music_status = MUSIC_END;
+    }
+    else if(music_note == 0){
+        CR=0;
+    }
+    else{
+        CR=1;
+        CCAP0L = 0xff & music_register_value;
+        CCAP0H = music_register_value>>8;
+    }
+}
+
+void play_music(__code signed char* pu)
+{
+    music_task_play_info.pu = pu;
+    music_task_play_info.pu_index = 0;
+    music_task_play_info.last_note_start_timerct = 0;
+    music_task_play_info.music_status = MUSIC_PLAYING;
+}
+
+void first_process_event(void*vp)
+{
+    if(keyA1_up){
+        printf("key A1 up\r\n");
+        play_music(fu);
+    }
+    if(keyA2_up)printf("key A2 up\r\n");
+    if(keyA3_up)printf("key A3 up\r\n");
+    if(keyA4_up)printf("key A4 up\r\n");
+}
 struct task all_tasks[]=
 {
     {
@@ -692,6 +707,9 @@ struct task all_tasks[]=
     },
     {
         task_disp,
+    },
+    {
+        task_music,
     },
 };
 
