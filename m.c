@@ -534,7 +534,7 @@ __code const ui_info all_ui[]={
         common_process_event,
         NULL,
         300,
-        TIME_DISP_EN,
+        TIME_DISP_EN|TIME_DISP_LEFT,
         16,
         {-1,-1,-1,-1,-1,-1},
     },
