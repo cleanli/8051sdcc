@@ -542,6 +542,15 @@ __pdata uint keyA1_down_ct;
 __pdata uint keyA2_down_ct;
 __pdata uint keyA3_down_ct;
 __pdata uint keyA4_down_ct;
+enum EVENT_TYPE{
+    EVENT_KEYA1_UP,
+    EVENT_KEYA2_UP,
+    EVENT_KEYA3_UP,
+    EVENT_KEYA4_UP,
+    EVENT_UI_TIMEOUT,
+    EVENT_MUSIC_PLAY_END,
+    EVENT_MAX
+};
 struct task;
 typedef void (*task_func)(struct task*);
 typedef void (*func_p)(void*);
@@ -553,6 +562,9 @@ typedef struct ui_info_ {
     func_p ui_init;
     func_p ui_process_event;
     func_p ui_quit;
+    int timeout;
+    uint8 event_flag;
+    int8 ui_event_transfer[EVENT_MAX];
 } ui_info;
 
 void first_init(void*vp)
@@ -563,10 +575,12 @@ void first_init(void*vp)
     disp_mem_update = true;
 }
 ui_info all_ui[]={
-    {
+    {//0 first
         first_init,
         first_process_event,
         NULL,
+        3,
+        {-1,-1,-1,-1,1,-1},
     },
 };
 
@@ -575,7 +589,7 @@ ui_info* current_ui;
 bool g_flag_1s = false;
 void task_main(struct task*vp)
 {
-    current_ui->ui_process_event(NULL);
+    current_ui->ui_process_event(&current_ui);
 }
 
 #define KEY_CONFIRM_TIMER_CT 160
@@ -617,6 +631,12 @@ void task_timer(struct task*vp)
         g_flag_1s = true;
     }
     last_count_1s = count_1s;
+    if(current_ui->timeout > 0){
+        current_ui->timeout--;
+        if(current_ui->timeout == 0){
+            current_ui->event_flag |= 1<<EVENT_UI_TIMEOUT;
+        }
+    }
 }
 
 void task_disp(struct task*vp)
@@ -663,6 +683,7 @@ void task_music(struct task*vp)
     music_task_play_info.last_note_start_timerct = timer_ct;
     if(music_note==END){
         music_task_play_info.music_status = MUSIC_END;
+        current_ui->event_flag |= 1<<EVENT_MUSIC_PLAY_END;
         printf("play end\r\n");
     }
     else if(music_note == 0){
@@ -698,6 +719,23 @@ void play_music(__code signed char* pu)
     }
 }
 
+void common_process_event(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    uint8 evt_flag=1;
+    for(int8 i = 0; i < EVENT_MAX; i++){
+        evt_flag<<=i;
+        if(uif->event_flag & evt_flag){
+            if(uif->ui_quit){
+                uif->ui_quit(NULL);
+            }
+            current_ui = &all_ui[uif->ui_event_transfer[i]];
+            current_ui->ui_init(NULL);
+            return;
+        }
+    }
+}
+
 void first_process_event(void*vp)
 {
     if(keyA1_up){
@@ -710,6 +748,7 @@ void first_process_event(void*vp)
     }
     if(keyA3_up)printf("key A3 up\r\n");
     if(keyA4_up)printf("key A4 up\r\n");
+    common_process_event(vp);
 }
 struct task all_tasks[]=
 {
