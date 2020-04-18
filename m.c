@@ -535,7 +535,7 @@ __code const ui_info all_ui[]={
         NULL,
         300,
         TIME_DISP_EN,
-        0,
+        16,
         {-1,-1,-1,-1,-1,-1},
     },
 };
@@ -578,6 +578,17 @@ void task_key_status(struct task*vp)
     CHECK_KEY(A4)
 }
 
+void time_hms(char*buf, uint t)
+{
+    uint h, m, tm, s;
+
+    h = t / 3600;
+    tm = t - h * 3600;
+    m = tm / 60;
+    s = tm - m * 60;
+    sprintf(buf, "%02u:%02u:%02u", h, m, s);
+}
+
 void task_timer(struct task*vp)
 {
     static uint last_count_1s = 0;
@@ -604,15 +615,7 @@ void task_timer(struct task*vp)
                             "%u", tmp_ct);
                 }
                 else{
-                    uint h, m, tm, s;
-
-                    h = tmp_ct / 3600;
-                    tm = tmp_ct - h * 3600;
-                    m = tm / 60;
-                    s = tm - m * 60;
-                    sprintf(disp_mem+current_ui->position_of_dispmem,
-                            "%02u:%02u:%02u", h, m, s);
-
+                    time_hms(disp_mem+current_ui->position_of_dispmem, tmp_ct);
                 }
                 disp_mem_update = true;
             }
@@ -745,8 +748,10 @@ void first_init(void*vp)
 }
 void second_init(void*vp)
 {
+    ui_info* uif =(ui_info*)vp;
     common_ui_init(vp);
     memset(disp_mem, 0, 32);
+    time_hms(disp_mem, uif->timeout);
     disp_mem_update = true;
 }
 
