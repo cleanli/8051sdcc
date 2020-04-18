@@ -543,6 +543,7 @@ __pdata uint keyA2_down_ct;
 __pdata uint keyA3_down_ct;
 __pdata uint keyA4_down_ct;
 __pdata uint cur_task_timeout_ct;
+__pdata uint8 cur_task_event_flag;
 __pdata int8 cur_ui_index = 0;
 __pdata int8 last_ui_index = 0;
 enum EVENT_TYPE{
@@ -566,17 +567,15 @@ typedef struct ui_info_ {
     func_p ui_process_event;
     func_p ui_quit;
     int timeout;
-    uint8 event_flag;
     int8 ui_event_transfer[EVENT_MAX];
 } ui_info;
 
-ui_info all_ui[]={
+__code const ui_info all_ui[]={
     {//0 first
         first_init,
         first_process_event,
         NULL,
         3,
-        0,
         {-1,-1,-1,-1,1,-1},
     },
     {//1 second
@@ -584,12 +583,11 @@ ui_info all_ui[]={
         common_process_event,
         NULL,
         3,
-        0,
         {-1,-1,-1,-1,0,-1},
     },
 };
 
-ui_info* current_ui=NULL;
+__code const ui_info* current_ui=NULL;
 
 bool g_flag_1s = false;
 void task_main(struct task*vp)
@@ -638,8 +636,7 @@ void task_timer(struct task*vp)
         if(cur_task_timeout_ct > 0){
             cur_task_timeout_ct--;
             if(cur_task_timeout_ct == 0){
-                current_ui->event_flag |= 1<<EVENT_UI_TIMEOUT;
-        printf("cur flag %x\r\n", current_ui->event_flag);
+                cur_task_event_flag |= 1<<EVENT_UI_TIMEOUT;
             }
         }
     }
@@ -690,9 +687,8 @@ void task_music(struct task*vp)
     music_task_play_info.last_note_start_timerct = timer_ct;
     if(music_note==END){
         music_task_play_info.music_status = MUSIC_END;
-        current_ui->event_flag |= 1<<EVENT_MUSIC_PLAY_END;
+        cur_task_event_flag |= 1<<EVENT_MUSIC_PLAY_END;
         printf("play end\r\n");
-        printf("c flag %x\r\n", current_ui->event_flag);
     }
     else if(music_note == 0){
         CR=0;
@@ -732,7 +728,7 @@ void common_ui_init(void*vp)
     ui_info* uif =(ui_info*)vp;
     cur_task_timeout_ct = uif->timeout;
     //printf("cur task timect---init %x\r\n", cur_task_timeout_ct);
-    uif->event_flag = 0;
+    cur_task_event_flag = 0;
 }
 
 void common_process_event(void*vp)
@@ -742,7 +738,7 @@ void common_process_event(void*vp)
     for(int8 i = 0; i < EVENT_MAX; i++){
         uint8 evt_flag=1<<i;
         //if(dg) printf("ev flag %x %x i %x\r\n", uif->event_flag, evt_flag, i);
-        if((uif->event_flag & evt_flag) && uif->ui_event_transfer[i]!=-1){
+        if((cur_task_event_flag & evt_flag) && uif->ui_event_transfer[i]!=-1){
             if(uif->ui_quit){
                 uif->ui_quit(NULL);
             }
