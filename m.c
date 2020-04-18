@@ -574,6 +574,11 @@ void first_init(void*vp)
     sprintf(disp_mem+21, "%s", __DATE__);
     disp_mem_update = true;
 }
+void second_init(void*vp)
+{
+    memset(disp_mem, 0, 32);
+    disp_mem_update = true;
+}
 ui_info all_ui[]={
     {//0 first
         first_init,
@@ -581,6 +586,13 @@ ui_info all_ui[]={
         NULL,
         3,
         {-1,-1,-1,-1,1,-1},
+    },
+    {//1 second
+        second_init,
+        common_process_event,
+        NULL,
+        3,
+        {-1,-1,-1,-1,0,-1},
     },
 };
 
