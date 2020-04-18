@@ -598,7 +598,7 @@ void task_key_status(struct task*vp)
 void task_timer(struct task*vp)
 {
     static uint last_count_1s = 0;
-	g_flag_1s = false;
+    g_flag_1s = false;
     count_1s = timer_ct/tcops;
     if(count_1s != last_count_1s){
         g_flag_1s = true;
