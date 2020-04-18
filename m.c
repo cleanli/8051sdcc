@@ -660,16 +660,17 @@ void task_music(struct task*vp)
     }
     //printf("pu_index %u status %x\r\n", music_task_play_info.pu_index, music_task_play_info.music_status);
     music_note = music_task_play_info.pu[music_task_play_info.pu_index++];
-    music_register_value = musical_scale_regv[get_note_index(music_note)];
-    //printf("note %x\r\n", music_note);
     music_task_play_info.last_note_start_timerct = timer_ct;
     if(music_note==END){
         music_task_play_info.music_status = MUSIC_END;
+        printf("play end\r\n");
     }
     else if(music_note == 0){
         CR=0;
     }
     else{
+        music_register_value = musical_scale_regv[get_note_index(music_note)];
+        //printf("note %x\r\n", music_note);
         CR=1;
         CCAP0L = 0xff & music_register_value;
         CCAP0H = music_register_value>>8;
