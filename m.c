@@ -573,6 +573,18 @@ void cal_to_rom(uint addr, char*message)
 }
 /////////////////////////////new architecture///////////////////////////
 bool disp_mem_update = false;
+bool keyA1_down = false;
+bool keyA2_down = false;
+bool keyA3_down = false;
+bool keyA4_down = false;
+bool keyA1_up = false;
+bool keyA2_up = false;
+bool keyA3_up = false;
+bool keyA4_up = false;
+__pdata uint keyA1_down_ct;
+__pdata uint keyA2_down_ct;
+__pdata uint keyA3_down_ct;
+__pdata uint keyA4_down_ct;
 struct task;
 typedef void (*task_func)(struct task*);
 typedef void (*func_p)(void*);
@@ -595,6 +607,10 @@ void first_init(void*vp)
 }
 void first_process_event(void*vp)
 {
+    if(keyA1_up)printf("key A1 up\r\n");
+    if(keyA2_up)printf("key A2 up\r\n");
+    if(keyA3_up)printf("key A3 up\r\n");
+    if(keyA4_up)printf("key A4 up\r\n");
 }
 ui_info all_ui[]={
     {
@@ -612,11 +628,34 @@ void task_main(struct task*vp)
     current_ui->ui_process_event(NULL);
 }
 
+#define KEY_CONFIRM_TIMER_CT 160
+#define CHECK_KEY(AN) \
+    if((ksts&NO_KEY_##AN##_DOWN) == 0){ \
+        key##AN##_down_ct++; \
+    } \
+    else{ \
+        key##AN##_down_ct = 0; \
+        if(key##AN##_down==true){ \
+            key##AN##_down=false; \
+            key##AN##_up=true; \
+        } \
+        else{ \
+            key##AN##_up=false; \
+        } \
+    } \
+    if(key##AN##_down_ct > KEY_CONFIRM_TIME){ \
+        key##AN##_down=true; \
+    } \
+    else{ \
+        key##AN##_down=false; \
+    }
 void task_key_status(struct task*vp)
 {
-    if(get_key_status_raw()!=NO_KEY_DOWN
-            && g_flag_1s)
-        printf("key pressed\r\n");
+    uint8 ksts = get_key_status_raw();
+    CHECK_KEY(A1)
+    CHECK_KEY(A2)
+    CHECK_KEY(A3)
+    CHECK_KEY(A4)
 }
 
 void task_timer(struct task*vp)
