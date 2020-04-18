@@ -490,7 +490,7 @@ __code const ui_info all_ui[]={
     },
     {//1 second
         second_init,
-        common_process_event,
+        second_process_event,
         NULL,
         300,
         TIME_DISP_EN|TIME_DISP_LEFT,
@@ -705,6 +705,10 @@ void play_music(__code signed char* pu)
     if(music_task_play_info.music_status == MUSIC_PAUSE){
         music_task_play_info.music_status = MUSIC_PLAYING;
     }
+    else if(music_task_play_info.music_status == MUSIC_PLAYING){
+        music_task_play_info.music_status = MUSIC_PAUSE;
+        CR=0;
+    }
     else{
         music_task_play_info.pu = pu;
         music_task_play_info.pu_index = 0;
@@ -774,6 +778,16 @@ void first_process_event(void*vp)
     if(keyA3_up){
         cur_task_timeout_ct += 9;
         printf("key A3 up\r\n");
+    }
+    if(keyA4_up)printf("key A4 up\r\n");
+    common_process_event(vp);
+}
+
+void second_process_event(void*vp)
+{
+    if(keyA1_up){
+        printf("key A1 up\r\n");
+        play_music(fu);
     }
     if(keyA4_up)printf("key A4 up\r\n");
     common_process_event(vp);
