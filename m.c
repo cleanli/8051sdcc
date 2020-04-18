@@ -295,35 +295,6 @@ __code char testmu[] = {
     1,2,3,4,5,6,7,8,END
 };
 
-float get_power_votage()
-{
-    float ret;
-    uint rs;
-    //printf("ADC_CONTR %x\r\n", ADC_CONTR);
-    //printf("AUXR1 %x\r\n", AUXR1);
-    ADC_CONTR = ADC_CONTR | 0x80;//power on adc
-    us_delay(1);
-    P1ASF |= 0x04;//p12 for ADC
-    ADC_CONTR=0x82;//channel p12
-    us_delay(1);
-    ADC_RES = 0;
-    ADC_CONTR|=0x08;//start convert
-    us_delay(1);
-    //printf("ADC_CONTR %x\r\n", ADC_CONTR);
-    while(!(ADC_CONTR & 0x10));
-    //printf("ADC_CONTR %x\r\n", ADC_CONTR);
-    ADC_CONTR &= ~0x18;//clear start & flag
-    rs = (unsigned char)ADC_RES<<2;
-    rs |= ADC_RESL;
-    //printf("ADC_RES %x\r\n", rs);
-    //printf("ADC_RESL %x\r\n", ADC_RESL);
-    ret = 2.45f * 1024 / rs;
-    printf("rs %u\r\n", ret);
-    P1ASF &= ~0x04;//p12 recover normal IO
-    ADC_CONTR = ADC_CONTR & ~0x80;//power off
-    return ret;
-}
-
 struct s_lfs_data{
     char*buf;
     float fv;
@@ -355,23 +326,6 @@ void local_float_sprintf(struct s_lfs_data* lfsd)
     if(lfsd->follows){
         strcat(lfsd->buf, lfsd->follows);
     }
-}
-
-void disp_power(bool force)
-{
-    struct s_lfs_data ld;
-    float pv;
-    if(!force && !flag_1s)
-        return;
-    pv = get_power_votage();
-    //printf("pv %f\r\n",pv);
-    ld.buf=disp_mem+27;
-    ld.fv = pv;
-    ld.number_int=1;
-    ld.number_decimal=2;
-    ld.follows="V";
-    local_float_sprintf(&ld);
-    lcd_update(disp_mem);
 }
 
 uint8 get_key_status_raw()
@@ -482,6 +436,7 @@ bool keyA1_up = false;
 bool keyA2_up = false;
 bool keyA3_up = false;
 bool keyA4_up = false;
+bool power_meas_trigged = false;
 __pdata uint keyA1_down_ct;
 __pdata uint keyA2_down_ct;
 __pdata uint keyA3_down_ct;
@@ -490,6 +445,8 @@ __pdata uint cur_task_timeout_ct;
 __pdata uint8 cur_task_event_flag;
 __pdata int8 cur_ui_index = 0;
 __pdata int8 last_ui_index = 0;
+__pdata float power_voltage;
+__pdata struct s_lfs_data float_sprintf;
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
@@ -515,7 +472,8 @@ typedef struct ui_info_ {
     func_p ui_quit;
     int timeout;
     uint8 time_disp_mode;
-    uint8 position_of_dispmem;
+    uint8 time_position_of_dispmem;
+    uint8 power_position_of_dispmem;
     int8 ui_event_transfer[EVENT_MAX];
 } ui_info;
 
@@ -527,6 +485,7 @@ __code const ui_info all_ui[]={
         3,
         0,
         0,
+        33,
         {-1,-1,-1,-1,1,-1},
     },
     {//1 second
@@ -536,6 +495,7 @@ __code const ui_info all_ui[]={
         300,
         TIME_DISP_EN|TIME_DISP_LEFT,
         16,
+        27,
         {-1,-1,-1,-1,-1,-1},
     },
 };
@@ -589,6 +549,52 @@ void time_hms(char*buf, uint t)
     sprintf(buf, "%02u:%02u:%02u", h, m, s);
 }
 
+void task_power(struct task*vp)
+{
+    if(current_ui->power_position_of_dispmem<32){
+        if(!power_meas_trigged){
+            if(g_flag_1s){
+                //printf("ADC_CONTR %x\r\n", ADC_CONTR);
+                //printf("AUXR1 %x\r\n", AUXR1);
+                ADC_CONTR = ADC_CONTR | 0x80;//power on adc
+                us_delay(1);
+                P1ASF |= 0x04;//p12 for ADC
+                ADC_CONTR=0x82;//channel p12
+                us_delay(1);
+                ADC_RES = 0;
+                ADC_CONTR|=0x08;//start convert
+                us_delay(1);
+                //printf("ADC_CONTR %x\r\n", ADC_CONTR);
+                power_meas_trigged = true;
+            }
+        }
+        else{//trigged
+            if(ADC_CONTR & 0x10){//A/D transfer ready
+                uint rs;
+                //printf("ADC_CONTR %x\r\n", ADC_CONTR);
+                ADC_CONTR &= ~0x18;//clear start & flag
+                rs = (unsigned char)ADC_RES<<2;
+                rs |= ADC_RESL;
+                //printf("ADC_RES %x\r\n", rs);
+                //printf("ADC_RESL %x\r\n", ADC_RESL);
+                power_voltage = 2.45f * 1024 / rs;
+                P1ASF &= ~0x04;//p12 recover normal IO
+                ADC_CONTR = ADC_CONTR & ~0x80;//power off
+                power_meas_trigged = false;
+                //disp power
+                float_sprintf.buf=
+                    disp_mem+current_ui->power_position_of_dispmem;
+                float_sprintf.fv = power_voltage;
+                float_sprintf.number_int=1;
+                float_sprintf.number_decimal=2;
+                float_sprintf.follows="V";
+                local_float_sprintf(&float_sprintf);
+                disp_mem_update = true;
+            }
+        }
+    }
+}
+
 void task_timer(struct task*vp)
 {
     static uint last_count_1s = 0;
@@ -611,11 +617,11 @@ void task_timer(struct task*vp)
                     tmp_ct = current_ui->timeout - cur_task_timeout_ct;
                 }
                 if(current_ui->time_disp_mode & TIME_DISP_SECOND){
-                    sprintf(disp_mem+current_ui->position_of_dispmem,
+                    sprintf(disp_mem+current_ui->time_position_of_dispmem,
                             "%u", tmp_ct);
                 }
                 else{
-                    time_hms(disp_mem+current_ui->position_of_dispmem, tmp_ct);
+                    time_hms(disp_mem+current_ui->time_position_of_dispmem, tmp_ct);
                 }
                 disp_mem_update = true;
             }
@@ -788,6 +794,9 @@ struct task all_tasks[]=
     },
     {
         task_music,
+    },
+    {
+        task_power,
     },
 };
 
