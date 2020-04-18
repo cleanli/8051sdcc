@@ -677,12 +677,25 @@ void task_music(struct task*vp)
     }
 }
 
+void pause_music()
+{
+    if(music_task_play_info.music_status == MUSIC_PLAYING){
+        CR=0;
+        music_task_play_info.music_status = MUSIC_PAUSE;
+    }
+}
+
 void play_music(__code signed char* pu)
 {
-    music_task_play_info.pu = pu;
-    music_task_play_info.pu_index = 0;
-    music_task_play_info.last_note_start_timerct = 0;
-    music_task_play_info.music_status = MUSIC_PLAYING;
+    if(music_task_play_info.music_status == MUSIC_PAUSE){
+        music_task_play_info.music_status = MUSIC_PLAYING;
+    }
+    else{
+        music_task_play_info.pu = pu;
+        music_task_play_info.pu_index = 0;
+        music_task_play_info.last_note_start_timerct = 0;
+        music_task_play_info.music_status = MUSIC_PLAYING;
+    }
 }
 
 void first_process_event(void*vp)
@@ -691,7 +704,10 @@ void first_process_event(void*vp)
         printf("key A1 up\r\n");
         play_music(fu);
     }
-    if(keyA2_up)printf("key A2 up\r\n");
+    if(keyA2_up){
+        pause_music();
+        printf("key A2 up\r\n");
+    }
     if(keyA3_up)printf("key A3 up\r\n");
     if(keyA4_up)printf("key A4 up\r\n");
 }
