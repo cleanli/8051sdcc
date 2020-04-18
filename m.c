@@ -568,6 +568,9 @@ enum EVENT_TYPE{
     EVENT_MUSIC_PLAY_END,
     EVENT_MAX
 };
+#define TIME_DISP_EN (1<<0)
+#define TIME_DISP_SECOND (1<<1)
+#define TIME_DISP_LEFT (1<<2)
 struct task;
 typedef void (*task_func)(struct task*);
 typedef void (*func_p)(void*);
@@ -580,6 +583,8 @@ typedef struct ui_info_ {
     func_p ui_process_event;
     func_p ui_quit;
     int timeout;
+    uint8 time_disp_mode;
+    uint8 position_of_dispmem;
     int8 ui_event_transfer[EVENT_MAX];
 } ui_info;
 
@@ -589,13 +594,17 @@ __code const ui_info all_ui[]={
         first_process_event,
         NULL,
         3,
+        0,
+        0,
         {-1,-1,-1,-1,1,-1},
     },
     {//1 second
         second_init,
         common_process_event,
         NULL,
-        3,
+        300,
+        TIME_DISP_EN,
+        0,
         {-1,-1,-1,-1,-1,-1},
     },
 };
