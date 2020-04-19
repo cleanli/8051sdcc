@@ -524,6 +524,7 @@ void task_main(struct task*vp)
         if(key##AN##_down==true){ \
             key##AN##_down=false; \
             key##AN##_up=true; \
+            cur_task_event_flag |= 1<<EVENT_KEY##AN##_UP; \
         } \
         else{ \
             key##AN##_up=false; \
@@ -739,7 +740,6 @@ void ui_transfer(uint8 ui_id)
     last_ui_index = cur_ui_index;
     cur_ui_index = ui_id;
     current_ui = &all_ui[cur_ui_index];
-            printf("%p %p\r\n", current_ui, current_ui->ui_init);
     if(current_ui->ui_init){
         current_ui->ui_init(current_ui);
     }
@@ -748,13 +748,12 @@ void ui_transfer(uint8 ui_id)
 
 void common_process_event(void*vp)
 {
-    bool dg = g_flag_1s;
+    //bool dg = g_flag_1s;
     ui_info* uif =(ui_info*)vp;
     for(int8 i = 0; i < EVENT_MAX; i++){
         uint8 evt_flag=1<<i;
-        if(dg) printf("ev flag %x %x i %x\r\n", cur_task_event_flag, evt_flag, i);
+        //if(dg) printf("ev flag %x %x i %x\r\n", cur_task_event_flag, evt_flag, i);
         if(cur_task_event_flag & evt_flag){
-            printf("==%d\r\n", uif->ui_event_transfer[i]);
             if(uif->ui_event_transfer[i]>0){
                 ui_transfer(uif->ui_event_transfer[i]);
                 return;
