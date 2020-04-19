@@ -438,7 +438,7 @@ __pdata uint keyA1_down_ct;
 __pdata uint keyA2_down_ct;
 __pdata uint keyA3_down_ct;
 __pdata uint keyA4_down_ct;
-__pdata uint cur_task_timeout_ct;
+__pdata int cur_task_timeout_ct;
 __pdata uint8 cur_task_event_flag;
 __pdata int8 cur_ui_index = 0;
 __pdata int8 last_ui_index = 0;
@@ -448,6 +448,7 @@ __pdata uint8 ui_common_uint8 = 0;
 __pdata uint ui_common_uint = 0;
 __pdata int8 ui_common_int8 = 0;
 __pdata int ui_common_int = 0;
+__pdata int input_timeout = 30;
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
@@ -506,8 +507,8 @@ __code const ui_info all_ui[]={
         notice_music,
     },
     {//2 input timeout
-        common_ui_init,//func_p ui_init;
-        common_process_event,//func_p ui_process_event;
+        timeout_input_init,//func_p ui_init;
+        timeout_input_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
         TIMEOUT_DISABLE,//int timeout;
         0,//uint8 time_disp_mode;
@@ -797,6 +798,43 @@ void common_process_event(void*vp)
         }
     }
     cur_task_event_flag = 0;
+}
+
+void show_input_timeout()
+{
+    sprintf(disp_mem+9, "Timeout");
+    sprintf(disp_mem+16, "%d", input_timeout);
+    time_hms(disp_mem, input_timeout);
+    disp_mem_update = true;
+}
+
+void timeout_input_init(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    common_ui_init(vp);
+    show_input_timeout();
+}
+
+void timeout_input_process_event(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    if(keyA1_up){
+        if(input_timeout>0){
+            input_timeout--;
+        }
+        show_input_timeout();
+    }
+    if(keyA2_up){
+    }
+    if(keyA3_up){
+        if(input_timeout<32766){
+            input_timeout++;
+        }
+        show_input_timeout();
+    }
+    if(keyA4_up){
+    }
+    common_process_event(vp);
 }
 
 void first_init(void*vp)
