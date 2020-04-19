@@ -527,8 +527,8 @@ __code const ui_info all_ui[]={
         TIME_DISP_EN|TIME_DISP_LEFT,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
-        NULL,//__code char*timeout_music;
+        {-1,-1,-1,-1,-1,2},//int8 ui_event_transfer[EVENT_MAX];
+        xianglian,//__code char*timeout_music;
     },
     {//n input timeout
         common_ui_init,//func_p ui_init;
