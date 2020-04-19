@@ -516,7 +516,18 @@ __code const ui_info all_ui[]={
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,UI_TRANSFER_DEFAULT,-1,-1,1,-1},//ui_event_transfer[EVENT_MAX];
+        {-1,UI_TRANSFER_DEFAULT,-1,3,1,-1},//ui_event_transfer[EVENT_MAX];
+        NULL,//__code char*timeout_music;
+    },
+    {//3 timer
+        common_ui_init,//func_p ui_init;
+        common_process_event,//func_p ui_process_event;
+        NULL,//func_p ui_quit;
+        TIMEOUT_INPUT,//int timeout;
+        TIME_DISP_EN|TIME_DISP_LEFT,//uint8 time_disp_mode;
+        16,//uint8 time_position_of_dispmem;
+        27,//uint8 power_position_of_dispmem;
+        {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
     {//n input timeout
@@ -527,7 +538,7 @@ __code const ui_info all_ui[]={
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,-1,-1,-1,1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
 };
@@ -759,7 +770,12 @@ void play_music(__code signed char* pu)
 void common_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
-    cur_task_timeout_ct = uif->timeout;
+    if(uif->timeout == TIMEOUT_INPUT){
+        cur_task_timeout_ct = input_timeout;
+    }
+    else{
+        cur_task_timeout_ct = uif->timeout;
+    }
     printf("cur task timect---init %x\r\n", cur_task_timeout_ct);
     cur_task_event_flag = 0;
     memset(disp_mem, 0, 33);
