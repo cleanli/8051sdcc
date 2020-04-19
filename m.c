@@ -8,8 +8,8 @@
 #define WHEEL_R 197 //mm
 #define WHEEL_CIRCUMFERENCE (wheelr*2*3.14159f)
 #define MS_COUNT 1279
-#define TIMER0_COUNT_PER_SECOND 8296
-#define COUNT10MS ((TIMER0_COUNT_PER_SECOND+50)/100)
+#define TIMER0_COUNT_PER_SECOND 8303
+#define COUNT10MS ((tcops+50)/100)
 #define true 1
 #define false 0
 #define TC0PS_EEROM_ADDR 4
