@@ -3,6 +3,7 @@
 #include <string.h>
 #include "type.h"
 
+#define CDB printf("line%d\r\n", __LINE__)
 #define VERSION "0.1"
 #define WHEEL_R 197 //mm
 #define WHEEL_CIRCUMFERENCE (wheelr*2*3.14159f)
@@ -479,6 +480,7 @@ typedef struct ui_info_ {
     __code char*timeout_music;
 } ui_info;
 
+#define DEFAULT (-2)
 __code const ui_info all_ui[]={
     {//0 first
         first_init,
@@ -499,7 +501,7 @@ __code const ui_info all_ui[]={
         TIME_DISP_EN|TIME_DISP_LEFT,
         16,
         27,
-        {-1,-1,-1,-1,-1,-1},
+        {-1,-2,-1,-1,-1,-1},
         notice_music,
     },
 };
@@ -725,32 +727,46 @@ void common_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     cur_task_timeout_ct = uif->timeout;
-    //printf("cur task timect---init %x\r\n", cur_task_timeout_ct);
+    printf("cur task timect---init %x\r\n", cur_task_timeout_ct);
     cur_task_event_flag = 0;
+}
+
+void ui_transfer(uint8 ui_id)
+{
+    if(current_ui->ui_quit){
+        current_ui->ui_quit(current_ui);
+    }
+    last_ui_index = cur_ui_index;
+    cur_ui_index = ui_id;
+    current_ui = &all_ui[cur_ui_index];
+            printf("%p %p\r\n", current_ui, current_ui->ui_init);
+    if(current_ui->ui_init){
+        current_ui->ui_init(current_ui);
+    }
+    printf("ui %u->%u\r\n", last_ui_index, ui_id);
 }
 
 void common_process_event(void*vp)
 {
-    //bool dg = g_flag_1s;
+    bool dg = g_flag_1s;
     ui_info* uif =(ui_info*)vp;
     for(int8 i = 0; i < EVENT_MAX; i++){
         uint8 evt_flag=1<<i;
-        //if(dg) printf("ev flag %x %x i %x\r\n", cur_task_event_flag, evt_flag, i);
+        if(dg) printf("ev flag %x %x i %x\r\n", cur_task_event_flag, evt_flag, i);
         if(cur_task_event_flag & evt_flag){
-            if(uif->ui_event_transfer[i]!=-1){
-                if(uif->ui_quit){
-                    uif->ui_quit(NULL);
-                }
-                last_ui_index = cur_ui_index;
-                cur_ui_index = i;
-                current_ui = &all_ui[uif->ui_event_transfer[i]];
-                if(current_ui->ui_init){
-                    current_ui->ui_init(current_ui);
-                }
-                printf("cur changed\r\n");
+            printf("==%d\r\n", uif->ui_event_transfer[i]);
+            if(uif->ui_event_transfer[i]>0){
+                ui_transfer(uif->ui_event_transfer[i]);
                 return;
             }
-            //printf("ev flag %x EVUTO %x\r\n", evt_flag, EVENT_UI_TIMEOUT);
+            if(uif->ui_event_transfer[i]==DEFAULT){
+                if(evt_flag == (1<<EVENT_KEYA2_UP) &&
+                        last_ui_index != cur_ui_index){
+                    ui_transfer(last_ui_index);
+                    return;
+                }
+            }
+            printf("ev flag %x EVUTO %x\r\n", evt_flag, EVENT_UI_TIMEOUT);
             if(evt_flag == (1<<EVENT_UI_TIMEOUT) && uif->timeout_music){
                 play_music(uif->timeout_music);
             }
