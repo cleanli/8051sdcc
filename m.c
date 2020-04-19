@@ -633,16 +633,14 @@ void task_timer(struct task*vp)
 {
     g_flag_1s = false;
     count_1s = timer_ct/tcops;
-#if 0
-    //count_10ms = (timer_ct - tcops*count_1s)/COUNT10MS;
-    //g_flag_10ms = false;
+    count_10ms = (timer_ct - tcops*count_1s)/COUNT10MS;
+    g_flag_10ms = false;
     if(count_10ms != last_count_10ms){
         g_flag_10ms = true;
     }
-#endif
     if(count_1s != last_count_1s){
         g_flag_1s = true;
-        printf("cur task timect--- %u\r\n", cur_task_timeout_ct);
+        printf("task timect %u\r\n", cur_task_timeout_ct);
         if(cur_task_timeout_ct > 0){
             cur_task_timeout_ct--;
             if(cur_task_timeout_ct == 0){
@@ -668,7 +666,7 @@ void task_timer(struct task*vp)
         }
     }
     last_count_1s = count_1s;
-    //last_count_10ms = count_10ms;
+    last_count_10ms = count_10ms;
 }
 
 void task_disp(struct task*vp)
@@ -827,8 +825,9 @@ void timeout_input_init(void*vp)
 
 int get_modify_speed(uint i)
 {
-    if(i<1000)return 10;
-    if(i<10000)return i/100;
+    if(i<4000)return 1;
+    if(i<10000)return 10;
+    if(i<50000)return 100;
     return 1000;
 }
 
@@ -836,7 +835,7 @@ void timeout_input_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     if(keyA1_up){
-        printf("key A1 up\r\n");
+        printf("key A1 up %u\r\n", keyA1_down_ct);
         if(input_timeout>0){
             input_timeout--;
         }
@@ -845,7 +844,7 @@ void timeout_input_process_event(void*vp)
     if(keyA2_up){
     }
     if(keyA3_up){
-        printf("key A3 up\r\n");
+        printf("key A3 up %u\r\n", keyA3_down_ct);
         if(input_timeout<32766){
             input_timeout++;
         }
@@ -854,35 +853,37 @@ void timeout_input_process_event(void*vp)
     if(keyA4_up){
     }
 #if 0
-    /*
-    if(
-            keyA1_down_ct == 100 || keyA3_down_ct == 100
+    if(keyA1_down_ct == 100 || keyA3_down_ct == 100
             ||keyA1_down_ct == 1000 || keyA3_down_ct == 1000
-            ||keyA1_down_ct == 10000 || keyA3_down_ct == 10000
-            )
-    printf("%u %u\r\n", keyA1_down_ct, keyA3_down_ct);
-    */
-    if(keyA1_down_ct){
-        ui_common_int = get_modify_speed(keyA1_down_ct);
-        if(input_timeout>ui_common_uint){
-            input_timeout-=ui_common_uint;
-        }
-        else{
-            input_timeout=0;
-        }
-        show_input_timeout();
-    }
-    if(keyA3_down_ct){
-        ui_common_int = get_modify_speed(keyA1_down_ct);
-        if(input_timeout+ui_common_uint<32766){
-            input_timeout+=ui_common_uint;
-        }
-        else{
-            input_timeout=32766;
-        }
-        show_input_timeout();
-    }
+            ||keyA1_down_ct == 10000 || keyA3_down_ct == 10000)
+        printf("%u %u\r\n", keyA1_down_ct, keyA3_down_ct);
 #endif
+    if(count_10ms%10==0){
+        if(keyA1_down_ct>1000){
+            ui_common_int = get_modify_speed(keyA1_down_ct);
+            //printf("uicint %d %u\r\n", ui_common_int, keyA1_down_ct);
+            if(input_timeout>ui_common_int){
+                input_timeout-=ui_common_int;
+            }
+            else{
+                input_timeout=0;
+            }
+            show_input_timeout();
+        }
+        if(keyA3_down_ct>1000){
+            ui_common_int = get_modify_speed(keyA3_down_ct);
+            //printf("uicint %d %u\r\n", ui_common_int, keyA3_down_ct);
+            if(65535/2 - input_timeout>ui_common_int){
+                CDB;
+                input_timeout+=ui_common_int;
+            }
+            else{
+                CDB;
+                input_timeout=65535/2;
+            }
+            show_input_timeout();
+        }
+    }
     common_process_event(vp);
 }
 
