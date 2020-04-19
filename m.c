@@ -286,7 +286,7 @@ __code char xianglian[] = {
     5,6,6,8,42,42,32,8,  9,9,9,9,9,9,9,9,  9,6,6,7,6,6,5,5,  8,8,8,8,8,8,8,8,  8,8,
     END
 };
-__code char music[] = {
+__code char notice_music[] = {
     //1,1,4,4,5,5,8,8,8,8,0
     1,1,4,4,5,5,8,8,END
 };
@@ -475,6 +475,7 @@ typedef struct ui_info_ {
     uint8 time_position_of_dispmem;
     uint8 power_position_of_dispmem;
     int8 ui_event_transfer[EVENT_MAX];
+    __code char*timeout_music;
 } ui_info;
 
 __code const ui_info all_ui[]={
@@ -487,16 +488,18 @@ __code const ui_info all_ui[]={
         0,
         33,
         {-1,-1,-1,-1,1,-1},
+        NULL,
     },
     {//1 second
         second_init,
         second_process_event,
         NULL,
-        300,
+        10,
         TIME_DISP_EN|TIME_DISP_LEFT,
         16,
         27,
         {-1,-1,-1,-1,-1,-1},
+        notice_music,
     },
 };
 
@@ -731,21 +734,28 @@ void common_process_event(void*vp)
     ui_info* uif =(ui_info*)vp;
     for(int8 i = 0; i < EVENT_MAX; i++){
         uint8 evt_flag=1<<i;
-        //if(dg) printf("ev flag %x %x i %x\r\n", uif->event_flag, evt_flag, i);
-        if((cur_task_event_flag & evt_flag) && uif->ui_event_transfer[i]!=-1){
-            if(uif->ui_quit){
-                uif->ui_quit(NULL);
+        //if(dg) printf("ev flag %x %x i %x\r\n", cur_task_event_flag, evt_flag, i);
+        if(cur_task_event_flag & evt_flag){
+            if(uif->ui_event_transfer[i]!=-1){
+                if(uif->ui_quit){
+                    uif->ui_quit(NULL);
+                }
+                last_ui_index = cur_ui_index;
+                cur_ui_index = i;
+                current_ui = &all_ui[uif->ui_event_transfer[i]];
+                if(current_ui->ui_init){
+                    current_ui->ui_init(current_ui);
+                }
+                printf("cur changed\r\n");
+                return;
             }
-            last_ui_index = cur_ui_index;
-            cur_ui_index = i;
-            current_ui = &all_ui[uif->ui_event_transfer[i]];
-            if(current_ui->ui_init){
-                current_ui->ui_init(current_ui);
+            //printf("ev flag %x EVUTO %x\r\n", evt_flag, EVENT_UI_TIMEOUT);
+            if(evt_flag == (1<<EVENT_UI_TIMEOUT) && uif->timeout_music){
+                play_music(uif->timeout_music);
             }
-            printf("cur changed\r\n");
-            return;
         }
     }
+    cur_task_event_flag = 0;
 }
 
 void first_init(void*vp)
