@@ -447,6 +447,7 @@ __pdata int8 cur_ui_index = 0;
 __pdata int8 last_ui_index = 0;
 __pdata float power_voltage;
 __pdata struct s_lfs_data float_sprintf;
+__pdata uint8 ui_common_uint8 = 0;
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
@@ -769,8 +770,10 @@ void first_init(void*vp)
 void second_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
+    ui_common_uint8 = 1;
     common_ui_init(vp);
     memset(disp_mem, 0, 32);
+    sprintf(disp_mem+12, "%u", ui_common_uint8);
     time_hms(disp_mem, uif->timeout);
     disp_mem_update = true;
 }
@@ -795,11 +798,17 @@ void first_process_event(void*vp)
 
 void second_process_event(void*vp)
 {
+    ui_info* uif =(ui_info*)vp;
     if(keyA1_up){
         printf("key A1 up\r\n");
         play_music(fu);
     }
     if(keyA4_up)printf("key A4 up\r\n");
+    if(cur_task_event_flag & (1<<EVENT_UI_TIMEOUT)){
+        cur_task_timeout_ct = uif->timeout;
+        ui_common_uint8++;
+        sprintf(disp_mem+12, "%u", ui_common_uint8);
+    }
     common_process_event(vp);
 }
 struct task all_tasks[]=
