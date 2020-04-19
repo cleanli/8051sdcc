@@ -19,8 +19,6 @@ volatile ulong saved_int_timer_ct = 0;
 ulong last_saved_int_timer_ct = 0;
 __pdata unsigned long saved_timer_ct = 0;
 __pdata unsigned long saved_timer_ct_music = 0;
-//__pdata static unsigned char count_10ms=0;
-__pdata static unsigned int count_1s=0;
 __pdata unsigned char disp_mem[33];
 __pdata float mileage;
 __pdata float last_speed;
@@ -449,6 +447,10 @@ __pdata uint ui_common_uint = 0;
 __pdata int8 ui_common_int8 = 0;
 __pdata int ui_common_int = 0;
 __pdata int input_timeout = 30;
+__pdata uint last_count_1s = 0;
+__pdata uint8 last_count_10ms = 0;
+__pdata uint count_1s=0;
+__pdata uint8 count_10ms=0;
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
@@ -514,7 +516,7 @@ __code const ui_info all_ui[]={
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,-1,-1,-1,1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,UI_TRANSFER_DEFAULT,-1,-1,1,-1},//ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
     {//n input timeout
@@ -533,6 +535,7 @@ __code const ui_info all_ui[]={
 __code const ui_info* current_ui=NULL;
 
 bool g_flag_1s = false;
+bool g_flag_10ms = false;
 void task_main(struct task*vp)
 {
     current_ui->ui_process_event(current_ui);
@@ -541,7 +544,7 @@ void task_main(struct task*vp)
 #define KEY_CONFIRM_TIMER_CT 160
 #define CHECK_KEY(AN) \
     if((ksts&NO_KEY_##AN##_DOWN) == 0){ \
-        key##AN##_down_ct++; \
+        if(key##AN##_down_ct<65535)key##AN##_down_ct++; \
     } \
     else{ \
         key##AN##_down_ct = 0; \
@@ -628,9 +631,15 @@ void task_power(struct task*vp)
 
 void task_timer(struct task*vp)
 {
-    static uint last_count_1s = 0;
     g_flag_1s = false;
     count_1s = timer_ct/tcops;
+#if 0
+    //count_10ms = (timer_ct - tcops*count_1s)/COUNT10MS;
+    //g_flag_10ms = false;
+    if(count_10ms != last_count_10ms){
+        g_flag_10ms = true;
+    }
+#endif
     if(count_1s != last_count_1s){
         g_flag_1s = true;
         printf("cur task timect--- %u\r\n", cur_task_timeout_ct);
@@ -659,14 +668,15 @@ void task_timer(struct task*vp)
         }
     }
     last_count_1s = count_1s;
+    //last_count_10ms = count_10ms;
 }
 
 void task_disp(struct task*vp)
 {
     if(disp_mem_update){
-        saved_timer_ct = timer_ct;
+        //saved_timer_ct = timer_ct;
         lcd_update(disp_mem);
-        printf("lcd update %lu\r\n", timer_ct -saved_timer_ct);
+        //printf("lcd update %lu\r\n", timer_ct -saved_timer_ct);
         disp_mem_update = false;
     }
 }
@@ -802,7 +812,6 @@ void common_process_event(void*vp)
 
 void show_input_timeout()
 {
-    sprintf(disp_mem+9, "Timeout");
     sprintf(disp_mem+16, "%d", input_timeout);
     time_hms(disp_mem, input_timeout);
     disp_mem_update = true;
@@ -812,13 +821,22 @@ void timeout_input_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     common_ui_init(vp);
+    sprintf(disp_mem+9, "Timeout");
     show_input_timeout();
+}
+
+int get_modify_speed(uint i)
+{
+    if(i<1000)return 10;
+    if(i<10000)return i/100;
+    return 1000;
 }
 
 void timeout_input_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     if(keyA1_up){
+        printf("key A1 up\r\n");
         if(input_timeout>0){
             input_timeout--;
         }
@@ -827,6 +845,7 @@ void timeout_input_process_event(void*vp)
     if(keyA2_up){
     }
     if(keyA3_up){
+        printf("key A3 up\r\n");
         if(input_timeout<32766){
             input_timeout++;
         }
@@ -834,6 +853,36 @@ void timeout_input_process_event(void*vp)
     }
     if(keyA4_up){
     }
+#if 0
+    /*
+    if(
+            keyA1_down_ct == 100 || keyA3_down_ct == 100
+            ||keyA1_down_ct == 1000 || keyA3_down_ct == 1000
+            ||keyA1_down_ct == 10000 || keyA3_down_ct == 10000
+            )
+    printf("%u %u\r\n", keyA1_down_ct, keyA3_down_ct);
+    */
+    if(keyA1_down_ct){
+        ui_common_int = get_modify_speed(keyA1_down_ct);
+        if(input_timeout>ui_common_uint){
+            input_timeout-=ui_common_uint;
+        }
+        else{
+            input_timeout=0;
+        }
+        show_input_timeout();
+    }
+    if(keyA3_down_ct){
+        ui_common_int = get_modify_speed(keyA1_down_ct);
+        if(input_timeout+ui_common_uint<32766){
+            input_timeout+=ui_common_uint;
+        }
+        else{
+            input_timeout=32766;
+        }
+        show_input_timeout();
+    }
+#endif
     common_process_event(vp);
 }
 
