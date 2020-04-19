@@ -262,10 +262,6 @@ uint8 get_note_index(signed char value)
 }
 
 #define END 127
-//-7,1,2,3,4,5,6,7,1-,2-,
-__code unsigned int y[16]={1390,
-                          1312, 1172, 1044, 985, 877, 781, 696,
-                          657, 586, 522, 493, 439, 391, 348, 0};
 __code char fu[200] = {5,5,6,6,5,5,8,8,7,7,0,0,5,5,6,6,5,5,9,9,8,8,0,0,
                 5,5,52,52,32,32,8,8,7,7,6,6,0,0,42,42,32,32,8,8,9,9,8,8,0,0,0,0,END};
 __code char shaolshi[] = {
@@ -449,6 +445,9 @@ __pdata int8 last_ui_index = 0;
 __pdata float power_voltage;
 __pdata struct s_lfs_data float_sprintf;
 __pdata uint8 ui_common_uint8 = 0;
+__pdata uint ui_common_uint = 0;
+__pdata int8 ui_common_int8 = 0;
+__pdata int ui_common_int = 0;
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
@@ -480,7 +479,9 @@ typedef struct ui_info_ {
     __code char*timeout_music;
 } ui_info;
 
-#define DEFAULT (-2)
+#define UI_TRANSFER_DEFAULT (-2)
+#define TIMEOUT_DISABLE (-1)
+#define TIMEOUT_INPUT (-2)
 __code const ui_info all_ui[]={
     {//0 first
         first_init,
@@ -490,19 +491,41 @@ __code const ui_info all_ui[]={
         0,
         0,
         33,
-        {-1,-1,-1,-1,1,-1},
+        {-1,-1,-1,2,1,-1},
         NULL,
     },
     {//1 second
         second_init,
         second_process_event,
         NULL,
-        10,
+        300,
         TIME_DISP_EN|TIME_DISP_LEFT,
         16,
         27,
         {-1,-2,-1,-1,-1,-1},
         notice_music,
+    },
+    {//2 input timeout
+        common_ui_init,//func_p ui_init;
+        common_process_event,//func_p ui_process_event;
+        NULL,//func_p ui_quit;
+        TIMEOUT_DISABLE,//int timeout;
+        0,//uint8 time_disp_mode;
+        33,//uint8 time_position_of_dispmem;
+        27,//uint8 power_position_of_dispmem;
+        {-1,-1,-1,-1,1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        NULL,//__code char*timeout_music;
+    },
+    {//n input timeout
+        common_ui_init,//func_p ui_init;
+        common_process_event,//func_p ui_process_event;
+        NULL,//func_p ui_quit;
+        TIMEOUT_DISABLE,//int timeout;
+        0,//uint8 time_disp_mode;
+        33,//uint8 time_position_of_dispmem;
+        27,//uint8 power_position_of_dispmem;
+        {-1,-1,-1,-1,1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        NULL,//__code char*timeout_music;
     },
 };
 
@@ -730,6 +753,8 @@ void common_ui_init(void*vp)
     cur_task_timeout_ct = uif->timeout;
     printf("cur task timect---init %x\r\n", cur_task_timeout_ct);
     cur_task_event_flag = 0;
+    memset(disp_mem, 0, 33);
+    disp_mem_update = true;
 }
 
 void ui_transfer(uint8 ui_id)
@@ -758,7 +783,7 @@ void common_process_event(void*vp)
                 ui_transfer(uif->ui_event_transfer[i]);
                 return;
             }
-            if(uif->ui_event_transfer[i]==DEFAULT){
+            if(uif->ui_event_transfer[i]==UI_TRANSFER_DEFAULT){
                 if(evt_flag == (1<<EVENT_KEYA2_UP) &&
                         last_ui_index != cur_ui_index){
                     ui_transfer(last_ui_index);
