@@ -513,7 +513,7 @@ __code const ui_info all_ui[]={
     {//2 input timeout
         timeout_input_init,//func_p ui_init;
         timeout_input_process_event,//func_p ui_process_event;
-        NULL,//func_p ui_quit;
+        timeout_input_quit,//func_p ui_quit;
         TIMEOUT_DISABLE,//int timeout;
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
@@ -842,6 +842,12 @@ void timeout_input_init(void*vp)
     show_input_timeout();
     ui_common_int = 1;
     cursor_cmd = 0x87;
+}
+
+void timeout_input_quit(void*vp)
+{
+    CDB;
+    cursor_cmd = 0;
 }
 
 int get_modify_speed(uint i)

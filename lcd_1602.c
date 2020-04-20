@@ -209,4 +209,7 @@ void lcd_cursor(uint8 d)
             LCD_RegWrite(0xb0+d);
         }
     }
+    else{
+        LCD_RegWrite(0x0c);
+    }
 }
