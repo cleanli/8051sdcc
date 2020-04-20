@@ -1,5 +1,6 @@
 #include "stc12.h"
 #include <stdio.h>
+#include "type.h"
 // this file for MCU I/O port or the orther`s hardware config
 // for LCD Display
 // Define for the port use by LCD Driver
@@ -195,4 +196,17 @@ uiTemp = LCD_DataRead(); //读数据
 LCD_RegWrite(0x80); //设置地址后再读数据
 uiTemp = LCD_DataRead();
 //printf("read %02x\n", (int)uiTemp);
+}
+void lcd_cursor(uint8 d)
+{
+    if(d & 0x80){
+        LCD_RegWrite(0x0f);
+        d &= 0x1f;
+        if(d<16){
+            LCD_RegWrite(0x80+d);
+        }
+        else{
+            LCD_RegWrite(0xb0+d);
+        }
+    }
 }

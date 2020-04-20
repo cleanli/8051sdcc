@@ -31,6 +31,7 @@ uint target_hour = 0, target_minute = 1;
 ulong target_seconds;
 void LCD_Init();
 void lcd_update(unsigned char*);
+void lcd_cursor(uint8 d);
 uint8 get_key_status_raw();
 uint8 key_down_in_time(uint8 timeout_in_20ms);
 /*eerom*/
@@ -451,6 +452,7 @@ __pdata uint last_count_1s = 0;
 __pdata uint8 last_count_10ms = 0;
 __pdata uint count_1s=0;
 __pdata uint8 count_10ms=0;
+__pdata uint8 cursor_cmd = 0;
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
@@ -686,6 +688,7 @@ void task_disp(struct task*vp)
         //saved_timer_ct = timer_ct;
         lcd_update(disp_mem);
         //printf("lcd update %lu\r\n", timer_ct -saved_timer_ct);
+        lcd_cursor(cursor_cmd);
         disp_mem_update = false;
     }
 }
@@ -856,6 +859,9 @@ void timeout_input_process_event(void*vp)
             input_timeout--;
         }
         show_input_timeout();
+        cursor_cmd++;
+        cursor_cmd &= 0x1f;
+        cursor_cmd |= 0x80;
     }
     if(keyA2_up){
     }
@@ -865,6 +871,9 @@ void timeout_input_process_event(void*vp)
             input_timeout++;
         }
         show_input_timeout();
+        cursor_cmd--;
+        cursor_cmd &= 0x1f;
+        cursor_cmd |= 0x80;
     }
     if(keyA4_up){
     }
