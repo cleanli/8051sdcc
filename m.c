@@ -1,6 +1,7 @@
 #include <stc12.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include "type.h"
 
 #define CDB printf("line%d\r\n", __LINE__)
@@ -16,7 +17,6 @@
 #define WHEEL_R_EEROM_ADDR 6
 volatile ulong timer_ct = 0;
 volatile ulong saved_int_timer_ct = 0;
-ulong last_saved_int_timer_ct = 0;
 __pdata unsigned long saved_timer_ct = 0;
 __pdata unsigned long saved_timer_ct_music = 0;
 __pdata unsigned char disp_mem[33];
@@ -447,12 +447,17 @@ __pdata uint8 ui_common_uint8 = 0;
 __pdata uint ui_common_uint = 0;
 __pdata int8 ui_common_int8 = 0;
 __pdata int ui_common_int = 0;
+__pdata ulong ui_common_ulong = 0;
 __pdata int input_timeout = 30;
 __pdata uint last_count_1s = 0;
 __pdata uint8 last_count_10ms = 0;
 __pdata uint count_1s=0;
 __pdata uint8 count_10ms=0;
 __pdata uint8 cursor_cmd = 0;
+__pdata float speed = 0.0f;
+__pdata float mileage = 0.0f;
+__pdata ulong last_saved_int_timer_ct = 0;
+
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
@@ -496,7 +501,7 @@ __code const ui_info all_ui[]={
         0,
         0,
         33,
-        {-1,-1,-1,2,1,-1},
+        {-1,4,-1,2,1,-1},
         NULL,
     },
     {//1 second
@@ -531,6 +536,17 @@ __code const ui_info all_ui[]={
         27,//uint8 power_position_of_dispmem;
         {-1,-1,-1,-1,-1,2},//int8 ui_event_transfer[EVENT_MAX];
         xianglian,//__code char*timeout_music;
+    },
+    {//4 lcj
+        lcj_ui_init,//func_p ui_init;
+        lcj_process_event,//func_p ui_process_event;
+        NULL,//func_p ui_quit;
+        INT_MAX,//int timeout;
+        TIME_DISP_EN,//uint8 time_disp_mode;
+        16,//uint8 time_position_of_dispmem;
+        27,//uint8 power_position_of_dispmem;
+        {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        NULL,//__code char*timeout_music;
     },
     {//n input timeout
         common_ui_init,//func_p ui_init;
@@ -834,6 +850,103 @@ void show_input_timeout()
     disp_mem_update = true;
 }
 
+void lcj_disp()
+{
+    ui_common_uint8 = disp_mem[16];
+    float_sprintf.buf=disp_mem;
+    float_sprintf.fv = speed;
+    float_sprintf.number_int=2;
+    float_sprintf.number_decimal=1;
+    float_sprintf.follows="km/h";
+    local_float_sprintf(&float_sprintf);
+
+    if(mileage<1000000){
+        //sprintf(disp_mem+10, "%03.1fm", mileage/1000);
+        float_sprintf.buf=disp_mem+10;
+        float_sprintf.fv = mileage/1000;
+        float_sprintf.number_int=3;
+        float_sprintf.number_decimal=1;
+        float_sprintf.follows="m";
+        local_float_sprintf(&float_sprintf);
+    }
+    else if(mileage < 10000000){
+        //sprintf(disp_mem+10, "%1.2fkm", mileage/1000000);
+        float_sprintf.buf=disp_mem+10;
+        float_sprintf.fv = mileage/1000000;
+        float_sprintf.number_int=1;
+        float_sprintf.number_decimal=2;
+        float_sprintf.follows="km";
+        local_float_sprintf(&float_sprintf);
+    }
+    else{
+        //sprintf(disp_mem+10, "%3.1fkm", mileage/1000000);
+        float_sprintf.buf=disp_mem+10;
+        float_sprintf.fv = mileage/1000000;
+        float_sprintf.number_int=3;
+        float_sprintf.number_decimal=1;
+        float_sprintf.follows="km";
+        local_float_sprintf(&float_sprintf);
+    }
+    disp_mem[16] = ui_common_uint8;
+}
+
+void lcj_compute_speed(ulong t)
+{
+    ui_common_ulong = t - last_saved_int_timer_ct;
+    //printf("dur %d", duration);
+    speed = (float)WHEEL_CIRCUMFERENCE * tcops / 1000 / (float)ui_common_ulong; //m/s
+    //printf("2 m/s---%2.1f\r\n", speed);
+    speed = speed * 3600 / 1000;//km/h
+    //printf("saved---%lu\r\n", saved_int_timer_ct);
+    //printf("last saved---%lu\r\n", last_saved_int_timer_ct);
+    printf("2---%2.1f\r\n", speed);
+}
+
+void lcj_ui_init(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    common_ui_init(vp);
+    speed = 0.0f;
+    mileage = 0.0f;
+    lcj_disp();
+    disp_mem_update = true;
+}
+
+void lcj_process_event(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    if(last_saved_int_timer_ct != saved_int_timer_ct){
+        if(last_saved_int_timer_ct != 0){
+            lcj_compute_speed(saved_int_timer_ct);
+            if(speed < 100){//abnormal if speed > 100km/h, discard the data
+                last_speed = speed;
+                mileage += WHEEL_CIRCUMFERENCE;
+                lcj_disp();
+                disp_mem_update = true;
+                last_saved_int_timer_ct = saved_int_timer_ct;
+            }
+        }
+        else if(saved_int_timer_ct != 0){
+            last_saved_int_timer_ct = saved_int_timer_ct;
+        }
+    }
+    else if(g_flag_1s){
+        lcj_compute_speed(timer_ct);
+        if(speed < last_speed){
+            lcj_disp();
+            disp_mem_update = true;
+            last_speed = speed;
+        }
+    }
+    if(P3_3){
+        LED1 = 1;
+    }
+    else{
+        LED1 = 0;
+    }
+    common_process_event(vp);
+}
+
 void timeout_input_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
@@ -961,6 +1074,7 @@ void first_process_event(void*vp)
 {
     if(keyA1_up){
         printf("key A1 up\r\n");
+        cur_task_timeout_ct += 9;
         play_music(xianglian);
     }
     if(keyA2_up){
@@ -968,7 +1082,6 @@ void first_process_event(void*vp)
         printf("key A2 up\r\n");
     }
     if(keyA3_up){
-        cur_task_timeout_ct += 9;
         printf("key A3 up\r\n");
     }
     if(keyA4_up)printf("key A4 up\r\n");
