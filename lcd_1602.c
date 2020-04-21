@@ -190,12 +190,14 @@ void lcd_update(unsigned char * s)
         LCD_DataWrite(*String_s);
         String_s++;
     }
+#if 0
     //以下仅为测试使用，测试读数据程序的功能
     uiTemp = LCD_DataRead(); //读数据
     //printf("read %02x\n", (int)uiTemp);
     LCD_RegWrite(0x80); //设置地址后再读数据
     uiTemp = LCD_DataRead();
     //printf("read %02x\n", (int)uiTemp);
+#endif
 }
 void lcd_cursor(uint8 d)
 {
