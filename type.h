@@ -8,5 +8,7 @@ typedef unsigned long ulong;
 #ifdef SDCC
 typedef __bit bool;
 #endif
+#define true 1
+#define false 0
 
 #endif
