@@ -4,6 +4,10 @@
 #include "type.h"
 #include "common.h"
 
+void isr_pca0(void) __interrupt 7 __using 3;
+void isr_int1(void) __interrupt 2 __using 2;
+void isrtimer0(void) __interrupt 1 __using 1;
+
 volatile ulong timer_ct = 0;
 volatile ulong saved_int_timer_ct = 0;
 __pdata unsigned long saved_timer_ct = 0;

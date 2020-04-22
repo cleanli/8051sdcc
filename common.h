@@ -38,6 +38,8 @@ void update_led_lcj();
 void update_freq(uint v);
 void local_float_sprintf(struct s_lfs_data* lfsd);
 void system_init();
+void update_key_status();
+void power_task_loop();
 
 extern volatile ulong timer_ct;
 extern volatile ulong saved_int_timer_ct;
