@@ -27,23 +27,10 @@ struct s_lfs_data{
     uint8 number_decimal;
     const char*follows;
 };
-void isr_pca0(void) __interrupt 7 __using 3;
-void isr_int1(void) __interrupt 2 __using 2;
-void isrtimer0(void) __interrupt 1 __using 1;
-
 void LCD_Init();
 void lcd_update(unsigned char*);
 void lcd_cursor(uint8 d);
-uint8 get_key_status_raw();
-uint8 key_down_in_time(uint8 timeout_in_20ms);
-void music_led_flash();
-void sound_en(bool en);
-void update_led_lcj();
-void update_music_note_register(uint v);
 void local_float_sprintf(struct s_lfs_data* lfsd);
-void system_init();
-void update_key_status();
-void power_task_loop();
 
 extern volatile ulong timer_ct;
 extern volatile ulong saved_int_timer_ct;
@@ -63,7 +50,6 @@ extern bool keyA1_up ;
 extern bool keyA2_up ;
 extern bool keyA3_up ;
 extern bool keyA4_up ;
-extern bool power_meas_trigged ;
 extern bool g_flag_1s ;
 extern bool g_flag_10ms ;
 extern __pdata uint keyA1_down_ct;
@@ -90,28 +76,6 @@ extern __pdata uint8 cursor_cmd ;
 extern __pdata float speed;
 extern __pdata float mileage;
 extern __pdata ulong last_saved_int_timer_ct ;
-
-struct task;
-typedef void (*task_func)(struct task*);
-typedef void (*func_p)(void*);
-struct task {
-    task_func t_func;
-    //char flag_1s;
-};
-typedef struct ui_info_ {
-    func_p ui_init;
-    func_p ui_process_event;
-    func_p ui_quit;
-    int timeout;
-    uint8 time_disp_mode;
-    uint8 time_position_of_dispmem;
-    uint8 power_position_of_dispmem;
-    int8 ui_event_transfer[EVENT_MAX];
-    __code char*timeout_music;
-} ui_info;
-
-
-extern __code const ui_info* current_ui;
 
 #define TIME_DISP_EN (1<<0)
 #define TIME_DISP_SECOND (1<<1)

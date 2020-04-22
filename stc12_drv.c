@@ -208,7 +208,7 @@ uint8 get_key_status_raw()
     else{ \
         key##AN##_down=false; \
     }
-void update_key_status()
+void drv_update_key_status()
 {
     uint8 ksts = get_key_status_raw();
     CHECK_KEY(A1)
@@ -217,48 +217,35 @@ void update_key_status()
     CHECK_KEY(A4)
 }
 
-void power_task_loop()
+void drv_trigger_AD()
 {
-    if(!power_meas_trigged){
-        if(g_flag_1s){
-            //printf("ADC_CONTR %x\r\n", ADC_CONTR);
-            //printf("AUXR1 %x\r\n", AUXR1);
-            ADC_CONTR = ADC_CONTR | 0x80;//power on adc
-            us_delay(1);
-            P1ASF |= 0x04;//p12 for ADC
-            ADC_CONTR=0x82;//channel p12
-            us_delay(1);
-            ADC_RES = 0;
-            ADC_CONTR|=0x08;//start convert
-            us_delay(1);
-            //printf("ADC_CONTR %x\r\n", ADC_CONTR);
-            power_meas_trigged = true;
-        }
-    }
-    else{//trigged
-        if(ADC_CONTR & 0x10){//A/D transfer ready
-            uint rs;
-            //printf("ADC_CONTR %x\r\n", ADC_CONTR);
-            ADC_CONTR &= ~0x18;//clear start & flag
-            rs = (unsigned char)ADC_RES<<2;
-            rs |= ADC_RESL;
-            //printf("ADC_RES %x\r\n", rs);
-            //printf("ADC_RESL %x\r\n", ADC_RESL);
-            power_voltage = 2.45f * 1024 / rs;
-            P1ASF &= ~0x04;//p12 recover normal IO
-            ADC_CONTR = ADC_CONTR & ~0x80;//power off
-            power_meas_trigged = false;
-            //disp power
-            float_sprintf.buf=
-                disp_mem+current_ui->power_position_of_dispmem;
-            float_sprintf.fv = power_voltage;
-            float_sprintf.number_int=1;
-            float_sprintf.number_decimal=2;
-            float_sprintf.follows="V";
-            local_float_sprintf(&float_sprintf);
-            disp_mem_update = true;
-        }
-    }
+    //printf("ADC_CONTR %x\r\n", ADC_CONTR);
+    //printf("AUXR1 %x\r\n", AUXR1);
+    ADC_CONTR = ADC_CONTR | 0x80;//power on adc
+    us_delay(1);
+    P1ASF |= 0x04;//p12 for ADC
+    ADC_CONTR=0x82;//channel p12
+    us_delay(1);
+    ADC_RES = 0;
+    ADC_CONTR|=0x08;//start convert
+    //printf("ADC_CONTR %x\r\n", ADC_CONTR);
+}
+
+bool drv_AD_ready()
+{
+    return (ADC_CONTR & 0x10);
+}
+
+uint drv_get_AD_result()
+{
+    uint rs;
+    //printf("ADC_CONTR %x\r\n", ADC_CONTR);
+    ADC_CONTR &= ~0x18;//clear start & flag
+    rs = (unsigned char)ADC_RES<<2;
+    rs |= ADC_RESL;
+    P1ASF &= ~0x04;//p12 recover normal IO
+    ADC_CONTR = ADC_CONTR & ~0x80;//power off
+    return rs;
 }
 
 void music_led_flash()

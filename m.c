@@ -4,6 +4,7 @@
 #include "type.h"
 #include "music.h"
 #include "common.h"
+#include "stc12_drv.h"
 
 volatile ulong timer_ct = 0;
 volatile ulong saved_int_timer_ct = 0;
@@ -39,17 +40,28 @@ void local_float_sprintf(struct s_lfs_data* lfsd)
     }
 }
 
+void time_hms(char*buf, uint t)
+{
+    uint h, m, tm, s;
+
+    h = t / 3600;
+    tm = t - h * 3600;
+    m = tm / 60;
+    s = tm - m * 60;
+    sprintf(buf, "%02u:%02u:%02u", h, m, s);
+}
+
 /////////////////////////////new architecture///////////////////////////
 bool disp_mem_update = false;
 bool keyA1_down = false;
 bool keyA2_down = false;
 bool keyA3_down = false;
 bool keyA4_down = false;
+bool power_meas_trigged = false;
 bool keyA1_up = false;
 bool keyA2_up = false;
 bool keyA3_up = false;
 bool keyA4_up = false;
-bool power_meas_trigged = false;
 bool g_flag_1s = false;
 bool g_flag_10ms = false;
 __pdata uint keyA1_down_ct;
@@ -78,6 +90,23 @@ __pdata float mileage = 0.0f;
 __pdata ulong last_saved_int_timer_ct = 0;
 
 struct task;
+typedef void (*task_func)(struct task*);
+typedef void (*func_p)(void*);
+struct task {
+    task_func t_func;
+    //char flag_1s;
+};
+typedef struct ui_info_ {
+    func_p ui_init;
+    func_p ui_process_event;
+    func_p ui_quit;
+    int timeout;
+    uint8 time_disp_mode;
+    uint8 time_position_of_dispmem;
+    uint8 power_position_of_dispmem;
+    int8 ui_event_transfer[EVENT_MAX];
+    __code char*timeout_music;
+} ui_info;
 __code const ui_info* current_ui=NULL;
 
 __code const ui_info all_ui[]={
@@ -156,24 +185,34 @@ void task_main(struct task*vp)
 
 void task_key_status(struct task*vp)
 {
-    update_key_status();
-}
-
-void time_hms(char*buf, uint t)
-{
-    uint h, m, tm, s;
-
-    h = t / 3600;
-    tm = t - h * 3600;
-    m = tm / 60;
-    s = tm - m * 60;
-    sprintf(buf, "%02u:%02u:%02u", h, m, s);
+    drv_update_key_status();
 }
 
 void task_power(struct task*vp)
 {
     if(current_ui->power_position_of_dispmem<32){
-        power_task_loop();
+        if(!power_meas_trigged){
+            if(g_flag_1s){
+                drv_trigger_AD();
+                power_meas_trigged = true;
+            }
+        }
+        else{//trigged
+            if(drv_AD_ready()){//A/D transfer ready
+                uint rs = drv_get_AD_result();
+                power_voltage = 2.45f * 1024 / rs;
+                //disp power
+                float_sprintf.buf=
+                    disp_mem+current_ui->power_position_of_dispmem;
+                float_sprintf.fv = power_voltage;
+                float_sprintf.number_int=1;
+                float_sprintf.number_decimal=2;
+                float_sprintf.follows="V";
+                local_float_sprintf(&float_sprintf);
+                power_meas_trigged = false;
+                disp_mem_update = true;
+            }
+        }
     }
 }
 
