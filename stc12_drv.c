@@ -272,7 +272,7 @@ void sound_en(bool en)
     CR = en;
 }
 
-void update_freq(uint v)
+void update_music_note_register(uint v)
 {
     CCAP0L = 0xff & v;
     CCAP0H = v>>8;

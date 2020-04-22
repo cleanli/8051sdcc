@@ -2,106 +2,17 @@
 #include <string.h>
 #include <limits.h>
 #include "type.h"
+#include "music.h"
 #include "common.h"
-
-void isr_pca0(void) __interrupt 7 __using 3;
-void isr_int1(void) __interrupt 2 __using 2;
-void isrtimer0(void) __interrupt 1 __using 1;
 
 volatile ulong timer_ct = 0;
 volatile ulong saved_int_timer_ct = 0;
-__pdata unsigned long saved_timer_ct = 0;
-__pdata unsigned long saved_timer_ct_music = 0;
 __pdata unsigned char disp_mem[33];
 __pdata float mileage;
 __pdata float last_speed;
 __pdata uint tcops = TIMER0_COUNT_PER_SECOND;
 __pdata uint wheelr = WHEEL_R;
 bool flag_10ms = 0, flag_1s = 0;
-bool target = 0;
-bool disp_left_time=1;
-__pdata uint target_hour = 0, target_minute = 1;
-__pdata ulong target_seconds;
-
-#if 0
-float musical_scale_freq[]=
-{
-    //1-    1-#     2-      2-#     3-      4-      4-#     5-      5-#     6-      6-#     7-
-    130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185.00, 196.00, 207.65, 220.00, 233.08, 246.94,
-    //1
-    261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392.00, 415.30, 440.00, 466.16, 493.88,
-    //1+
-    523.25, 554.37, 587.33, 622.25, 659.26, 698.46, 739.99, 783.99, 830.61, 880.00, 932.33, 987.77,
-    //1++
-    1046.5, 1108.7, 1174.7, 1244.5, 1318.5, 1396.9, 1480.0, 1568.0, 1661.2, 1760.0, 1864.7, 1975.53,
-    //1+++
-    2093.0, 2217.5, 2349.3, 2489.0, 2637.0, 2793.8, 2960.0, 3136.0, 3322.4, 3520.0, 3729.3, 3951.05,
-};
-#endif
-
-__code uint musical_scale_regv[]=
-{
-    //1-   1-#    2-     2-#    3-     4-     4-#    5-     5-#    6-    6-#   7-
-    //15926, 15032, 14189, 13392, 12641, 11931, 11261, 10629, 10033, 9470, 8938, 8437,
-    7963,  7516,  7094,  6696,  6320,  5966,  5631,  5315,  5016,  4735, 4469, 4218,
-    3982,  3758,  3547,  3348,  3160,  2983,  2815,  2657,  2508,  2367, 2235, 2109,
-    1991,  1879,  1774,  1674,  1580,  1491,  1408,  1329,  1254,  1184, 1117, 1055,
-    995,   939,   887,   837,   790,   746,   704,   664,   627,   592,  559,  527,
-};
-
-uint8 get_note_index(signed char value)
-{
-    uint8 ret;
-    bool half_note = false;
-    printf("input %d\r\n", value);
-    if(value < 0){//half note: #1 #2...
-        value = 0 - value;
-        half_note = true;
-    }
-    if(value == 8)value=12;
-    if(value == 9)value=22;
-    if(value<8){
-        value=value*10+1;
-    }
-    ret = (value%10) * 12;//base
-    value /= 10;
-    ret += value*2-2;
-    if(value>=4)ret--;
-    if(half_note)ret++;
-    printf("output %u\r\n", ret);
-    return ret;
-}
-
-#define END 127
-__code char fu[200] = {5,5,6,6,5,5,8,8,7,7,0,0,5,5,6,6,5,5,9,9,8,8,0,0,
-                5,5,52,52,32,32,8,8,7,7,6,6,0,0,42,42,32,32,8,8,9,9,8,8,0,0,0,0,END};
-__code char shaolshi[] = {
-    5,6,8,8,8,6,8,8,8,8,8,8,3,8,  7,7,7,6,  7,7,7,7,7,7,6,3,2,2,2,3,  5,5,5,5,6,2,2,60,
-    1,1,3,5,6,3,5,5,  3,5,6,3,5,5,50,60,  1,1,1,5,3,3,3,2,  3,3,3,3,3,3,50,60,  1,1,1,5,2,2,2,1,
-    2,2,2,2,3,5,  6,6,6,6,6,6,3,5,  1,1,1,3,2,70,60,60,  0,2,2,3,2,2,70,60,  50,50,50,50,50,50,5,6,
-    12,12,12,6,   12,12,12,12,12,12,32,12,  7,7,7,6,  7,7,7,7,7,7,6,3,  2,2,2,3,7,7,7,6,  5,5,5,5,5,5,5,6,
-    12,12,12,6,   12,12,12,12,12,12,32,12,  7,7,7,6,  7,7,7,7,7,7,6,3,  2,2,2,3,  5,5,5,5,0,2,2,60,  1,1,1,1,1,1,5,6,
-    1,1,1,1,1,1,6,3,  2,2,2,3,  5,5,5,5,0,2,2,60,  1,1,1,1,1,1,1,1,  0,0,2,2,2,2,60,60,  1,1,1,1,1,1,1,1,  1,1,
-    END
-};
-__code char xianglian[] = {
-    3,5,5,8,32,32,22,12,  6,6,6,6,6,6,6,6,  2,4,4,5,7,7,6,5,  3,3,3,3,3,3,3,3,
-    5,6,6,8,42,42,32,8,   22,22,22,22,22,22,22,22,  6,22,22,8,7,8,6,7,  5,5,5,5,5,5,5,5,
-    3,5,5,8,32,32,22,8,  6,6,6,6,6,6,6,6,  2,4,4,5,7,7,6,5,  3,3,3,3,3,3,3,3,3,
-    5,6,6,8,42,42,32,8,  9,9,9,9,9,9,6,6,  7,9,9,8,7,8,6,7,  5,5,5,5,5,5,5,5, 3,5,5,8,32,32,9,8,
-    6,6,6,6,6,6,6,6,  2,4,4,5,7,7,6,5,  3,3,3,3,3,3,3,3,3,  5,6,6,8,42,42,32,8,
-    9,9,9,9,9,9,6,6,  7,9,9,8,7,8,6,5,  8,8,8,8,8,8,8,8,
-    5,6,6,8,42,42,32,8,  9,9,9,9,9,9,9,9,  9,6,6,7,6,6,5,5,  8,8,8,8,8,8,8,8,  8,8,
-    END
-};
-__code char notice_music[] = {
-    //1,1,4,4,5,5,8,8,8,8,0
-    1,1,4,4,5,5,8,8,END
-};
-__code char testmu[] = {
-    //1,1,4,4,5,5,8,8,8,8,0
-    1,2,3,4,5,6,7,8,END
-};
 
 void local_float_sprintf(struct s_lfs_data* lfsd)
 {
@@ -317,25 +228,6 @@ void task_disp(struct task*vp)
     }
 }
 
-enum MUSIC_STATUS {
-    MUSIC_IDLE,
-    MUSIC_PLAYING,
-    MUSIC_PAUSE,
-    MUSIC_END,
-};
-
-struct music_play_info{
-    __code char*pu;
-    uint pu_index;
-    ulong last_note_start_timerct;
-    uint8 music_status;
-} music_task_play_info={
-    NULL,
-    0,
-    0,
-    MUSIC_IDLE
-};
-
 void task_music(struct task*vp)
 {
     uint8 music_note;
@@ -350,7 +242,7 @@ void task_music(struct task*vp)
     //printf("pu_index %u status %x\r\n", music_task_play_info.pu_index, music_task_play_info.music_status);
     music_note = music_task_play_info.pu[music_task_play_info.pu_index++];
     music_task_play_info.last_note_start_timerct = timer_ct;
-    if(music_note==END){
+    if(music_note==SCORE_END){
         music_task_play_info.music_status = MUSIC_END;
         cur_task_event_flag |= 1<<EVENT_MUSIC_PLAY_END;
         printf("play end\r\n");
@@ -363,7 +255,7 @@ void task_music(struct task*vp)
         music_register_value = musical_scale_regv[get_note_index(music_note)];
         //printf("note %x\r\n", music_note);
         sound_en(1);
-        update_freq(music_register_value);
+        update_music_note_register(music_register_value);
     }
 }
 

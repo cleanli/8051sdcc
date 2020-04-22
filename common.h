@@ -27,6 +27,10 @@ struct s_lfs_data{
     uint8 number_decimal;
     const char*follows;
 };
+void isr_pca0(void) __interrupt 7 __using 3;
+void isr_int1(void) __interrupt 2 __using 2;
+void isrtimer0(void) __interrupt 1 __using 1;
+
 void LCD_Init();
 void lcd_update(unsigned char*);
 void lcd_cursor(uint8 d);
@@ -35,7 +39,7 @@ uint8 key_down_in_time(uint8 timeout_in_20ms);
 void music_led_flash();
 void sound_en(bool en);
 void update_led_lcj();
-void update_freq(uint v);
+void update_music_note_register(uint v);
 void local_float_sprintf(struct s_lfs_data* lfsd);
 void system_init();
 void update_key_status();
@@ -43,18 +47,12 @@ void power_task_loop();
 
 extern volatile ulong timer_ct;
 extern volatile ulong saved_int_timer_ct;
-extern __pdata unsigned long saved_timer_ct ;
-extern __pdata unsigned long saved_timer_ct_music ;
 extern __pdata unsigned char disp_mem[33];
 extern __pdata float mileage;
 extern __pdata float last_speed;
 extern __pdata uint tcops;
 extern __pdata uint wheelr;
 extern bool flag_10ms , flag_1s ;
-extern bool target ;
-extern bool disp_left_time;
-extern __pdata uint target_hour , target_minute;
-extern __pdata ulong target_seconds;
 
 extern bool disp_mem_update ;
 extern bool keyA1_down ;
