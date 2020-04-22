@@ -51,8 +51,8 @@ extern __pdata uint wheelr;
 extern bool flag_10ms , flag_1s ;
 extern bool target ;
 extern bool disp_left_time;
-extern uint target_hour , target_minute;
-extern ulong target_seconds;
+extern __pdata uint target_hour , target_minute;
+extern __pdata ulong target_seconds;
 
 extern bool disp_mem_update ;
 extern bool keyA1_down ;

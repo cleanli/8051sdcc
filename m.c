@@ -16,8 +16,8 @@ __pdata uint wheelr = WHEEL_R;
 bool flag_10ms = 0, flag_1s = 0;
 bool target = 0;
 bool disp_left_time=1;
-uint target_hour = 0, target_minute = 1;
-ulong target_seconds;
+__pdata uint target_hour = 0, target_minute = 1;
+__pdata ulong target_seconds;
 
 #if 0
 float musical_scale_freq[]=
@@ -700,7 +700,7 @@ void second_process_event(void*vp)
     }
     common_process_event(vp);
 }
-struct task all_tasks[]=
+__code struct task all_tasks[]=
 {
     {
         task_main,
