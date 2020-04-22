@@ -15,42 +15,6 @@ __pdata uint tcops = TIMER0_COUNT_PER_SECOND;
 __pdata uint wheelr = WHEEL_R;
 bool flag_10ms = 0, flag_1s = 0;
 
-void local_float_sprintf(struct s_lfs_data* lfsd)
-{
-    if(lfsd->fv > 65535){
-        strcpy(lfsd->buf, "oo");
-        return;
-    }
-    uint tmp_int = lfsd->fv;
-    sprintf(lfsd->buf, "%u", tmp_int);
-    uint8 tmp=strlen(lfsd->buf);
-    if(tmp<lfsd->number_int){
-        memset(lfsd->buf, '0', lfsd->number_int);
-        sprintf(lfsd->buf+lfsd->number_int-tmp, "%u", tmp_int);
-    }
-    float decimal = lfsd->fv - tmp_int + 1;
-    uint8 n_dec=lfsd->number_decimal;
-    while(n_dec--)decimal*=10;
-    tmp_int=decimal;
-    tmp=strlen(lfsd->buf);
-    sprintf(lfsd->buf+tmp, "%u", tmp_int);
-    lfsd->buf[tmp]='.';
-    if(lfsd->follows){
-        strcat(lfsd->buf, lfsd->follows);
-    }
-}
-
-void time_hms(char*buf, uint t)
-{
-    uint h, m, tm, s;
-
-    h = t / 3600;
-    tm = t - h * 3600;
-    m = tm / 60;
-    s = tm - m * 60;
-    sprintf(buf, "%02u:%02u:%02u", h, m, s);
-}
-
 /////////////////////////////new architecture///////////////////////////
 bool disp_mem_update = false;
 bool keyA1_down = false;
@@ -177,6 +141,42 @@ __code const ui_info all_ui[]={
         NULL,//__code char*timeout_music;
     },
 };
+
+void local_float_sprintf(struct s_lfs_data* lfsd)
+{
+    if(lfsd->fv > 65535){
+        strcpy(lfsd->buf, "oo");
+        return;
+    }
+    uint tmp_int = lfsd->fv;
+    sprintf(lfsd->buf, "%u", tmp_int);
+    uint8 tmp=strlen(lfsd->buf);
+    if(tmp<lfsd->number_int){
+        memset(lfsd->buf, '0', lfsd->number_int);
+        sprintf(lfsd->buf+lfsd->number_int-tmp, "%u", tmp_int);
+    }
+    float decimal = lfsd->fv - tmp_int + 1;
+    uint8 n_dec=lfsd->number_decimal;
+    while(n_dec--)decimal*=10;
+    tmp_int=decimal;
+    tmp=strlen(lfsd->buf);
+    sprintf(lfsd->buf+tmp, "%u", tmp_int);
+    lfsd->buf[tmp]='.';
+    if(lfsd->follows){
+        strcat(lfsd->buf, lfsd->follows);
+    }
+}
+
+void time_hms(char*buf, uint t)
+{
+    uint h, m, tm, s;
+
+    h = t / 3600;
+    tm = t - h * 3600;
+    m = tm / 60;
+    s = tm - m * 60;
+    sprintf(buf, "%02u:%02u:%02u", h, m, s);
+}
 
 void task_main(struct task*vp)
 {
