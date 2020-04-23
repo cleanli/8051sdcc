@@ -68,16 +68,19 @@ void time_hms(char*buf, uint t)
 
 void task_main(struct task*vp)
 {
+    vp;//fix unused variable warning
     current_ui->ui_process_event(current_ui);
 }
 
 void task_key_status(struct task*vp)
 {
+    vp;//fix unused variable warning
     drv_update_key_status();
 }
 
 void task_power(struct task*vp)
 {
+    vp;
     if(current_ui->power_position_of_dispmem<32){
         if(!power_meas_trigged){
             if(g_flag_1s){
@@ -106,6 +109,7 @@ void task_power(struct task*vp)
 
 void task_timer(struct task*vp)
 {
+    vp;//fix unused variable warning
     g_flag_1s = false;
     count_1s = timer_ct/tcops;
     count_10ms = (timer_ct - tcops*count_1s)/COUNT10MS;
@@ -146,6 +150,7 @@ void task_timer(struct task*vp)
 
 void task_disp(struct task*vp)
 {
+    vp;//fix unused variable warning
     if(disp_mem_update){
         //saved_timer_ct = timer_ct;
         lcd_update(disp_mem);
@@ -157,6 +162,7 @@ void task_disp(struct task*vp)
 
 void task_music(struct task*vp)
 {
+    vp;//fix unused variable warning
     uint8 music_note;
     uint music_register_value;
     if(music_task_play_info.pu == NULL ||
@@ -194,7 +200,7 @@ void pause_music()
     }
 }
 
-void play_music(__code signed char* pu)
+void play_music(__code const signed char* pu)
 {
     if(music_task_play_info.music_status == MUSIC_PAUSE){
         music_task_play_info.music_status = MUSIC_PLAYING;

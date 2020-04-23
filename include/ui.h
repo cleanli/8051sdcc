@@ -11,7 +11,7 @@ typedef struct ui_info_ {
     uint8 time_position_of_dispmem;
     uint8 power_position_of_dispmem;
     int8 ui_event_transfer[EVENT_MAX];
-    __code signed char*timeout_music;
+    __code const signed char*timeout_music;
 } ui_info;
 
 extern __code const ui_info* current_ui;

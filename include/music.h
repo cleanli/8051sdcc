@@ -17,14 +17,14 @@ struct music_play_info{
 };
 
 extern __pdata struct music_play_info music_task_play_info;
-extern __code uint musical_scale_regv[];
+extern __code const uint musical_scale_regv[];
 
 //music score
-extern __code char fu[];
-extern __code char shaolshi[];
-extern __code char xianglian[];
-extern __code char notice_music[];
-extern __code char testmu[];
+extern __code const signed char fu[];
+extern __code const signed char shaolshi[];
+extern __code const signed char xianglian[];
+extern __code const signed char notice_music[];
+extern __code const signed char testmu[];
 
 uint8 get_note_index(signed char value);
 #endif

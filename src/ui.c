@@ -28,7 +28,7 @@ __pdata float speed = 0.0f;
 __pdata float mileage = 0.0f;
 __pdata ulong last_saved_int_timer_ct = 0;
 
-void play_music(__code signed char* pu);
+void play_music(__code const signed char* pu);
 void pause_music();
 void time_hms(char*buf, uint t);
 void local_float_sprintf(struct s_lfs_data* lfsd);
@@ -269,7 +269,7 @@ void timeout_input_init(void*vp)
 
 void timeout_input_quit(void*vp)
 {
-    CDB;
+    vp;//fix warning
     cursor_cmd = 0;
 }
 
