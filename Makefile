@@ -8,6 +8,9 @@ CFLAGS+=-DGIT_SHA1=\"$(GIT_SHA1)$(DIRTY)$(CLEAN)\"
 m.hex:m.ihx
 	packihx m.ihx > m.hex
 
+ui.rel:ui.c
+	sdcc $(CFLAGS) ui.c -c
+
 music.rel:music.c
 	sdcc $(CFLAGS) music.c -c
 
@@ -20,8 +23,8 @@ stc12_drv.rel:stc12_drv.c
 crtstart.rel:crtstart.asm
 	sdas8051 -plosgff crtstart.asm
 
-m.ihx:m.c lcd_1602.rel crtstart.rel stc12_drv.rel music.rel
-	sdcc $(CFLAGS) m.c crtstart.rel lcd_1602.rel stc12_drv.rel music.rel -o m.ihx
+m.ihx:m.c lcd_1602.rel crtstart.rel stc12_drv.rel music.rel ui.rel
+	sdcc $(CFLAGS) m.c crtstart.rel lcd_1602.rel stc12_drv.rel music.rel ui.rel -o m.ihx
 
 clean:
-	rm *.hex *.ihx *.lk *.lst *.map *.mem *.rel *.rst *.sym lcd_1602.asm  m.asm  stc12_drv.asm
+	rm *.hex *.ihx *.lk *.lst *.map *.mem *.rel *.rst *.sym lcd_1602.asm  m.asm  stc12_drv.asm music.asm  ui.asm

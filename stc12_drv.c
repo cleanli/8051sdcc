@@ -4,6 +4,18 @@
 #include <string.h>
 #include "common.h"
 
+bool keyA1_down = false;
+bool keyA2_down = false;
+bool keyA3_down = false;
+bool keyA4_down = false;
+bool keyA1_up = false;
+bool keyA2_up = false;
+bool keyA3_up = false;
+bool keyA4_up = false;
+__pdata uint keyA1_down_ct;
+__pdata uint keyA2_down_ct;
+__pdata uint keyA3_down_ct;
+__pdata uint keyA4_down_ct;
 /*eerom*/
 #define READ 1
 #define WRITE 2

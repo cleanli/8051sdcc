@@ -16,4 +16,16 @@ void update_music_note_register(uint v);
 void drv_trigger_AD();
 bool drv_AD_ready();
 uint drv_get_AD_result();
+extern bool keyA1_down ;
+extern bool keyA2_down ;
+extern bool keyA3_down ;
+extern bool keyA4_down ;
+extern bool keyA1_up ;
+extern bool keyA2_up ;
+extern bool keyA3_up ;
+extern bool keyA4_up ;
+extern __pdata uint keyA1_down_ct;
+extern __pdata uint keyA2_down_ct;
+extern __pdata uint keyA3_down_ct;
+extern __pdata uint keyA4_down_ct;
 #endif
