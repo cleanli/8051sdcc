@@ -14,4 +14,10 @@ void task_timer(struct task*v);
 void task_disp(struct task*v);
 void task_music(struct task*v);
 void task_power(struct task*v);
+
+
+void pause_music();
+void play_music(__code const signed char* pu);
+void time_hms(char*buf, uint t);
+void local_float_sprintf(struct s_lfs_data* lfsd);
 #endif

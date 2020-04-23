@@ -6,6 +6,7 @@
 #include "music.h"
 #include "stc12_drv.h"
 #include "ui.h"
+#include "task.h"
 
 __pdata float mileage;
 __pdata float last_speed;
@@ -28,10 +29,6 @@ __pdata float speed = 0.0f;
 __pdata float mileage = 0.0f;
 __pdata ulong last_saved_int_timer_ct = 0;
 
-void play_music(__code const signed char* pu);
-void pause_music();
-void time_hms(char*buf, uint t);
-void local_float_sprintf(struct s_lfs_data* lfsd);
 __code const ui_info all_ui[]={
     {//0 first
         first_init,
