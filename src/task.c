@@ -53,7 +53,7 @@ void time_hms(char*buf, uint t)
     sprintf(buf, "%02u:%02u:%02u", h, m, s);
 }
 
-void task_main(struct task*vp)
+void task_ui(struct task*vp)
 {
     vp;//fix unused variable warning
     current_ui->ui_process_event(current_ui);

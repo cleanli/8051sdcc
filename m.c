@@ -11,7 +11,7 @@
 __code struct task all_tasks[]=
 {
     {
-        task_main,
+        task_ui,
     },
     {
         task_key_status,

@@ -8,7 +8,7 @@ struct task {
 };
 extern __code struct task all_tasks[];
 void task_init();
-void task_main(struct task*v);
+void task_ui(struct task*v);
 void task_key_status(struct task*v);
 void task_timer(struct task*v);
 void task_disp(struct task*v);
