@@ -349,7 +349,20 @@ void lcj_process_event(void*vp)
 }
 
 __code const ui_info all_ui[]={
-    {//0 first
+    {//0 input timeout
+        "Menu",
+        menu_ui_init,//func_p ui_init;
+        menu_process_event,//func_p ui_process_event;
+        NULL,//func_p ui_quit;
+        TIMEOUT_DISABLE,//int timeout;
+        0,//uint8 time_disp_mode;
+        33,//uint8 time_position_of_dispmem;
+        10,//uint8 power_position_of_dispmem;
+        {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        NULL,//__code char*timeout_music;
+    },
+    {//1 first
+        "Version",
         first_init,
         first_process_event,
         NULL,
@@ -357,10 +370,11 @@ __code const ui_info all_ui[]={
         0,
         0,
         33,
-        {-1,4,-1,2,1,-1},
+        {-1,5,-1,3,2,-1},
         NULL,
     },
-    {//1 second
+    {//2 second
+        "5 mins",
         second_init,
         second_process_event,
         NULL,
@@ -371,7 +385,8 @@ __code const ui_info all_ui[]={
         {-1,-2,-1,-1,-1,-1},
         notice_music,
     },
-    {//2 input timeout
+    {//3 input timeout
+        "Set timeout",
         timeout_input_init,//func_p ui_init;
         timeout_input_process_event,//func_p ui_process_event;
         timeout_input_quit,//func_p ui_quit;
@@ -379,10 +394,11 @@ __code const ui_info all_ui[]={
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,UI_TRANSFER_DEFAULT,-1,3,1,-1},//ui_event_transfer[EVENT_MAX];
+        {-1,UI_TRANSFER_DEFAULT,-1,4,2,-1},//ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
-    {//3 timer
+    {//4 timer
+        "Timer",
         common_ui_init,//func_p ui_init;
         common_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
@@ -390,10 +406,11 @@ __code const ui_info all_ui[]={
         TIME_DISP_EN|TIME_DISP_LEFT,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,-1,-1,-1,-1,2},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,-1,-1,-1,-1,3},//int8 ui_event_transfer[EVENT_MAX];
         xianglian,//__code char*timeout_music;
     },
-    {//4 lcj
+    {//5 lcj
+        "LCJ",
         lcj_ui_init,//func_p ui_init;
         lcj_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
@@ -404,6 +421,7 @@ __code const ui_info all_ui[]={
         {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
+#if 0
     {//n input timeout
         common_ui_init,//func_p ui_init;
         common_process_event,//func_p ui_process_event;
@@ -415,4 +433,53 @@ __code const ui_info all_ui[]={
         {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
+#endif
 };
+#define UI_NUMBER (sizeof(all_ui)/sizeof(ui_info))
+void disp_ui_menu(uint8 id)
+{
+    for(uint8 i = 0; i< UI_NUMBER-1; i++){
+        disp_mem[i] = '_';
+        if(i == (id-1)){
+            disp_mem[i] = id+0x30;
+        }
+    }
+    memset(disp_mem+16, 0, 16);
+    sprintf(disp_mem+16, "%s", all_ui[id].ui_name);
+    disp_mem_update = true;
+}
+
+void menu_ui_init(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    common_ui_init(vp);
+    ui_common_uint8 = 1;
+    disp_ui_menu(ui_common_uint8);
+}
+
+void menu_process_event(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    common_process_event(vp);
+    if(keyA1_up){
+        if(ui_common_uint8>1){
+            ui_common_uint8--;
+            disp_ui_menu(ui_common_uint8);
+        }
+        printf("key A1 up\r\n");
+    }
+    if(keyA2_up){
+        printf("key A2 up\r\n");
+    }
+    if(keyA3_up){
+        if(ui_common_uint8<UI_NUMBER-1){
+            ui_common_uint8++;
+            disp_ui_menu(ui_common_uint8);
+        }
+        printf("key A3 up\r\n");
+    }
+    if(keyA4_up){
+        ui_transfer(ui_common_uint8);
+        printf("key A4 up\r\n");
+    }
+}

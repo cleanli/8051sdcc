@@ -3,6 +3,7 @@
 
 typedef void (*func_p)(void*);
 typedef struct ui_info_ {
+    const char* ui_name;
     func_p ui_init;
     func_p ui_process_event;
     func_p ui_quit;
