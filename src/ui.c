@@ -125,6 +125,7 @@ void second_init(void*vp)
     sprintf(disp_mem+12, "%u", ui_common_uint8);
     time_hms(disp_mem, uif->timeout);
     disp_mem_update = true;
+    play_music(uif->timeout_music);
 }
 
 void second_process_event(void*vp)
@@ -453,7 +454,7 @@ void menu_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     common_ui_init(vp);
-    ui_common_uint8 = 1;
+    ui_common_uint8 = 2;
     disp_ui_menu(ui_common_uint8);
 }
 
@@ -469,6 +470,7 @@ void menu_process_event(void*vp)
         printf("key A1 up\r\n");
     }
     if(keyA2_up){
+        ui_transfer(2);
         printf("key A2 up\r\n");
     }
     if(keyA3_up){
