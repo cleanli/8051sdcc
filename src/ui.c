@@ -165,10 +165,9 @@ void timeout_input_init(void*vp)
 void timer_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
-    memset(disp_mem, 0, 32);
+    common_ui_init(vp);
     time_hms(disp_mem, input_timeout);
     disp_mem_update = true;
-    play_music(uif->timeout_music);
 }
 
 void timer_ui_quit(void*vp)
@@ -415,7 +414,7 @@ __code const ui_info all_ui[]={
     },
     {//4 timer
         "Timer",
-        common_ui_init,//func_p ui_init;
+        timer_ui_init,//func_p ui_init;
         common_process_event,//func_p ui_process_event;
         timer_ui_quit,//func_p ui_quit;
         TIMEOUT_INPUT,//int timeout;
