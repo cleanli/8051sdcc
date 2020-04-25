@@ -28,6 +28,8 @@ __code const ui_info* current_ui=NULL;
 __pdata float speed = 0.0f;
 __pdata float mileage = 0.0f;
 __pdata ulong last_saved_int_timer_ct = 0;
+__pdata uint ui_tcops;
+__pdata uint ui_wheelr;
 
 //common
 void common_ui_init(void*vp)
@@ -436,6 +438,18 @@ __code const ui_info all_ui[]={
         {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
+    {//6 eerom modify
+        "Cali data",
+        cali_ui_init,//func_p ui_init;
+        cali_process_event,//func_p ui_process_event;
+        NULL,//func_p ui_quit;
+        TIMEOUT_DISABLE,//int timeout;
+        0,//uint8 time_disp_mode;
+        33,//uint8 time_position_of_dispmem;
+        10,//uint8 power_position_of_dispmem;
+        {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        NULL,//__code char*timeout_music;
+    },
 #if 0
     {//n input timeout
         common_ui_init,//func_p ui_init;
@@ -450,17 +464,30 @@ __code const ui_info all_ui[]={
     },
 #endif
 };
+
+const char* menu_str[]={
+    all_ui[1].ui_name,
+    all_ui[2].ui_name,
+    all_ui[3].ui_name,
+    all_ui[4].ui_name,
+    all_ui[5].ui_name,
+    all_ui[6].ui_name,
+};
+const char* cali_str[]={
+    "timer cal",
+    "wheel cal",
+};
 #define UI_NUMBER (sizeof(all_ui)/sizeof(ui_info))
-void disp_ui_menu(uint8 id)
+void disp_ui_menu(const char** m_s, uint8 size, uint8 id)
 {
-    for(uint8 i = 0; i< UI_NUMBER-1; i++){
+    for(uint8 i = 0; i< size; i++){
         disp_mem[i] = '_';
         if(i == (id-1)){
             disp_mem[i] = id+0x30;
         }
     }
     memset(disp_mem+16, 0, 16);
-    sprintf(disp_mem+16, "%s", all_ui[id].ui_name);
+    sprintf(disp_mem+16, "%s", m_s[id-1]);
     disp_mem_update = true;
 }
 
@@ -469,7 +496,7 @@ void menu_ui_init(void*vp)
     ui_info* uif =(ui_info*)vp;
     common_ui_init(vp);
     ui_common_uint8 = last_ui_index;
-    disp_ui_menu(ui_common_uint8);
+    disp_ui_menu(menu_str, 6, ui_common_uint8);
 }
 
 void menu_process_event(void*vp)
@@ -479,7 +506,7 @@ void menu_process_event(void*vp)
     if(keyA1_up){
         if(ui_common_uint8>1){
             ui_common_uint8--;
-            disp_ui_menu(ui_common_uint8);
+            disp_ui_menu(menu_str, 6, ui_common_uint8);
         }
         printf("key A1 up\r\n");
     }
@@ -490,12 +517,46 @@ void menu_process_event(void*vp)
     if(keyA3_up){
         if(ui_common_uint8<UI_NUMBER-1){
             ui_common_uint8++;
-            disp_ui_menu(ui_common_uint8);
+            disp_ui_menu(menu_str, 6, ui_common_uint8);
         }
         printf("key A3 up\r\n");
     }
     if(keyA4_up){
         ui_transfer(ui_common_uint8);
+        printf("key A4 up\r\n");
+    }
+}
+
+void cali_ui_init(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    common_ui_init(vp);
+    ui_common_uint8 = 1;
+    disp_ui_menu(cali_str, 2, ui_common_uint8);
+}
+
+void cali_process_event(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    common_process_event(vp);
+    if(keyA1_up){
+        if(ui_common_uint8>1){
+            ui_common_uint8--;
+            disp_ui_menu(cali_str, 2, ui_common_uint8);
+        }
+        printf("key A1 up\r\n");
+    }
+    if(keyA2_up){
+        printf("key A2 up\r\n");
+    }
+    if(keyA3_up){
+        if(ui_common_uint8<2){
+            ui_common_uint8++;
+            disp_ui_menu(cali_str, 2, ui_common_uint8);
+        }
+        printf("key A3 up\r\n");
+    }
+    if(keyA4_up){
         printf("key A4 up\r\n");
     }
 }
