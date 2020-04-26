@@ -115,6 +115,19 @@ void ms_delay(unsigned int mt)
         us_delay(MS_COUNT);
 }
 
+void read_cal_data()
+{
+    //time calibration
+    uint tmp16 = read_rom_uint(TC0PS_EEROM_ADDR);
+    if(tmp16 != 0xffff){
+        tcops = tmp16;
+    }
+    tmp16 = read_rom_uint(WHEEL_R_EEROM_ADDR);
+    if(tmp16 != 0xffff){
+        wheelr = tmp16;
+    }
+}
+
 #define STC
 void serial_init()
 {
@@ -176,15 +189,7 @@ void system_init()
     P0M0 = 0x10;//P04 set to 20mA
     //PCA init
     pca_init();
-    //time calibration
-    uint tmp16 = read_rom_uint(TC0PS_EEROM_ADDR);
-    if(tmp16 != 0xffff){
-        tcops = tmp16;
-    }
-    tmp16 = read_rom_uint(WHEEL_R_EEROM_ADDR);
-    if(tmp16 != 0xffff){
-        wheelr = tmp16;
-    }
+    read_cal_data();
 }
 
 #define KEY_A1 P3_2
