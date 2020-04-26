@@ -22,6 +22,7 @@ __pdata uint ui_common_uint = 0;
 __pdata int8 ui_common_int8 = 0;
 __pdata int ui_common_int = 0;
 __pdata ulong ui_common_ulong = 0;
+__pdata uint* ui_common_uint_p = NULL;
 __pdata int input_timeout = 60;
 
 __code const ui_info* current_ui=NULL;
@@ -532,31 +533,134 @@ void cali_ui_init(void*vp)
     ui_info* uif =(ui_info*)vp;
     common_ui_init(vp);
     ui_common_uint8 = 1;
+    ui_common_int8 = 0;
+    ui_tcops = tcops;
+    ui_wheelr = wheelr;
     disp_ui_menu(cali_str, 2, ui_common_uint8);
+}
+
+void save_cal_data()
+{
+    CDB;
 }
 
 void cali_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     common_process_event(vp);
-    if(keyA1_up){
-        if(ui_common_uint8>1){
-            ui_common_uint8--;
+    if(ui_common_int8 == 0){
+        if(keyA1_up){
+            if(ui_common_uint8>1){
+                ui_common_uint8--;
+                disp_ui_menu(cali_str, 2, ui_common_uint8);
+            }
+            printf("key A1 up\r\n");
+        }
+        if(keyA2_up){
+            if(ui_tcops != tcops || ui_wheelr != wheelr){
+                ui_common_int8 = 2;
+                sprintf(disp_mem+27, "%s", "Save?");
+                disp_mem_update = true;
+            }
+            else{
+                ui_transfer(last_ui_index);
+            }
+            printf("key A2 up\r\n");
+        }
+        if(keyA3_up){
+            if(ui_common_uint8<2){
+                ui_common_uint8++;
+                disp_ui_menu(cali_str, 2, ui_common_uint8);
+            }
+            printf("key A3 up\r\n");
+        }
+        if(keyA4_up){
+            ui_common_int8 = 1;
+            if(ui_common_uint8 == 1){
+                ui_common_uint_p = &ui_tcops;
+            }
+            else{
+                ui_common_uint_p = &ui_wheelr;
+            }
+            sprintf(disp_mem + 27, "%05u", *ui_common_uint_p);
+            cursor_cmd = 0x9f;
+            disp_mem_update = true;
+            ui_common_uint = 1;
+            printf("key A4 up\r\n");
+        }
+    }
+    else if(ui_common_int8 == 1){
+        if(keyA1_up){
+            printf("key A1 up %u\r\n", keyA1_down_ct);
+            if(*ui_common_uint_p >ui_common_uint){
+                *ui_common_uint_p-=ui_common_uint;
+            }
+            sprintf(disp_mem + 27, "%05u", *ui_common_uint_p);
+            disp_mem_update = true;
+        }
+        //if(keyA2_up){ }
+        if(keyA3_up){
+            printf("key A3 up %u\r\n", keyA3_down_ct);
+            if(UINT_MAX - *ui_common_uint_p>ui_common_uint){
+                *ui_common_uint_p+=ui_common_uint;
+            }
+            sprintf(disp_mem + 27, "%05u", *ui_common_uint_p);
+            disp_mem_update = true;
+        }
+        //if(keyA4_up){ }
+        if(keyA1_down_ct>5000){
+            if(g_flag_1s){
+                if(ui_common_uint==10000){
+                    ui_common_uint=1;
+                    cursor_cmd = 0x9f;
+                }
+                else{
+                    ui_common_uint*=10;
+                    cursor_cmd -= 1;
+                }
+            }
+        }
+        if(keyA3_down_ct>5000){
+            if(g_flag_1s){
+                if(ui_common_uint==1){
+                    ui_common_uint=10000;
+                    cursor_cmd = 0x9b;
+                }
+                else{
+                    ui_common_uint/=10;
+                    cursor_cmd += 1;
+                }
+            }
+        }
+        if(keyA2_up){
+            ui_common_int8 = 0;
+            if(ui_common_uint8 == 1){
+                ui_tcops = tcops;
+            }
+            else{
+                ui_wheelr = wheelr;
+            }
+            memset(disp_mem + 27, ' ', 5);
+            disp_mem_update = true;
+            cursor_cmd = 0;
+        }
+        if(keyA4_up){
+            ui_common_int8 = 0;
+            memset(disp_mem + 27, ' ', 5);
+            disp_mem_update = true;
+            cursor_cmd = 0;
+        }
+    }
+    else if(ui_common_int8 == 2){
+        if(keyA4_up){
+            save_cal_data();
+            ui_common_int8 = 0;
+            sprintf(disp_mem+27, "%s", "     ");
+            disp_mem_update = true;
             disp_ui_menu(cali_str, 2, ui_common_uint8);
         }
-        printf("key A1 up\r\n");
-    }
-    if(keyA2_up){
-        printf("key A2 up\r\n");
-    }
-    if(keyA3_up){
-        if(ui_common_uint8<2){
-            ui_common_uint8++;
-            disp_ui_menu(cali_str, 2, ui_common_uint8);
+        if(keyA2_up){
+            ui_transfer(last_ui_index);
         }
-        printf("key A3 up\r\n");
-    }
-    if(keyA4_up){
-        printf("key A4 up\r\n");
     }
 }
