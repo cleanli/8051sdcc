@@ -706,4 +706,26 @@ void music_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     common_process_event(vp);
+    if(keyA1_up){
+        if(ui_common_uint8>1){
+            ui_common_uint8--;
+            disp_ui_menu(music_str, NUMBER_OF_STRARR(music_str), ui_common_uint8);
+        }
+        printf("key A1 up\r\n");
+    }
+    if(keyA2_up){
+        ui_transfer(last_ui_index);
+        printf("key A2 up\r\n");
+    }
+    if(keyA3_up){
+        if(ui_common_uint8<NUMBER_OF_STRARR(music_str)){
+            ui_common_uint8++;
+            disp_ui_menu(music_str, NUMBER_OF_STRARR(music_str), ui_common_uint8);
+        }
+        printf("key A3 up\r\n");
+    }
+    if(keyA4_up){
+        play_music(music_list[ui_common_uint8-1]);
+        printf("key A4 up\r\n");
+    }
 }
