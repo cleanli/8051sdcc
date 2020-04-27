@@ -179,6 +179,11 @@ void task_music(struct task*vp)
     }
 }
 
+bool is_playing_music()
+{
+    return (music_task_play_info.music_status == MUSIC_PLAYING);
+}
+
 void pause_music()
 {
     if(music_task_play_info.music_status == MUSIC_PLAYING){
@@ -187,21 +192,19 @@ void pause_music()
     }
 }
 
-void play_music(__code const signed char* pu)
+void continue_music()
 {
     if(music_task_play_info.music_status == MUSIC_PAUSE){
         music_task_play_info.music_status = MUSIC_PLAYING;
     }
-    else if(music_task_play_info.music_status == MUSIC_PLAYING){
-        music_task_play_info.music_status = MUSIC_PAUSE;
-        sound_en(0);
-    }
-    else{
-        music_task_play_info.pu = pu;
-        music_task_play_info.pu_index = 0;
-        music_task_play_info.last_note_start_timerct = 0;
-        music_task_play_info.music_status = MUSIC_PLAYING;
-    }
+}
+
+void play_music(__code const signed char* pu)
+{
+    music_task_play_info.pu = pu;
+    music_task_play_info.pu_index = 0;
+    music_task_play_info.last_note_start_timerct = 0;
+    music_task_play_info.music_status = MUSIC_PLAYING;
 }
 
 void task_init()

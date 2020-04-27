@@ -17,6 +17,8 @@ void task_power(struct task*v);
 
 
 void pause_music();
+void continue_music();
+bool is_playing_music();
 void play_music(__code const signed char* pu);
 void time_hms(char*buf, uint t);
 void local_float_sprintf(struct s_lfs_data* lfsd);
