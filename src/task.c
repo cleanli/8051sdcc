@@ -9,7 +9,7 @@
 #include "task.h"
 
 bool power_meas_trigged = false;
-__pdata int cur_task_timeout_ct;
+__pdata uint cur_task_timeout_ct;
 __pdata uint8 cur_task_event_flag;
 __pdata uint last_count_1s = 0;
 __pdata uint8 last_count_10ms = 0;
@@ -107,7 +107,7 @@ void task_timer(struct task*vp)
     if(count_1s != last_count_1s){
         g_flag_1s = true;
         printf("task timect %u\r\n", cur_task_timeout_ct);
-        if(cur_task_timeout_ct > 0){
+        if(cur_task_timeout_ct > 0 && (current_ui->time_disp_mode & TIME_OUT_EN)){
             cur_task_timeout_ct--;
             if(cur_task_timeout_ct == 0){
                 cur_task_event_flag |= 1<<EVENT_UI_TIMEOUT;

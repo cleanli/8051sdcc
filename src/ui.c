@@ -36,7 +36,7 @@ __pdata uint ui_wheelr;
 void common_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
-    if(uif->timeout == TIMEOUT_INPUT){
+    if(uif->time_disp_mode & TIME_OUT_INPUT){
         cur_task_timeout_ct = input_timeout;
     }
     else{
@@ -372,7 +372,7 @@ __code const ui_info all_ui[]={
         menu_ui_init,//func_p ui_init;
         menu_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
-        TIMEOUT_DISABLE,//int timeout;
+        0,//int timeout;
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         10,//uint8 power_position_of_dispmem;
@@ -384,7 +384,7 @@ __code const ui_info all_ui[]={
         first_init,
         first_process_event,
         NULL,
-        TIMEOUT_DISABLE,//int timeout;
+        0,//int timeout;
         0,
         0,
         33,
@@ -397,7 +397,7 @@ __code const ui_info all_ui[]={
         second_process_event,
         NULL,
         300,
-        TIME_DISP_EN|TIME_DISP_LEFT,
+        TIME_DISP_EN|TIME_DISP_LEFT|TIME_OUT_EN,
         16,
         27,
         {-1,-2,-1,-1,-1,-1},
@@ -408,7 +408,7 @@ __code const ui_info all_ui[]={
         timeout_input_init,//func_p ui_init;
         timeout_input_process_event,//func_p ui_process_event;
         timeout_input_quit,//func_p ui_quit;
-        TIMEOUT_DISABLE,//int timeout;
+        0,//int timeout;
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
@@ -420,8 +420,8 @@ __code const ui_info all_ui[]={
         timer_ui_init,//func_p ui_init;
         common_process_event,//func_p ui_process_event;
         timer_ui_quit,//func_p ui_quit;
-        TIMEOUT_INPUT,//int timeout;
-        TIME_DISP_EN|TIME_DISP_LEFT,//uint8 time_disp_mode;
+        0,//int timeout;
+        TIME_DISP_EN|TIME_DISP_LEFT|TIME_OUT_INPUT|TIME_OUT_EN,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
         {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,3},//int8 ui_event_transfer[EVENT_MAX];
@@ -433,7 +433,7 @@ __code const ui_info all_ui[]={
         lcj_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
         INT_MAX,//int timeout;
-        TIME_DISP_EN,//uint8 time_disp_mode;
+        TIME_DISP_EN|TIME_OUT_EN,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
         {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
@@ -444,7 +444,7 @@ __code const ui_info all_ui[]={
         cali_ui_init,//func_p ui_init;
         cali_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
-        TIMEOUT_DISABLE,//int timeout;
+        0,//int timeout;
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         10,//uint8 power_position_of_dispmem;
@@ -456,7 +456,7 @@ __code const ui_info all_ui[]={
         music_ui_init,//func_p ui_init;
         music_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
-        TIMEOUT_DISABLE,//int timeout;
+        0,//int timeout;
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         10,//uint8 power_position_of_dispmem;

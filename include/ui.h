@@ -7,7 +7,7 @@ typedef struct ui_info_ {
     func_p ui_init;
     func_p ui_process_event;
     func_p ui_quit;
-    int timeout;
+    uint timeout;
     uint8 time_disp_mode;
     uint8 time_position_of_dispmem;
     uint8 power_position_of_dispmem;

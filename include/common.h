@@ -44,7 +44,7 @@ extern bool flag_10ms , flag_1s ;
 extern bool disp_mem_update ;
 extern bool g_flag_1s ;
 extern bool g_flag_10ms ;
-extern __pdata int cur_task_timeout_ct;
+extern __pdata uint cur_task_timeout_ct;
 extern __pdata uint8 cur_task_event_flag;
 extern __pdata int8 cur_ui_index ;
 extern __pdata int8 last_ui_index ;
@@ -68,9 +68,9 @@ extern __pdata ulong last_saved_int_timer_ct ;
 #define TIME_DISP_EN (1<<0)
 #define TIME_DISP_SECOND (1<<1)
 #define TIME_DISP_LEFT (1<<2)
+#define TIME_OUT_INPUT (1<<3)
+#define TIME_OUT_EN (1<<4)
 
 #define UI_TRANSFER_DEFAULT (-2)
-#define TIMEOUT_DISABLE (-1)
-#define TIMEOUT_INPUT (-2)
 
 #endif
