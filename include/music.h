@@ -25,6 +25,7 @@ extern __code const signed char shaolshi[];
 extern __code const signed char xianglian[];
 extern __code const signed char notice_music[];
 extern __code const signed char testmu[];
+extern __code const signed char xiyouji1[];
 
 uint8 get_note_index(signed char value);
 #endif

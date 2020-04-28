@@ -669,11 +669,13 @@ const char* music_str[]={
     "ShaoLinShi",
     "XiangLian",
     "HappyBirthDay",
+    "XiYouJi_1",
 };
 __code const signed char* music_list[]={
     shaolshi,
     xianglian,
     fu,
+    xiyouji1,
 };
 void music_ui_init(void*vp)
 {
