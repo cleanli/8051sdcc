@@ -55,7 +55,7 @@ extern __pdata uint ui_common_uint ;
 extern __pdata int8 ui_common_int8 ;
 extern __pdata int ui_common_int ;
 extern __pdata ulong ui_common_ulong ;
-extern __pdata int input_timeout; 
+extern __pdata uint input_timeout;
 extern __pdata uint last_count_1s ;
 extern __pdata uint8 last_count_10ms ;
 extern __pdata uint count_1s;

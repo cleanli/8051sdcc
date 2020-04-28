@@ -23,7 +23,7 @@ __pdata int8 ui_common_int8 = 0;
 __pdata int ui_common_int = 0;
 __pdata ulong ui_common_ulong = 0;
 __pdata uint* ui_common_uint_p = NULL;
-__pdata int input_timeout = 60;
+__pdata uint input_timeout = 60;
 
 __code const ui_info* current_ui=NULL;
 __pdata float speed = 0.0f;
@@ -150,7 +150,7 @@ void second_process_event(void*vp)
 //input
 void show_input_timeout()
 {
-    sprintf(disp_mem+16, "%d", input_timeout);
+    sprintf(disp_mem+16, "%u", input_timeout);
     time_hms(disp_mem, input_timeout);
     disp_mem_update = true;
 }
@@ -161,7 +161,7 @@ void timeout_input_init(void*vp)
     common_ui_init(vp);
     sprintf(disp_mem+9, "Timeout");
     show_input_timeout();
-    ui_common_int = 1;
+    ui_common_uint = 1;
     cursor_cmd = 0x87;
 }
 //timer
@@ -198,78 +198,61 @@ void timeout_input_process_event(void*vp)
     ui_info* uif =(ui_info*)vp;
     if(keyA1_up){
         printf("key A1 up %u\r\n", keyA1_down_ct);
-        if(input_timeout>ui_common_int){
-            input_timeout-=ui_common_int;
+        if(input_timeout>ui_common_uint){
+            input_timeout-=ui_common_uint;
         }
         show_input_timeout();
     }
     //if(keyA2_up){ }
     if(keyA3_up){
         printf("key A3 up %u\r\n", keyA3_down_ct);
-        if(65535/2 - input_timeout>ui_common_int){
-            input_timeout+=ui_common_int;
+        if(UINT_MAX - input_timeout>ui_common_uint){
+            input_timeout+=ui_common_uint;
         }
         show_input_timeout();
     }
-    //if(keyA4_up){ }
-    if(keyA1_down_ct>5000){
-        if(g_flag_1s){
-            if(ui_common_int==3600){
-                ui_common_int=1;
-                cursor_cmd = 0x87;
-            }
-            else{
-                ui_common_int*=60;
-                cursor_cmd -= 3;
-            }
-        }
-    }
+#if 0
     if(keyA3_down_ct>5000){
         if(g_flag_1s){
-            if(ui_common_int==1){
-                ui_common_int=3600;
+            if(ui_common_uint==1){
+                ui_common_uint=3600;
                 cursor_cmd = 0x81;
             }
             else{
-                ui_common_int/=60;
+                ui_common_uint/=60;
                 cursor_cmd += 3;
             }
         }
     }
-#if 0
-#if 0
-    if(keyA1_down_ct == 100 || keyA3_down_ct == 100
-            ||keyA1_down_ct == 1000 || keyA3_down_ct == 1000
-            ||keyA1_down_ct == 10000 || keyA3_down_ct == 10000)
-        printf("%u %u\r\n", keyA1_down_ct, keyA3_down_ct);
 #endif
-    if(count_10ms%10==0){
-        if(keyA1_down_ct>1000){
-            ui_common_int = get_modify_speed(keyA1_down_ct);
-            //printf("uicint %d %u\r\n", ui_common_int, keyA1_down_ct);
-            if(input_timeout>ui_common_int){
-                input_timeout-=ui_common_int;
+    if(keyA1_down && keyA3_down){
+        if(g_flag_1s){
+            if(ui_common_uint==3600){
+                ui_common_uint=1;
+                cursor_cmd = 0x87;
             }
             else{
-                input_timeout=0;
+                ui_common_uint*=60;
+                cursor_cmd -= 3;
+            }
+        }
+    }
+
+    if(count_10ms%10==0){
+        if(keyA1_down_ct>5000){
+            if(input_timeout>ui_common_uint){
+                input_timeout-=ui_common_uint;
             }
             show_input_timeout();
         }
-        if(keyA3_down_ct>1000){
-            ui_common_int = get_modify_speed(keyA3_down_ct);
-            //printf("uicint %d %u\r\n", ui_common_int, keyA3_down_ct);
-            if(65535/2 - input_timeout>ui_common_int){
-                CDB;
-                input_timeout+=ui_common_int;
-            }
-            else{
-                CDB;
-                input_timeout=65535/2;
+        if(keyA3_down_ct>5000){
+            //printf("uicint %d %u\r\n", ui_common_uint, keyA3_down_ct);
+            if(UINT_MAX - input_timeout>ui_common_uint){
+                input_timeout+=ui_common_uint;
             }
             show_input_timeout();
         }
     }
-#endif
     common_process_event(vp);
 }
 
