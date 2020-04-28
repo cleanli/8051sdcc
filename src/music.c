@@ -42,7 +42,7 @@ uint8 get_note_index(signed char value)
 {
     uint8 ret;
     bool half_note = false;
-    printf("input %d\r\n", value);
+    //printf("input %d\r\n", value);
     if(value < 0){//half note: #1 #2...
         value = 0 - value;
         half_note = true;
@@ -57,7 +57,7 @@ uint8 get_note_index(signed char value)
     ret += value*2-2;
     if(value>=4)ret--;
     if(half_note)ret++;
-    printf("output %u\r\n", ret);
+    //printf("output %u\r\n", ret);
     return ret;
 }
 

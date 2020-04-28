@@ -81,7 +81,7 @@ void common_process_event(void*vp)
                     return;
                 }
             }
-            printf("ev flag %x EVUTO %x\r\n", evt_flag, EVENT_UI_TIMEOUT);
+            //printf("ev flag %x EVUTO %x\r\n", evt_flag, EVENT_UI_TIMEOUT);
             if(evt_flag == (1<<EVENT_UI_TIMEOUT) && uif->timeout_music){
                 play_music(uif->timeout_music);
             }
@@ -460,7 +460,7 @@ __code const ui_info all_ui[]={
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         10,//uint8 power_position_of_dispmem;
-        {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
 #if 0
@@ -491,7 +491,7 @@ const char* cali_str[]={
     "timer cal",
     "wheel cal",
 };
-#define MENU_UI_NUMBER (sizeof(menu_str)/sizeof(char*))
+#define NUMBER_OF_STRARR(str) (sizeof(str)/sizeof(char*))
 void disp_ui_menu(const char** m_s, uint8 size, uint8 id)
 {
     for(uint8 i = 0; i< size; i++){
@@ -510,7 +510,7 @@ void menu_ui_init(void*vp)
     ui_info* uif =(ui_info*)vp;
     common_ui_init(vp);
     ui_common_uint8 = last_ui_index;
-    disp_ui_menu(menu_str, MENU_UI_NUMBER, ui_common_uint8);
+    disp_ui_menu(menu_str, NUMBER_OF_STRARR(menu_str), ui_common_uint8);
 }
 
 void menu_process_event(void*vp)
@@ -520,7 +520,7 @@ void menu_process_event(void*vp)
     if(keyA1_up){
         if(ui_common_uint8>1){
             ui_common_uint8--;
-            disp_ui_menu(menu_str, MENU_UI_NUMBER, ui_common_uint8);
+            disp_ui_menu(menu_str, NUMBER_OF_STRARR(menu_str), ui_common_uint8);
         }
         printf("key A1 up\r\n");
     }
@@ -529,9 +529,9 @@ void menu_process_event(void*vp)
         printf("key A2 up\r\n");
     }
     if(keyA3_up){
-        if(ui_common_uint8<MENU_UI_NUMBER){
+        if(ui_common_uint8<NUMBER_OF_STRARR(menu_str)){
             ui_common_uint8++;
-            disp_ui_menu(menu_str, MENU_UI_NUMBER, ui_common_uint8);
+            disp_ui_menu(menu_str, NUMBER_OF_STRARR(menu_str), ui_common_uint8);
         }
         printf("key A3 up\r\n");
     }
@@ -692,7 +692,6 @@ __code const signed char* music_list[]={
     xianglian,
     fu,
 };
-#define NUMBER_OF_STRARR(str) (sizeof(str)/sizeof(char*))
 void music_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
