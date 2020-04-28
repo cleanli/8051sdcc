@@ -422,10 +422,10 @@ __code const ui_info all_ui[]={
         {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
-    {//6 eerom modify
-        "Cali data",
-        cali_ui_init,//func_p ui_init;
-        cali_process_event,//func_p ui_process_event;
+    {//6 music menu
+        "Music",
+        music_ui_init,//func_p ui_init;
+        music_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
         0,//int timeout;
         0,//uint8 time_disp_mode;
@@ -434,10 +434,10 @@ __code const ui_info all_ui[]={
         {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
-    {//7 music menu
-        "Music",
-        music_ui_init,//func_p ui_init;
-        music_process_event,//func_p ui_process_event;
+    {//7 eerom modify
+        "Cali data",
+        cali_ui_init,//func_p ui_init;
+        cali_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
         0,//int timeout;
         0,//uint8 time_disp_mode;
