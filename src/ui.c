@@ -530,6 +530,24 @@ void disp_ui_menu(const char** m_s, uint8 size, uint8 id)
     disp_mem_update = true;
 }
 
+void menu_moving(const char** m_s, uint8 numb_of_arr)
+{
+    if(keyA1_up){
+        if(ui_common_uint8>1){
+            ui_common_uint8--;
+            disp_ui_menu(m_s, numb_of_arr, ui_common_uint8);
+        }
+        printf("key A1 up\r\n");
+    }
+    if(keyA3_up){
+        if(ui_common_uint8<numb_of_arr){
+            ui_common_uint8++;
+            disp_ui_menu(m_s, numb_of_arr, ui_common_uint8);
+        }
+        printf("key A3 up\r\n");
+    }
+}
+
 void menu_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
@@ -542,23 +560,10 @@ void menu_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     common_process_event(vp);
-    if(keyA1_up){
-        if(ui_common_uint8>1){
-            ui_common_uint8--;
-            disp_ui_menu(menu_str, NUMBER_OF_STRARR(menu_str), ui_common_uint8);
-        }
-        printf("key A1 up\r\n");
-    }
+    menu_moving(menu_str, NUMBER_OF_STRARR(menu_str));
     if(keyA2_up){
         ui_transfer(2);
         printf("key A2 up\r\n");
-    }
-    if(keyA3_up){
-        if(ui_common_uint8<NUMBER_OF_STRARR(menu_str)){
-            ui_common_uint8++;
-            disp_ui_menu(menu_str, NUMBER_OF_STRARR(menu_str), ui_common_uint8);
-        }
-        printf("key A3 up\r\n");
     }
     if(keyA4_up){
         ui_transfer(ui_common_uint8);
@@ -598,13 +603,7 @@ void cali_process_event(void*vp)
     ui_info* uif =(ui_info*)vp;
     common_process_event(vp);
     if(ui_common_int8 == 0){
-        if(keyA1_up){
-            if(ui_common_uint8>1){
-                ui_common_uint8--;
-                disp_ui_menu(cali_str, 2, ui_common_uint8);
-            }
-            printf("key A1 up\r\n");
-        }
+        menu_moving(cali_str, NUMBER_OF_STRARR(cali_str));
         if(keyA2_up){
             if(ui_tcops != tcops || ui_wheelr != wheelr){
                 ui_common_int8 = 2;
@@ -615,13 +614,6 @@ void cali_process_event(void*vp)
                 ui_transfer(last_ui_index);
             }
             printf("key A2 up\r\n");
-        }
-        if(keyA3_up){
-            if(ui_common_uint8<2){
-                ui_common_uint8++;
-                disp_ui_menu(cali_str, 2, ui_common_uint8);
-            }
-            printf("key A3 up\r\n");
         }
         if(keyA4_up){
             ui_common_int8 = 1;
@@ -700,13 +692,7 @@ void music_ui_init(void*vp)
 void music_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
-    if(keyA1_up){
-        if(ui_common_uint8>1){
-            ui_common_uint8--;
-            disp_ui_menu(music_str, NUMBER_OF_STRARR(music_str), ui_common_uint8);
-        }
-        printf("key A1 up\r\n");
-    }
+    menu_moving(music_str, NUMBER_OF_STRARR(music_str));
     if(keyA2_up){
         if(is_playing_music()){
             pause_music();
@@ -715,13 +701,6 @@ void music_process_event(void*vp)
             ui_transfer(last_ui_index);
         }
         printf("key A2 up\r\n");
-    }
-    if(keyA3_up){
-        if(ui_common_uint8<NUMBER_OF_STRARR(music_str)){
-            ui_common_uint8++;
-            disp_ui_menu(music_str, NUMBER_OF_STRARR(music_str), ui_common_uint8);
-        }
-        printf("key A3 up\r\n");
     }
     if(keyA4_up){
         play_music(music_list[ui_common_uint8-1]);
