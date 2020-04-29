@@ -22,7 +22,14 @@ typedef struct change_level_info_{
     uint8 cursor_jump;
     uint8 max_cursor_posi;
     uint8 min_cursor_posi;
+    uint8 switch_cursor_type;
 } change_level_info;
+
+enum SWITCH_CURSOR_TYPE{
+    SWITCH_CURSOR_BY_DOUBLE_KEY,
+    SWITCH_CURSOR_BY_LONG_PRESS,
+    SWITCH_CURSOR_BY_LEFT_KEY,
+};
 
 extern __code const ui_info* current_ui;
 extern __code const ui_info all_ui[];

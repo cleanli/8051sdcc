@@ -13,16 +13,11 @@ __pdata float last_speed;
 bool disp_mem_update = false;
 bool g_flag_1s = false;
 bool g_flag_10ms = false;
+bool switch_cursor_by_double_key = false;
 __pdata int8 cur_ui_index = 0;
 __pdata int8 last_ui_index = 2;
 __pdata float power_voltage;
 __pdata struct s_lfs_data float_sprintf;
-__pdata uint8 ui_common_uint8 = 0;
-__pdata uint ui_common_uint = 0;
-__pdata int8 ui_common_int8 = 0;
-__pdata int ui_common_int = 0;
-__pdata ulong ui_common_ulong = 0;
-__pdata uint* ui_common_uint_p = NULL;
 __pdata uint input_timeout = 60;
 
 __code const ui_info* current_ui=NULL;
@@ -33,6 +28,13 @@ __pdata uint ui_tcops;
 __pdata uint ui_wheelr;
 __pdata change_level_info cli;
 
+__pdata uint8 ui_common_uint8 = 0;
+__pdata uint ui_common_uint = 0;
+__pdata int8 ui_common_int8 = 0;
+__pdata int ui_common_int = 0;
+__pdata ulong ui_common_ulong = 0;
+__pdata uint* ui_common_uint_p = NULL;
+bool ui_common_bit = false;
 //common
 void common_ui_init(void*vp)
 {
@@ -160,6 +162,8 @@ void timeout_input_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     common_ui_init(vp);
+    cli.switch_cursor_type = SWITCH_CURSOR_BY_DOUBLE_KEY;
+    ui_common_bit = true;//increase the uint
     sprintf(disp_mem+9, "Timeout");
     ui_common_uint = 1;
     cursor_cmd = 0x87;
@@ -230,36 +234,66 @@ void inc_uint(uint *p, bool increase)
     }
 }
 
-void timeout_input_process_event(void*vp)
+bool edit_uint_by_key(uint *p)
 {
-    ui_info* uif =(ui_info*)vp;
+    bool ret = false;//if need update display
     if(keyA1_up){
         printf("key A1 up %u\r\n", keyA1_down_ct);
-        inc_uint(&input_timeout, false);
-        show_input_timeout();
+        inc_uint(p, false);
+        ret = true;
     }
     //if(keyA2_up){ }
     if(keyA3_up){
         printf("key A3 up %u\r\n", keyA3_down_ct);
-        inc_uint(&input_timeout, true);
-        show_input_timeout();
+        inc_uint(p, true);
+        ret = true;
     }
-    if(keyA1_down && keyA3_down){
-        if(g_flag_1s){
-            inc_change_level(true);
-        }
+    switch(cli.switch_cursor_type){
+        case SWITCH_CURSOR_BY_DOUBLE_KEY:
+            if(keyA1_down && keyA3_down){
+                if(g_flag_1s){
+                    inc_change_level(true);
+                    ret = true;
+                }
+                if(count_10ms%10==0){
+                    if(keyA1_down_ct>4000){
+                        inc_uint(p, false);
+                        ret = true;
+                    }
+                    if(keyA3_down_ct>4000){
+                        //printf("uicint %d %u\r\n", ui_common_uint, keyA3_down_ct);
+                        inc_uint(p, true);
+                        ret = true;
+                    }
+                }
+            }
+            break;
+        case SWITCH_CURSOR_BY_LONG_PRESS:
+            if(keyA1_down_ct>4000){
+                if(g_flag_1s){
+                    inc_change_level(true);
+                    ret = true;
+                }
+            }
+            if(keyA3_down_ct>4000){
+                if(g_flag_1s){
+                    inc_change_level(false);
+                    ret = true;
+                }
+            }
+            break;
+        //case SWITCH_CURSOR_BY_LEFT_KEY:
+        //default:
     }
+    return ret;
+}
 
-    if(count_10ms%10==0){
-        if(keyA1_down_ct>5000){
-            inc_uint(&input_timeout, false);
-            show_input_timeout();
-        }
-        if(keyA3_down_ct>5000){
-            //printf("uicint %d %u\r\n", ui_common_uint, keyA3_down_ct);
-            inc_uint(&input_timeout, true);
-            show_input_timeout();
-        }
+void timeout_input_process_event(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+
+    if(edit_uint_by_key(&input_timeout)){
+        show_input_timeout();
     }
     common_process_event(vp);
 }
@@ -536,6 +570,7 @@ void cali_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     common_ui_init(vp);
+    cli.switch_cursor_type = SWITCH_CURSOR_BY_LONG_PRESS;
     ui_common_uint8 = 1;
     ui_common_int8 = 0;
     ui_tcops = tcops;
@@ -604,29 +639,9 @@ void cali_process_event(void*vp)
         }
     }
     else if(ui_common_int8 == 1){
-        if(keyA1_up){
-            printf("key A1 up %u\r\n", keyA1_down_ct);
-            inc_uint(ui_common_uint_p, false);
+        if(edit_uint_by_key(ui_common_uint_p)){
             sprintf(disp_mem + 27, "%05u", *ui_common_uint_p);
             disp_mem_update = true;
-        }
-        //if(keyA2_up){ }
-        if(keyA3_up){
-            printf("key A3 up %u\r\n", keyA3_down_ct);
-            inc_uint(ui_common_uint_p, true);
-            sprintf(disp_mem + 27, "%05u", *ui_common_uint_p);
-            disp_mem_update = true;
-        }
-        //if(keyA4_up){ }
-        if(keyA1_down_ct>5000){
-            if(g_flag_1s){
-                inc_change_level(true);
-            }
-        }
-        if(keyA3_down_ct>5000){
-            if(g_flag_1s){
-                inc_change_level(false);
-            }
         }
         if(keyA2_up){
             ui_common_int8 = 0;
