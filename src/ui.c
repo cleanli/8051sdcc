@@ -540,6 +540,12 @@ void cali_ui_init(void*vp)
     ui_common_int8 = 0;
     ui_tcops = tcops;
     ui_wheelr = wheelr;
+    cli.factor = 10;
+    cli.min_adder = 1;
+    cli.max_adder = 10000;
+    cli.cursor_jump = 1;
+    cli.max_cursor_posi = 0x9b;
+    cli.min_cursor_posi = 0x9f;
     disp_ui_menu(cali_str, 2, ui_common_uint8);
 }
 
@@ -614,26 +620,12 @@ void cali_process_event(void*vp)
         //if(keyA4_up){ }
         if(keyA1_down_ct>5000){
             if(g_flag_1s){
-                if(ui_common_uint==10000){
-                    ui_common_uint=1;
-                    cursor_cmd = 0x9f;
-                }
-                else{
-                    ui_common_uint*=10;
-                    cursor_cmd -= 1;
-                }
+                inc_change_level(true);
             }
         }
         if(keyA3_down_ct>5000){
             if(g_flag_1s){
-                if(ui_common_uint==1){
-                    ui_common_uint=10000;
-                    cursor_cmd = 0x9b;
-                }
-                else{
-                    ui_common_uint/=10;
-                    cursor_cmd += 1;
-                }
+                inc_change_level(false);
             }
         }
         if(keyA2_up){
