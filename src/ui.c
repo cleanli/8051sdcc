@@ -185,12 +185,18 @@ void timeout_input_quit(void*vp)
     cursor_cmd = 0;
 }
 
-int get_modify_speed(uint i)
+void inc_uint(uint *p, bool increase)
 {
-    if(i<4000)return 1;
-    if(i<10000)return 10;
-    if(i<50000)return 100;
-    return 1000;
+    if(increase){
+        if(UINT_MAX - *p>ui_common_uint){
+            *p+=ui_common_uint;
+        }
+    }
+    else{
+        if(*p>ui_common_uint){
+            *p-=ui_common_uint;
+        }
+    }
 }
 
 void timeout_input_process_event(void*vp)
@@ -198,17 +204,13 @@ void timeout_input_process_event(void*vp)
     ui_info* uif =(ui_info*)vp;
     if(keyA1_up){
         printf("key A1 up %u\r\n", keyA1_down_ct);
-        if(input_timeout>ui_common_uint){
-            input_timeout-=ui_common_uint;
-        }
+        inc_uint(&input_timeout, false);
         show_input_timeout();
     }
     //if(keyA2_up){ }
     if(keyA3_up){
         printf("key A3 up %u\r\n", keyA3_down_ct);
-        if(UINT_MAX - input_timeout>ui_common_uint){
-            input_timeout+=ui_common_uint;
-        }
+        inc_uint(&input_timeout, true);
         show_input_timeout();
     }
 #if 0
@@ -240,16 +242,12 @@ void timeout_input_process_event(void*vp)
 
     if(count_10ms%10==0){
         if(keyA1_down_ct>5000){
-            if(input_timeout>ui_common_uint){
-                input_timeout-=ui_common_uint;
-            }
+            inc_uint(&input_timeout, false);
             show_input_timeout();
         }
         if(keyA3_down_ct>5000){
             //printf("uicint %d %u\r\n", ui_common_uint, keyA3_down_ct);
-            if(UINT_MAX - input_timeout>ui_common_uint){
-                input_timeout+=ui_common_uint;
-            }
+            inc_uint(&input_timeout, true);
             show_input_timeout();
         }
     }
@@ -592,18 +590,14 @@ void cali_process_event(void*vp)
     else if(ui_common_int8 == 1){
         if(keyA1_up){
             printf("key A1 up %u\r\n", keyA1_down_ct);
-            if(*ui_common_uint_p >ui_common_uint){
-                *ui_common_uint_p-=ui_common_uint;
-            }
+            inc_uint(ui_common_uint_p, false);
             sprintf(disp_mem + 27, "%05u", *ui_common_uint_p);
             disp_mem_update = true;
         }
         //if(keyA2_up){ }
         if(keyA3_up){
             printf("key A3 up %u\r\n", keyA3_down_ct);
-            if(UINT_MAX - *ui_common_uint_p>ui_common_uint){
-                *ui_common_uint_p+=ui_common_uint;
-            }
+            inc_uint(ui_common_uint_p, true);
             sprintf(disp_mem + 27, "%05u", *ui_common_uint_p);
             disp_mem_update = true;
         }
