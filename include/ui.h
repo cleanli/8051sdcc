@@ -15,6 +15,15 @@ typedef struct ui_info_ {
     __code const signed char*timeout_music;
 } ui_info;
 
+typedef struct change_level_info_{
+    uint factor;
+    uint min_adder;
+    uint max_adder;
+    uint8 cursor_jump;
+    uint8 max_cursor_posi;
+    uint8 min_cursor_posi;
+} change_level_info;
+
 extern __code const ui_info* current_ui;
 extern __code const ui_info all_ui[];
 #endif

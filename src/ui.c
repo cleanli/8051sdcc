@@ -31,6 +31,7 @@ __pdata float mileage = 0.0f;
 __pdata ulong last_saved_int_timer_ct = 0;
 __pdata uint ui_tcops;
 __pdata uint ui_wheelr;
+__pdata change_level_info cli;
 
 //common
 void common_ui_init(void*vp)
@@ -160,9 +161,15 @@ void timeout_input_init(void*vp)
     ui_info* uif =(ui_info*)vp;
     common_ui_init(vp);
     sprintf(disp_mem+9, "Timeout");
-    show_input_timeout();
     ui_common_uint = 1;
     cursor_cmd = 0x87;
+    cli.factor = 60;
+    cli.min_adder = 1;
+    cli.max_adder = 3600;
+    cli.cursor_jump = 3;
+    cli.max_cursor_posi = 0x81;
+    cli.min_cursor_posi = 0x87;
+    show_input_timeout();
 }
 //timer
 void timer_ui_init(void*vp)
@@ -183,6 +190,30 @@ void timeout_input_quit(void*vp)
 {
     vp;//fix warning
     cursor_cmd = 0;
+}
+
+void inc_change_level(bool increase)
+{
+    if(increase){
+        if(ui_common_uint==cli.max_adder){
+            ui_common_uint=cli.min_adder;
+            cursor_cmd = cli.min_cursor_posi;
+        }
+        else{
+            ui_common_uint*=cli.factor;
+            cursor_cmd -= cli.cursor_jump;
+        }
+    }
+    else{
+        if(ui_common_uint==cli.min_adder){
+            ui_common_uint=cli.max_adder;
+            cursor_cmd = cli.max_cursor_posi;
+        }
+        else{
+            ui_common_uint/=cli.factor;
+            cursor_cmd += cli.cursor_jump;
+        }
+    }
 }
 
 void inc_uint(uint *p, bool increase)
@@ -213,30 +244,9 @@ void timeout_input_process_event(void*vp)
         inc_uint(&input_timeout, true);
         show_input_timeout();
     }
-#if 0
-    if(keyA3_down_ct>5000){
-        if(g_flag_1s){
-            if(ui_common_uint==1){
-                ui_common_uint=3600;
-                cursor_cmd = 0x81;
-            }
-            else{
-                ui_common_uint/=60;
-                cursor_cmd += 3;
-            }
-        }
-    }
-#endif
     if(keyA1_down && keyA3_down){
         if(g_flag_1s){
-            if(ui_common_uint==3600){
-                ui_common_uint=1;
-                cursor_cmd = 0x87;
-            }
-            else{
-                ui_common_uint*=60;
-                cursor_cmd -= 3;
-            }
+            inc_change_level(true);
         }
     }
 
