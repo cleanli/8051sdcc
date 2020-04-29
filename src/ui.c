@@ -257,16 +257,16 @@ bool edit_uint_by_key(uint *p)
                     inc_change_level(true);
                     ret = true;
                 }
-                if(count_10ms%10==0){
-                    if(keyA1_down_ct>4000){
-                        inc_uint(p, false);
-                        ret = true;
-                    }
-                    if(keyA3_down_ct>4000){
-                        //printf("uicint %d %u\r\n", ui_common_uint, keyA3_down_ct);
-                        inc_uint(p, true);
-                        ret = true;
-                    }
+            }
+            if(count_10ms%10==0){
+                if(keyA1_down_ct>4000){
+                    inc_uint(p, false);
+                    ret = true;
+                }
+                if(keyA3_down_ct>4000){
+                    //printf("uicint %d %u\r\n", ui_common_uint, keyA3_down_ct);
+                    inc_uint(p, true);
+                    ret = true;
                 }
             }
             break;
