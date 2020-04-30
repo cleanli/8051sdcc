@@ -7,6 +7,13 @@ struct task {
     //char flag_1s;
 };
 extern __code struct task all_tasks[];
+extern __pdata uint cur_task_timeout_ct;
+extern __pdata uint8 cur_task_event_flag;
+extern __pdata uint8 cursor_cmd ;
+extern __pdata uint8 count_10ms;
+extern bool disp_mem_update ;
+extern bool g_flag_1s ;
+extern bool g_flag_10ms ;
 void task_init();
 void task_ui(struct task*v);
 void task_key_status(struct task*v);

@@ -1,6 +1,11 @@
 #ifndef _STC12_DRV_H
 #define _STC12_DRV_H
 
+#define MS_COUNT 1279
+#define COUNT10MS ((tcops+50)/100)
+#define TC0PS_EEROM_ADDR 4
+#define WHEEL_R_EEROM_ADDR 6
+
 void isr_pca0(void) __interrupt 7 __using 3;
 void isr_int1(void) __interrupt 2 __using 2;
 void isrtimer0(void) __interrupt 1 __using 1;

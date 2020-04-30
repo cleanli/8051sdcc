@@ -2,14 +2,15 @@
 #include "type.h"
 #include <stdio.h>
 #include <string.h>
+#include "stc12_drv.h"
 #include "common.h"
 
+extern __pdata uint8 cur_task_event_flag;
 volatile ulong timer_ct = 0;
 volatile ulong saved_int_timer_ct = 0;
 __pdata unsigned char disp_mem[33];
 __pdata uint tcops = TIMER0_COUNT_PER_SECOND;
 __pdata uint wheelr = WHEEL_R;
-bool flag_10ms = 0, flag_1s = 0;
 
 bool keyA1_down = false;
 bool keyA2_down = false;
