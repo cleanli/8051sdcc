@@ -219,12 +219,12 @@ bool edit_uint_by_key(uint *p)
     bool ret = false;//if need update display
     if(cli.switch_cursor_type == SWITCH_CURSOR_BY_DOUBLE_KEY ||
             cli.switch_cursor_type == SWITCH_CURSOR_BY_LONG_PRESS){
-        if(keyA1_up){
+        if(keyA1_up&& last_keyA1_down_ct<4000){
             printf("key A1 up %u\r\n", keyA1_down_ct);
             inc_uint(p, false);
             ret = true;
         }
-        if(keyA3_up){
+        if(keyA3_up&& last_keyA3_down_ct<4000){
             printf("key A3 up %u\r\n", keyA3_down_ct);
             inc_uint(p, true);
             ret = true;
@@ -265,7 +265,7 @@ bool edit_uint_by_key(uint *p)
             }
             break;
         case SWITCH_CURSOR_BY_LEFT_KEY:
-            if(keyA1_up){
+            if(keyA1_up && last_keyA1_down_ct<4000){
                 printf("key A1 up\r\n");
                 inc_change_level(true);
                 ret = true;
@@ -279,7 +279,6 @@ bool edit_uint_by_key(uint *p)
                 if(g_flag_1s){
                     ui_common_bit = !ui_common_bit;
                     inc_uint(p, ui_common_bit);
-                    inc_change_level(false);
                     ret = true;
                 }
             }
