@@ -35,8 +35,6 @@ void local_float_sprintf(struct s_lfs_data* lfsd);
 extern volatile ulong timer_ct;
 extern volatile ulong saved_int_timer_ct;
 extern __pdata unsigned char disp_mem[33];
-extern __pdata float mileage;
-extern __pdata float last_speed;
 extern __pdata uint tcops;
 extern __pdata uint wheelr;
 extern bool flag_10ms , flag_1s ;
@@ -48,22 +46,13 @@ extern __pdata uint cur_task_timeout_ct;
 extern __pdata uint8 cur_task_event_flag;
 extern __pdata int8 cur_ui_index ;
 extern __pdata int8 last_ui_index ;
-extern __pdata float power_voltage;
 extern __pdata struct s_lfs_data float_sprintf;
-extern __pdata uint8 ui_common_uint8 ;
-extern __pdata uint ui_common_uint ;
-extern __pdata int8 ui_common_int8 ;
-extern __pdata int ui_common_int ;
-extern __pdata ulong ui_common_ulong ;
-extern __pdata uint input_timeout;
 extern __pdata uint last_count_1s ;
 extern __pdata uint8 last_count_10ms ;
 extern __pdata uint count_1s;
 extern __pdata uint8 count_10ms;
 extern __pdata uint8 cursor_cmd ;
 extern __pdata float speed;
-extern __pdata float mileage;
-extern __pdata ulong last_saved_int_timer_ct ;
 
 #define TIME_DISP_EN (1<<0)
 #define TIME_DISP_SECOND (1<<1)

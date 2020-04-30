@@ -13,10 +13,8 @@ __pdata float last_speed;
 bool disp_mem_update = false;
 bool g_flag_1s = false;
 bool g_flag_10ms = false;
-bool switch_cursor_by_double_key = false;
 __pdata int8 cur_ui_index = 0;
 __pdata int8 last_ui_index = 2;
-__pdata float power_voltage;
 __pdata struct s_lfs_data float_sprintf;
 __pdata uint input_timeout = 60;
 
@@ -105,19 +103,6 @@ void first_init(void*vp)
 
 void first_process_event(void*vp)
 {
-    if(keyA1_up){
-        printf("key A1 up\r\n");
-        cur_task_timeout_ct += 9;
-        play_music(xianglian);
-    }
-    if(keyA2_up){
-        pause_music();
-        printf("key A2 up\r\n");
-    }
-    if(keyA3_up){
-        printf("key A3 up\r\n");
-    }
-    if(keyA4_up)printf("key A4 up\r\n");
     common_process_event(vp);
 }
 
@@ -125,7 +110,7 @@ void first_process_event(void*vp)
 void second_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
-    ui_common_uint8 = 1;
+    ui_common_uint8 = 1;//round of 5min
     common_ui_init(vp);
     memset(disp_mem, 0, 32);
     sprintf(disp_mem+12, "%u", ui_common_uint8);
@@ -137,11 +122,6 @@ void second_init(void*vp)
 void second_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
-    if(keyA1_up){
-        printf("key A1 up\r\n");
-        play_music(fu);
-    }
-    if(keyA4_up)printf("key A4 up\r\n");
     if(cur_task_event_flag & (1<<EVENT_UI_TIMEOUT)){
         cur_task_timeout_ct = uif->timeout;
         ui_common_uint8++;
