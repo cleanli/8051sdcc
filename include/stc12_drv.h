@@ -13,6 +13,10 @@ void isrtimer0(void) __interrupt 1 __using 1;
 void read_cal_data();
 void system_init();
 void drv_update_key_status();
+bool hw_key_A1_down();
+bool hw_key_A2_down();
+bool hw_key_A3_down();
+bool hw_key_A4_down();
 void drv_power_task_loop();
 uint8 get_key_status_raw();
 void music_led_flash();
@@ -31,16 +35,4 @@ uint read_rom_uint(uint addr);
 void dump_rom();
 void read_cal_data();
 
-extern bool keyA1_down ;
-extern bool keyA2_down ;
-extern bool keyA3_down ;
-extern bool keyA4_down ;
-extern bool keyA1_up ;
-extern bool keyA2_up ;
-extern bool keyA3_up ;
-extern bool keyA4_up ;
-extern __pdata uint keyA1_down_ct;
-extern __pdata uint keyA2_down_ct;
-extern __pdata uint keyA3_down_ct;
-extern __pdata uint keyA4_down_ct;
 #endif

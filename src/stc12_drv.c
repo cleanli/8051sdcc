@@ -12,18 +12,7 @@ __pdata unsigned char disp_mem[33];
 __pdata uint tcops = TIMER0_COUNT_PER_SECOND;
 __pdata uint wheelr = WHEEL_R;
 
-bool keyA1_down = false;
-bool keyA2_down = false;
-bool keyA3_down = false;
-bool keyA4_down = false;
-bool keyA1_up = false;
-bool keyA2_up = false;
-bool keyA3_up = false;
-bool keyA4_up = false;
-__pdata uint keyA1_down_ct;
-__pdata uint keyA2_down_ct;
-__pdata uint keyA3_down_ct;
-__pdata uint keyA4_down_ct;
+__pdata uint8 ksts;
 /*eerom*/
 #define READ 1
 #define WRITE 2
@@ -211,35 +200,19 @@ uint8 get_key_status_raw()
     return (P0 & 0xe0)|(P3 & 0x4);
 }
 
-#define KEY_CONFIRM_TIMER_CT 160
-#define CHECK_KEY(AN) \
-    if((ksts&NO_KEY_##AN##_DOWN) == 0){ \
-        if(key##AN##_down_ct<65535)key##AN##_down_ct++; \
-    } \
-    else{ \
-        key##AN##_down_ct = 0; \
-        if(key##AN##_down==true){ \
-            key##AN##_down=false; \
-            key##AN##_up=true; \
-            cur_task_event_flag |= 1<<EVENT_KEY##AN##_UP; \
-        } \
-        else{ \
-            key##AN##_up=false; \
-        } \
-    } \
-    if(key##AN##_down_ct > KEY_CONFIRM_TIMER_CT){ \
-        key##AN##_down=true; \
-    } \
-    else{ \
-        key##AN##_down=false; \
-    }
+#define HW_KEY_DOWN_FUNC_DECLARE(AN) \
+bool hw_key_##AN##_down() \
+{ \
+    return (ksts&NO_KEY_##AN##_DOWN) == 0; \
+}
+
+HW_KEY_DOWN_FUNC_DECLARE(A1)
+HW_KEY_DOWN_FUNC_DECLARE(A2)
+HW_KEY_DOWN_FUNC_DECLARE(A3)
+HW_KEY_DOWN_FUNC_DECLARE(A4)
 void drv_update_key_status()
 {
-    uint8 ksts = get_key_status_raw();
-    CHECK_KEY(A1)
-    CHECK_KEY(A2)
-    CHECK_KEY(A3)
-    CHECK_KEY(A4)
+    ksts = get_key_status_raw();
 }
 
 void drv_trigger_AD()

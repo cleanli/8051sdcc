@@ -18,6 +18,22 @@ __pdata uint count_1s=0;
 __pdata uint8 count_10ms=0;
 __pdata uint8 cursor_cmd = 0;
 
+bool keyA1_down = false;
+bool keyA2_down = false;
+bool keyA3_down = false;
+bool keyA4_down = false;
+bool keyA1_up = false;
+bool keyA2_up = false;
+bool keyA3_up = false;
+bool keyA4_up = false;
+__pdata uint last_keyA1_down_ct;
+__pdata uint last_keyA2_down_ct;
+__pdata uint last_keyA3_down_ct;
+__pdata uint last_keyA4_down_ct;
+__pdata uint keyA1_down_ct;
+__pdata uint keyA2_down_ct;
+__pdata uint keyA3_down_ct;
+__pdata uint keyA4_down_ct;
 void local_float_sprintf(struct s_lfs_data* lfsd)
 {
     if(lfsd->fv > 65535){
@@ -60,10 +76,38 @@ void task_ui(struct task*vp)
     current_ui->ui_process_event(current_ui);
 }
 
+#define KEY_CONFIRM_TIMER_CT 160
+#define CHECK_KEY(AN) \
+    if(hw_key_##AN##_down()){ \
+        if(key##AN##_down_ct<65535)key##AN##_down_ct++; \
+    } \
+    else{ \
+        if(key##AN##_down==true){ \
+            key##AN##_down=false; \
+            key##AN##_up=true; \
+            last_key##AN##_down_ct = key##AN##_down_ct; \
+            cur_task_event_flag |= 1<<EVENT_KEY##AN##_UP; \
+        } \
+        else{ \
+            key##AN##_up=false; \
+        } \
+        key##AN##_down_ct = 0; \
+    } \
+    if(key##AN##_down_ct > KEY_CONFIRM_TIMER_CT){ \
+        key##AN##_down=true; \
+    } \
+    else{ \
+        key##AN##_down=false; \
+    }
+
 void task_key_status(struct task*vp)
 {
     vp;//fix unused variable warning
     drv_update_key_status();
+    CHECK_KEY(A1)
+    CHECK_KEY(A2)
+    CHECK_KEY(A3)
+    CHECK_KEY(A4)
 }
 
 void task_power(struct task*vp)

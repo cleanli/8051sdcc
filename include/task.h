@@ -14,6 +14,24 @@ extern __pdata uint8 count_10ms;
 extern bool disp_mem_update ;
 extern bool g_flag_1s ;
 extern bool g_flag_10ms ;
+
+extern bool keyA1_down ;
+extern bool keyA2_down ;
+extern bool keyA3_down ;
+extern bool keyA4_down ;
+extern bool keyA1_up ;
+extern bool keyA2_up ;
+extern bool keyA3_up ;
+extern bool keyA4_up ;
+extern __pdata uint keyA1_down_ct;
+extern __pdata uint keyA2_down_ct;
+extern __pdata uint keyA3_down_ct;
+extern __pdata uint keyA4_down_ct;
+extern __pdata uint last_keyA1_down_ct;
+extern __pdata uint last_keyA2_down_ct;
+extern __pdata uint last_keyA3_down_ct;
+extern __pdata uint last_keyA4_down_ct;
+
 void task_init();
 void task_ui(struct task*v);
 void task_key_status(struct task*v);
