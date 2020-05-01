@@ -252,6 +252,11 @@ void play_music(__code const signed char* pu)
     music_task_play_info.music_status = MUSIC_PLAYING;
 }
 
+void task_wdt(struct task*vp)
+{
+    feed_watch_dog();
+}
+
 void task_init()
 {
     current_ui = &all_ui[0];

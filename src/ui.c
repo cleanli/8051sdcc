@@ -594,15 +594,6 @@ void cali_ui_init(void*vp)
     disp_ui_menu(cali_str, 2, ui_common_uint8);
 }
 
-void save_cal_data()
-{
-    erase_rom(TC0PS_EEROM_ADDR);
-    write_rom_uint(TC0PS_EEROM_ADDR, ui_tcops);
-    write_rom_uint(WHEEL_R_EEROM_ADDR, ui_wheelr);
-    tcops = ui_tcops;
-    wheelr = ui_wheelr;
-}
-
 void cali_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
@@ -661,7 +652,9 @@ void cali_process_event(void*vp)
     }
     else if(ui_common_int8 == 2){
         if(keyA4_up){
-            save_cal_data();
+            save_cal_data(ui_tcops, ui_wheelr);
+            tcops = ui_tcops;
+            wheelr = ui_wheelr;
             ui_common_int8 = 0;
             disp_ui_menu(cali_str, 2, ui_common_uint8);
             sprintf(disp_mem+27, "%s", "Saved");

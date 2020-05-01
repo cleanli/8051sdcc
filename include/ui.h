@@ -1,5 +1,18 @@
 #ifndef _UI_H
 #define _UI_H
+#include "task.h"
+
+#define TIME_DISP_EN (1<<0)
+#define TIME_DISP_SECOND (1<<1)
+#define TIME_DISP_LEFT (1<<2)
+#define TIME_OUT_INPUT (1<<3)
+#define TIME_OUT_EN (1<<4)
+
+#define UI_TRANSFER_DEFAULT (-2)
+
+extern __pdata int8 cur_ui_index ;
+extern __pdata int8 last_ui_index ;
+extern __pdata float speed;
 
 typedef void (*func_p)(void*);
 typedef struct ui_info_ {

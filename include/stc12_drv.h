@@ -6,11 +6,18 @@
 #define TC0PS_EEROM_ADDR 4
 #define WHEEL_R_EEROM_ADDR 6
 
+extern __pdata uint tcops;
+extern __pdata uint wheelr;
+
+extern volatile ulong timer_ct;
+extern volatile ulong saved_int_timer_ct;
 void isr_pca0(void) __interrupt 7 __using 3;
 void isr_int1(void) __interrupt 2 __using 2;
 void isrtimer0(void) __interrupt 1 __using 1;
 
 void read_cal_data();
+void save_cal_data(uint, uint);
+void feed_watch_dog();
 void system_init();
 void drv_update_key_status();
 bool hw_key_A1_down();

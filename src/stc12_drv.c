@@ -118,6 +118,18 @@ void read_cal_data()
     }
 }
 
+void save_cal_data(uint tc, uint wh)
+{
+    erase_rom(TC0PS_EEROM_ADDR);
+    write_rom_uint(TC0PS_EEROM_ADDR, tc);
+    write_rom_uint(WHEEL_R_EEROM_ADDR, wh);
+}
+
+void feed_watch_dog()
+{
+    WDT_CONTR = 0x3f;
+}
+
 #define STC
 void serial_init()
 {
@@ -180,6 +192,7 @@ void system_init()
     //PCA init
     pca_init();
     read_cal_data();
+    feed_watch_dog();
 }
 
 #define KEY_A1 P3_2

@@ -1,5 +1,15 @@
 #ifndef _TASK_H
 #define _TASK_H
+
+enum EVENT_TYPE{
+    EVENT_KEYA1_UP,
+    EVENT_KEYA2_UP,
+    EVENT_KEYA3_UP,
+    EVENT_KEYA4_UP,
+    EVENT_UI_TIMEOUT,
+    EVENT_MUSIC_PLAY_END,
+    EVENT_MAX
+};
 struct task;
 typedef void (*task_func)(struct task*);
 struct task {
