@@ -284,6 +284,7 @@ void set_delayed_work(uint tct, func_p f, void*pa)
 
 void task_misc(struct task*vp)
 {
+    vp;//fix unused variable warning
     if(!stop_feed_wtd){
         feed_watch_dog();
     }

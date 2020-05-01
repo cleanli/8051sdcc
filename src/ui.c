@@ -105,7 +105,7 @@ void common_process_event(void*vp)
     if(uif->time_disp_mode & TIME_OUT_EN){
         if(g_flag_1s){
             set_led1(true);
-            set_delayed_work(10, delayed_close_led, NULL);
+            set_delayed_work(5, delayed_close_led, NULL);
         }
     }
     cur_task_event_flag = 0;
