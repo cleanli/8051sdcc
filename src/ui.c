@@ -18,7 +18,7 @@ __pdata int8 last_ui_index = 2;
 __pdata struct s_lfs_data float_sprintf;
 __pdata uint input_timeout = 60;
 
-__code const ui_info* current_ui=NULL;
+__code const ui_info* __pdata current_ui=NULL;
 __pdata float speed = 0.0f;
 __pdata float mileage = 0.0f;
 __pdata ulong last_saved_int_timer_ct = 0;
@@ -31,7 +31,7 @@ __pdata uint ui_common_uint = 0;
 __pdata int8 ui_common_int8 = 0;
 __pdata int ui_common_int = 0;
 __pdata ulong ui_common_ulong = 0;
-__pdata uint* ui_common_uint_p = NULL;
+uint* __pdata ui_common_uint_p = NULL;
 bool ui_common_bit = false;
 //common
 void common_ui_init(void*vp)
@@ -529,7 +529,7 @@ __code const ui_info all_ui[]={
 #endif
 };
 
-const char* menu_str[]={
+const char* __pdata const menu_str[]={
     all_ui[1].ui_name,
     all_ui[2].ui_name,
     all_ui[3].ui_name,
@@ -539,7 +539,7 @@ const char* menu_str[]={
     all_ui[7].ui_name,
     all_ui[8].ui_name,
 };
-const char* cali_str[]={
+const char* __code const cali_str[]={
     "timer cal",
     "wheel cal",
 };
@@ -694,13 +694,13 @@ void cali_process_event(void*vp)
     }
 }
 
-const char* music_str[]={
+const char* __code const music_str[]={
     "ShaoLinShi",
     "XiangLian",
     "HappyBirthDay",
     "XiYouJi_1",
 };
-__code const signed char* music_list[]={
+__code const signed char* __code const music_list[]={
     shaolshi,
     xianglian,
     fu,

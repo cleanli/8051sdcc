@@ -45,6 +45,6 @@ enum SWITCH_CURSOR_TYPE{
     SWITCH_CURSOR_BY_LEFT_KEY,
 };
 
-extern __code const ui_info* current_ui;
+extern __code const ui_info* __pdata current_ui;
 extern __code const ui_info all_ui[];
 #endif

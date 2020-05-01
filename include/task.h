@@ -50,7 +50,7 @@ void task_timer(struct task*v);
 void task_disp(struct task*v);
 void task_music(struct task*v);
 void task_power(struct task*v);
-void task_wdt(struct task*v);
+void task_misc(struct task*v);
 
 void pause_music();
 void continue_music();

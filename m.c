@@ -29,7 +29,7 @@ __code struct task all_tasks[]=
         task_power,
     },
     {
-        task_wdt,
+        task_misc,
     },
 };
 

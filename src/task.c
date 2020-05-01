@@ -253,7 +253,7 @@ void play_music(__code const signed char* pu)
     music_task_play_info.music_status = MUSIC_PLAYING;
 }
 
-void task_wdt(struct task*vp)
+void task_misc(struct task*vp)
 {
     if(!stop_feed_wtd){
         feed_watch_dog();
