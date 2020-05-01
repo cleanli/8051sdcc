@@ -18,6 +18,20 @@ __pdata uint8 last_count_10ms = 0;
 __pdata uint count_1s=0;
 __pdata uint8 count_10ms=0;
 __pdata uint8 cursor_cmd = 0;
+__pdata struct delay_work_info delayed_works[]={
+    {
+        NULL,
+        0,
+        NULL
+    },
+    {
+        NULL,
+        0,
+        NULL
+    }
+};
+#define NUMBER_OF_DELAYED_WORKS \
+    (sizeof(delayed_works)/sizeof(struct delay_work_info))
 
 bool keyA1_down = false;
 bool keyA2_down = false;
@@ -253,10 +267,33 @@ void play_music(__code const signed char* pu)
     music_task_play_info.music_status = MUSIC_PLAYING;
 }
 
+void set_delayed_work(uint tct, func_p f, void*pa)
+{
+    for(int8 i = 0; i<NUMBER_OF_DELAYED_WORKS; i++){
+        if(delayed_works[i].function == NULL){
+            delayed_works[i].function = f;
+            delayed_works[i].ct_10ms = tct;
+            delayed_works[i].para = pa;
+            break;
+        }
+    }
+}
+
 void task_misc(struct task*vp)
 {
     if(!stop_feed_wtd){
         feed_watch_dog();
+    }
+    if(g_flag_10ms){
+        for(int8 i = 0; i<NUMBER_OF_DELAYED_WORKS; i++){
+            if(delayed_works[i].ct_10ms > 0){
+                delayed_works[i].ct_10ms--;
+                if(delayed_works[i].ct_10ms==0 && delayed_works[i].function != NULL){
+                    delayed_works[i].function(delayed_works[i].para);
+                    delayed_works[i].function = NULL;
+                }
+            }
+        }
     }
 }
 

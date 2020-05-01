@@ -1,6 +1,7 @@
 #ifndef _TYPE_H
 #define _TYPE_H
 
+typedef void (*func_p)(void*);
 typedef unsigned int uint;
 typedef signed char int8;
 typedef unsigned char uint8;

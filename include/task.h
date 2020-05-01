@@ -16,6 +16,11 @@ struct task {
     task_func t_func;
     //char flag_1s;
 };
+struct delay_work_info {
+    func_p function;
+    uint ct_10ms;
+    void * para;
+};
 extern __code struct task all_tasks[];
 extern __pdata uint cur_task_timeout_ct;
 extern __pdata uint8 cur_task_event_flag;

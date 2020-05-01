@@ -15,7 +15,6 @@ extern __pdata int8 cur_ui_index ;
 extern __pdata int8 last_ui_index ;
 extern __pdata float speed;
 
-typedef void (*func_p)(void*);
 typedef struct ui_info_ {
     const char* ui_name;
     func_p ui_init;
