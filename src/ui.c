@@ -779,5 +779,9 @@ void wtd_ui_process_event(void*vp)
         stop_feed_wtd = true;
         printf("test watch dog reset\r\n");
     }
+    if(keyA3_up){
+        printf("power off\r\n");
+        power_off();
+    }
     common_process_event(vp);
 }

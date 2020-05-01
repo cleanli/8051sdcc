@@ -5,6 +5,20 @@
 #include "stc12_drv.h"
 #include "common.h"
 
+#define KEY_A1 P3_2
+#define KEY_A2 P0_7
+#define KEY_A3 P0_6
+#define KEY_A4 P0_5
+#define POWER_DOWN_PIN P1_3
+#define LED1 P0_0
+#define LED2 P0_1
+#define BEEPER P0_4
+#define NO_KEY_A1_DOWN (1<<2)
+#define NO_KEY_A2_DOWN (1<<7)
+#define NO_KEY_A3_DOWN (1<<6)
+#define NO_KEY_A4_DOWN (1<<5)
+#define NO_KEY_DOWN (NO_KEY_A1_DOWN|NO_KEY_A2_DOWN|NO_KEY_A3_DOWN|NO_KEY_A4_DOWN)
+
 volatile ulong timer_ct = 0;
 volatile ulong saved_int_timer_ct = 0;
 __pdata unsigned char disp_mem[33];
@@ -201,18 +215,10 @@ void system_init()
     feed_watch_dog();
 }
 
-#define KEY_A1 P3_2
-#define KEY_A2 P0_7
-#define KEY_A3 P0_6
-#define KEY_A4 P0_5
-#define LED1 P0_0
-#define LED2 P0_1
-#define BEEPER P0_4
-#define NO_KEY_A1_DOWN (1<<2)
-#define NO_KEY_A2_DOWN (1<<7)
-#define NO_KEY_A3_DOWN (1<<6)
-#define NO_KEY_A4_DOWN (1<<5)
-#define NO_KEY_DOWN (NO_KEY_A1_DOWN|NO_KEY_A2_DOWN|NO_KEY_A3_DOWN|NO_KEY_A4_DOWN)
+void power_off()
+{
+    POWER_DOWN_PIN = 0;
+}
 
 uint8 get_key_status_raw()
 {

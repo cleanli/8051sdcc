@@ -37,6 +37,7 @@ void set_led2(bool light);
 bool get_led1();
 bool get_led2();
 bool get_lcj_signal();
+void power_off();
 
 uint8 read_rom(uint addr);
 bool write_rom(uint addr, uint8 c);
