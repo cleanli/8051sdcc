@@ -22,4 +22,4 @@ m.ihx:m.c $(OBJS) crtstart.rel
 
 clean:
 	rm src/*.hex src/*.ihx src/*.lk src/*.lst src/*.map src/*.mem src/*.rel src/*.rst src/*.sym src/*.asm \
-	*.hex *.ihx *.lk *.lst *.map *.mem *.rel *.rst *.sym m.asm
+	*.hex *.ihx *.lk *.lst *.map *.mem *.rel *.rst *.sym m.asm lcd_1602.asm
