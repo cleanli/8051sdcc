@@ -130,6 +130,12 @@ void first_process_event(void*vp)
     common_process_event(vp);
 }
 
+void delayed_power_off(void*p)
+{
+    p;
+    power_off();
+}
+
 //second
 void second_init(void*vp)
 {
@@ -149,6 +155,11 @@ void second_process_event(void*vp)
     if(cur_task_event_flag & (1<<EVENT_UI_TIMEOUT)){
         cur_task_timeout_ct = uif->timeout;
         ui_common_uint8++;
+        if(ui_common_uint8 == 4){//15min only
+            strcpy(disp_mem, "PwrOff in 5s");
+            disp_mem_update = true;
+            set_delayed_work(500, delayed_power_off, NULL);
+        }
         sprintf(disp_mem+12, "%u", ui_common_uint8);
     }
     common_process_event(vp);
