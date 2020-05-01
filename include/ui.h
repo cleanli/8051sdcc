@@ -9,6 +9,7 @@
 #define TIME_OUT_EN (1<<4)
 
 #define UI_TRANSFER_DEFAULT (-2)
+#define UI_RESET_TIMEOUT (-3)
 
 extern __pdata int8 cur_ui_index ;
 extern __pdata int8 last_ui_index ;

@@ -8,6 +8,7 @@
 
 extern __pdata uint tcops;
 extern __pdata uint wheelr;
+extern bool reset_flag;
 
 extern volatile ulong timer_ct;
 extern volatile ulong saved_int_timer_ct;

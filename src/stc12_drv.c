@@ -5,12 +5,12 @@
 #include "stc12_drv.h"
 #include "common.h"
 
-extern __pdata uint8 cur_task_event_flag;
 volatile ulong timer_ct = 0;
 volatile ulong saved_int_timer_ct = 0;
 __pdata unsigned char disp_mem[33];
 __pdata uint tcops = TIMER0_COUNT_PER_SECOND;
 __pdata uint wheelr = WHEEL_R;
+bool reset_flag;
 
 __pdata uint8 ksts;
 /*eerom*/
@@ -178,8 +178,14 @@ void pca_init()
     //CR = 1;//enable counter
 }
 
+void init_check()
+{
+    reset_flag = (PCON & 0x10) == 0;
+}
+
 void system_init()
 {
+    init_check();
     serial_init();
     //printf("p4sw is %x\n", P4SW);
     P4SW = 0x70;//open P4 io function for LCD

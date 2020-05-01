@@ -82,6 +82,14 @@ void common_process_event(void*vp)
                     return;
                 }
             }
+            if(uif->ui_event_transfer[i]==UI_RESET_TIMEOUT){
+                if(uif->time_disp_mode & TIME_OUT_INPUT){
+                    cur_task_timeout_ct = input_timeout;
+                }
+                else{
+                    cur_task_timeout_ct = uif->timeout;
+                }
+            }
             //printf("ev flag %x EVUTO %x\r\n", evt_flag, EVENT_UI_TIMEOUT);
             if(evt_flag == (1<<EVENT_UI_TIMEOUT) && uif->timeout_music){
                 play_music(uif->timeout_music);
@@ -493,12 +501,25 @@ __code const ui_info all_ui[]={
         {-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
+    {//8 watch dog warning
+        "Watch Dog Warn",
+        wtd_ui_init,//func_p ui_init;
+        common_process_event,//func_p ui_process_event;
+        NULL,//func_p ui_quit;
+        1,//int timeout;
+        TIME_OUT_EN,//uint8 time_disp_mode;
+        33,//uint8 time_position_of_dispmem;
+        27,//uint8 power_position_of_dispmem;
+        {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,UI_RESET_TIMEOUT},//int8 ui_event_transfer[EVENT_MAX];
+        warning,//__code char*timeout_music;
+    },
 #if 0
     {//n input timeout
+        "",
         common_ui_init,//func_p ui_init;
         common_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
-        TIMEOUT_DISABLE,//int timeout;
+        0,//int timeout;
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
@@ -516,6 +537,7 @@ const char* menu_str[]={
     all_ui[5].ui_name,
     all_ui[6].ui_name,
     all_ui[7].ui_name,
+    all_ui[8].ui_name,
 };
 const char* cali_str[]={
     "timer cal",
@@ -556,9 +578,15 @@ void menu_moving(const char** m_s, uint8 numb_of_arr)
 void menu_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
-    common_ui_init(vp);
-    ui_common_uint8 = last_ui_index;
-    disp_ui_menu(menu_str, NUMBER_OF_STRARR(menu_str), ui_common_uint8);
+    if(reset_flag){
+        reset_flag = false;
+        ui_transfer(8);
+    }
+    else{
+        common_ui_init(vp);
+        ui_common_uint8 = last_ui_index;
+        disp_ui_menu(menu_str, NUMBER_OF_STRARR(menu_str), ui_common_uint8);
+    }
 }
 
 void menu_process_event(void*vp)
@@ -712,4 +740,12 @@ void music_process_event(void*vp)
         }
     }
     common_process_event(vp);
+}
+void wtd_ui_init(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    common_ui_init(vp);
+    strcpy(disp_mem, "Watch Dog");
+    strcpy(disp_mem+16, "Warning!");
+    disp_mem_update = true;
 }
