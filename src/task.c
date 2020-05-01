@@ -9,6 +9,7 @@
 #include "task.h"
 
 bool power_meas_trigged = false;
+bool stop_feed_wtd = false;
 __pdata float power_voltage;
 __pdata uint cur_task_timeout_ct;
 __pdata uint8 cur_task_event_flag;
@@ -254,7 +255,9 @@ void play_music(__code const signed char* pu)
 
 void task_wdt(struct task*vp)
 {
-    feed_watch_dog();
+    if(!stop_feed_wtd){
+        feed_watch_dog();
+    }
 }
 
 void task_init()

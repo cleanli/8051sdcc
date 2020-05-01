@@ -504,7 +504,7 @@ __code const ui_info all_ui[]={
     {//8 watch dog warning
         "Watch Dog Warn",
         wtd_ui_init,//func_p ui_init;
-        common_process_event,//func_p ui_process_event;
+        wtd_ui_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
         1,//int timeout;
         TIME_OUT_EN,//uint8 time_disp_mode;
@@ -748,4 +748,14 @@ void wtd_ui_init(void*vp)
     strcpy(disp_mem, "Watch Dog");
     strcpy(disp_mem+16, "Warning!");
     disp_mem_update = true;
+}
+
+void wtd_ui_process_event(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    if(keyA4_up){
+        stop_feed_wtd = true;
+        printf("test watch dog reset\r\n");
+    }
+    common_process_event(vp);
 }

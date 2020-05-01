@@ -21,6 +21,7 @@ extern __pdata uint cur_task_timeout_ct;
 extern __pdata uint8 cur_task_event_flag;
 extern __pdata uint8 cursor_cmd ;
 extern __pdata uint8 count_10ms;
+extern bool stop_feed_wtd;
 extern bool disp_mem_update ;
 extern bool g_flag_1s ;
 extern bool g_flag_10ms ;
@@ -50,7 +51,6 @@ void task_disp(struct task*v);
 void task_music(struct task*v);
 void task_power(struct task*v);
 void task_wdt(struct task*v);
-
 
 void pause_music();
 void continue_music();
