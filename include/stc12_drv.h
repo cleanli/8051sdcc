@@ -34,6 +34,8 @@ bool drv_AD_ready();
 uint drv_get_AD_result();
 void set_led1(bool light);
 void set_led2(bool light);
+bool get_led1();
+bool get_led2();
 bool get_lcj_signal();
 
 uint8 read_rom(uint addr);

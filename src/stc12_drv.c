@@ -265,6 +265,16 @@ uint drv_get_AD_result()
     return rs;
 }
 
+bool get_led1()
+{
+    return !LED1;
+}
+
+bool get_led2()
+{
+    return !LED2;
+}
+
 void set_led1(bool light)
 {
     LED1 = !light;

@@ -63,6 +63,12 @@ void ui_transfer(uint8 ui_id)
     printf("ui %u->%u\r\n", last_ui_index, ui_id);
 }
 
+void delayed_close_led(void*p)
+{
+    p;
+    set_led1(false);
+}
+
 void common_process_event(void*vp)
 {
     //bool dg = g_flag_1s;
@@ -94,6 +100,12 @@ void common_process_event(void*vp)
             if(evt_flag == (1<<EVENT_UI_TIMEOUT) && uif->timeout_music){
                 play_music(uif->timeout_music);
             }
+        }
+    }
+    if(uif->time_disp_mode & TIME_OUT_EN){
+        if(g_flag_1s){
+            set_led1(true);
+            set_delayed_work(10, delayed_close_led, NULL);
         }
     }
     cur_task_event_flag = 0;
