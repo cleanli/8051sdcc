@@ -265,10 +265,14 @@ uint drv_get_AD_result()
     return rs;
 }
 
-void music_led_flash()
+void set_led1(bool light)
 {
-    LED1 = !LED1;
-    LED2 = !LED1;
+    LED1 = !light;
+}
+
+void set_led2(bool light)
+{
+    LED2 = !light;
 }
 
 void sound_en(bool en)
@@ -282,14 +286,9 @@ void update_music_note_register(uint v)
     CCAP0H = v>>8;
 }
 
-void update_led_lcj()
+bool get_lcj_signal()
 {
-    if(P3_3){
-        LED1 = 1;
-    }
-    else{
-        LED1 = 0;
-    }
+    return (P3_3);
 }
 
 void isr_pca0(void) __interrupt 7 __using 3

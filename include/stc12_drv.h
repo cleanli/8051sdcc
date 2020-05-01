@@ -27,13 +27,14 @@ bool hw_key_A3_down();
 bool hw_key_A4_down();
 void drv_power_task_loop();
 uint8 get_key_status_raw();
-void music_led_flash();
 void sound_en(bool en);
-void update_led_lcj();
 void update_music_note_register(uint v);
 void drv_trigger_AD();
 bool drv_AD_ready();
 uint drv_get_AD_result();
+void set_led1(bool light);
+void set_led2(bool light);
+bool get_lcj_signal();
 
 uint8 read_rom(uint addr);
 bool write_rom(uint addr, uint8 c);

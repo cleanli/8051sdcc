@@ -10,6 +10,7 @@
 
 bool power_meas_trigged = false;
 bool stop_feed_wtd = false;
+bool music_flash = false;
 __pdata float power_voltage;
 __pdata uint cur_task_timeout_ct;
 __pdata uint8 cur_task_event_flag;
@@ -218,7 +219,9 @@ void task_music(struct task*vp)
       ){
         return;
     }
-    music_led_flash();
+    music_flash = !music_flash;
+    set_led1(music_flash);
+    set_led2(!music_flash);
     //printf("pu_index %u status %x\r\n", music_task_play_info.pu_index, music_task_play_info.music_status);
     music_note = music_task_play_info.pu[music_task_play_info.pu_index++];
     music_task_play_info.last_note_start_timerct = timer_ct;

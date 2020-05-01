@@ -400,7 +400,7 @@ void lcj_process_event(void*vp)
             last_speed = speed;
         }
     }
-    update_led_lcj();
+    set_led1(!get_lcj_signal());
     common_process_event(vp);
 }
 
