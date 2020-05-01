@@ -33,6 +33,7 @@ __pdata int ui_common_int = 0;
 __pdata ulong ui_common_ulong = 0;
 uint* __pdata ui_common_uint_p = NULL;
 bool ui_common_bit = false;
+bool led_flash_per_second = false;
 //common
 void common_ui_init(void*vp)
 {
@@ -42,6 +43,9 @@ void common_ui_init(void*vp)
     }
     else{
         cur_task_timeout_ct = uif->timeout;
+    }
+    if(uif->time_disp_mode & TIME_OUT_EN){
+        led_flash_per_second = true;
     }
     printf("cur task timect---init %x\r\n", cur_task_timeout_ct);
     cur_task_event_flag = 0;
@@ -102,7 +106,7 @@ void common_process_event(void*vp)
             }
         }
     }
-    if(uif->time_disp_mode & TIME_OUT_EN){
+    if(led_flash_per_second && !is_playing_music()){
         if(g_flag_1s){
             set_led1(true);
             set_delayed_work(5, delayed_close_led, NULL);
