@@ -715,6 +715,12 @@ void music_ui_init(void*vp)
     disp_ui_menu(music_str, NUMBER_OF_STRARR(music_str), ui_common_uint8);
 }
 
+void delayed_music(void *p)
+{
+    __code const signed char*music = (__code const signed char*)p;
+    play_music(music);
+}
+
 void music_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
@@ -736,7 +742,7 @@ void music_process_event(void*vp)
         if(ui_common_uint8<NUMBER_OF_STRARR(music_str)){
             ui_common_uint8++;
             disp_ui_menu(music_str, NUMBER_OF_STRARR(music_str), ui_common_uint8);
-            play_music(music_list[ui_common_uint8-1]);
+            set_delayed_work(300, delayed_music, music_list[ui_common_uint8-1]);
         }
     }
     common_process_event(vp);
