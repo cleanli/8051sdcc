@@ -769,7 +769,7 @@ void music_process_event(void*vp)
             pause_music();
         }
         else{
-            ui_transfer(last_ui_index);
+            ui_transfer(0);
         }
         printf("key A2 up\r\n");
     }
