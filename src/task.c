@@ -238,6 +238,8 @@ void task_music(struct task*vp)
     if(music_note==SCORE_END){
         music_task_play_info.music_status = MUSIC_END;
         cur_task_event_flag |= 1<<EVENT_MUSIC_PLAY_END;
+        set_led1(false);
+        set_led2(false);
         printf("play end\r\n");
         sound_en(0);
     }

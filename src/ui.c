@@ -44,9 +44,7 @@ void common_ui_init(void*vp)
     else{
         cur_task_timeout_ct = uif->timeout;
     }
-    if(uif->time_disp_mode & TIME_OUT_EN){
-        led_flash_per_second = true;
-    }
+    led_flash_per_second = true;
     printf("cur task timect---init %x\r\n", cur_task_timeout_ct);
     cur_task_event_flag = 0;
     memset(disp_mem, 0, 33);
@@ -131,13 +129,11 @@ void first_process_event(void*vp)
     common_process_event(vp);
 }
 
-#if 0
-void delayed_power_off(void*p)
+void delayed_ui_transfer(void*p)
 {
-    p;
-    power_off();
+    uint * up = (uint*)p;
+    ui_transfer(*up);
 }
-#endif
 
 //second
 void second_init(void*vp)
@@ -162,7 +158,8 @@ void second_process_event(void*vp)
     }
     if(cur_task_event_flag & (1<<EVENT_MUSIC_PLAY_END) &&
             ui_common_uint8 == 4){//15min only
-        ui_transfer(9);
+        ui_common_uint8 = 9;
+        set_delayed_work(1000, delayed_ui_transfer, &ui_common_uint8);
     }
     common_process_event(vp);
 }
@@ -455,7 +452,7 @@ __code const ui_info all_ui[]={
         0,
         0,
         33,
-        {-1,UI_TRANSFER_DEFAULT,-1,3,2,-1,9},
+        {-1,0,-1,3,2,-1,9},
         NULL,
     },
     {//2 second
@@ -467,7 +464,7 @@ __code const ui_info all_ui[]={
         TIME_DISP_EN|TIME_DISP_LEFT|TIME_OUT_EN,
         16,
         27,
-        {-1,-2,-1,-1,-1,-1,-1},
+        {-1,0,-1,-1,-1,-1,-1},
         notice_music,
     },
     {//3 input timeout
@@ -491,7 +488,7 @@ __code const ui_info all_ui[]={
         TIME_DISP_EN|TIME_DISP_LEFT|TIME_OUT_INPUT|TIME_OUT_EN,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,3,-1},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,3,-1,-1,-1,3,-1},//int8 ui_event_transfer[EVENT_MAX];
         xianglian,//__code char*timeout_music;
     },
     {//5 lcj
@@ -503,7 +500,7 @@ __code const ui_info all_ui[]={
         TIME_DISP_EN|TIME_OUT_EN,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,0,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
     {//6 music menu
@@ -515,7 +512,7 @@ __code const ui_info all_ui[]={
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         10,//uint8 power_position_of_dispmem;
-        {-1,-1,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,0,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
     {//7 eerom modify
@@ -527,7 +524,7 @@ __code const ui_info all_ui[]={
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         10,//uint8 power_position_of_dispmem;
-        {-1,-1,-1,-1,-1,-1,9},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,0,-1,-1,-1,-1,9},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
     {//8 watch dog warning
@@ -539,7 +536,7 @@ __code const ui_info all_ui[]={
         TIME_OUT_EN,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,UI_RESET_TIMEOUT,9},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,0,-1,-1,-1,UI_RESET_TIMEOUT,9},//int8 ui_event_transfer[EVENT_MAX];
         warning,//__code char*timeout_music;
     },
     {//9 watch dog warning
