@@ -512,7 +512,7 @@ __code const ui_info all_ui[]={
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         10,//uint8 power_position_of_dispmem;
-        {-1,0,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,0,-1,-1,-1,-1,9},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
     {//7 eerom modify
@@ -783,6 +783,9 @@ void music_process_event(void*vp)
             disp_ui_menu(music_str, NUMBER_OF_STRARR(music_str), ui_common_uint8);
             set_delayed_work(300, delayed_music, music_list[ui_common_uint8-1]);
         }
+    }
+    if(is_playing_music()){
+        no_key_down_ct = 0;
     }
     common_process_event(vp);
 }
