@@ -106,3 +106,9 @@ __code const signed char pwroff_music[] = {
     8,7,6,5,4,3,2,1,SCORE_END
 };
 
+__code const signed char count_down_music[] = {
+    8,0,0,0,8,0,0,0,  8,0,0,0,8,0,0,0,  8,0,0,0,8,0,0,0,
+    8,0,0,0,8,0,0,0,  8,0,0,0,8,0,0,0,  8,0,0,0,8,0,0,0,
+    8,0,0,0,8,0,0,0,SCORE_END
+};
+

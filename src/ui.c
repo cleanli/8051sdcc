@@ -546,7 +546,7 @@ __code const ui_info all_ui[]={
         pwroff_ui_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
         10,//int timeout;
-        TIME_DISP_EN|TIME_DISP_SECOND|TIME_OUT_EN,//uint8 time_disp_mode;
+        TIME_DISP_LEFT|TIME_DISP_EN|TIME_DISP_SECOND|TIME_OUT_EN,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
         {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
@@ -815,6 +815,7 @@ void pwroff_ui_init(void*vp)
     common_ui_init(vp);
     strcpy(disp_mem, "PwrOffCountDown");
     disp_mem_update = true;
+    play_music(count_down_music);
 }
 
 void pwroff_ui_process_event(void*vp)
@@ -822,6 +823,9 @@ void pwroff_ui_process_event(void*vp)
     ui_info* uif =(ui_info*)vp;
     if(cur_task_event_flag & (1<<EVENT_MUSIC_PLAY_END)){
         power_off();
+    }
+    if(keyA2_up){
+        pause_music();
     }
     common_process_event(vp);
 }
