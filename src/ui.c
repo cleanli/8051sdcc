@@ -540,6 +540,18 @@ __code const ui_info all_ui[]={
         {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,UI_RESET_TIMEOUT},//int8 ui_event_transfer[EVENT_MAX];
         warning,//__code char*timeout_music;
     },
+    {//9 watch dog warning
+        "Power Off",
+        pwroff_ui_init,//func_p ui_init;
+        pwroff_ui_process_event,//func_p ui_process_event;
+        NULL,//func_p ui_quit;
+        10,//int timeout;
+        TIME_DISP_EN|TIME_DISP_SECOND|TIME_OUT_EN,//uint8 time_disp_mode;
+        16,//uint8 time_position_of_dispmem;
+        27,//uint8 power_position_of_dispmem;
+        {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
+        pwroff_music,//__code char*timeout_music;
+    },
 #if 0
     {//n input timeout
         "",
@@ -565,6 +577,7 @@ const char* __pdata const menu_str[]={
     all_ui[6].ui_name,
     all_ui[7].ui_name,
     all_ui[8].ui_name,
+    all_ui[9].ui_name,
 };
 const char* __code const cali_str[]={
     "timer cal",
@@ -792,6 +805,22 @@ void wtd_ui_process_event(void*vp)
     }
     if(keyA3_up){
         printf("power off\r\n");
+        power_off();
+    }
+    common_process_event(vp);
+}
+void pwroff_ui_init(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    common_ui_init(vp);
+    strcpy(disp_mem, "PwrOffCountDown");
+    disp_mem_update = true;
+}
+
+void pwroff_ui_process_event(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    if(cur_task_event_flag & (1<<EVENT_MUSIC_PLAY_END)){
         power_off();
     }
     common_process_event(vp);
