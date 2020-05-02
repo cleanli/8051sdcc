@@ -7,6 +7,7 @@
 #define TIME_DISP_LEFT (1<<2)
 #define TIME_OUT_INPUT (1<<3)
 #define TIME_OUT_EN (1<<4)
+#define TIMER_TRIGGER_START (1<<5)
 
 #define UI_TRANSFER_DEFAULT (-2)
 #define UI_RESET_TIMEOUT (-3)

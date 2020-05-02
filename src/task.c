@@ -11,6 +11,7 @@
 bool power_meas_trigged = false;
 bool stop_feed_wtd = false;
 bool music_flash = false;
+bool cur_task_timer_started = false;
 __pdata float power_voltage;
 __pdata uint cur_task_timeout_ct;
 __pdata uint8 cur_task_event_flag;
@@ -180,9 +181,11 @@ void task_timer(struct task*vp)
         g_flag_1s = true;
         printf("task timect %u\r\n", cur_task_timeout_ct);
         if(cur_task_timeout_ct > 0 && (current_ui->time_disp_mode & TIME_OUT_EN)){
-            cur_task_timeout_ct--;
-            if(cur_task_timeout_ct == 0){
-                cur_task_event_flag |= 1<<EVENT_UI_TIMEOUT;
+            if(cur_task_timer_started){
+                cur_task_timeout_ct--;
+                if(cur_task_timeout_ct == 0){
+                    cur_task_event_flag |= 1<<EVENT_UI_TIMEOUT;
+                }
             }
             if(current_ui->time_disp_mode & TIME_DISP_EN){
                 uint tmp_ct;

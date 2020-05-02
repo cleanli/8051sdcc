@@ -38,6 +38,12 @@ bool led_flash_per_second = false;
 void common_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
+    if(uif->time_disp_mode & TIMER_TRIGGER_START){
+        cur_task_timer_started = false;
+    }
+    else{
+        cur_task_timer_started = true;
+    }
     if(uif->time_disp_mode & TIME_OUT_INPUT){
         cur_task_timeout_ct = input_timeout;
     }
@@ -202,6 +208,16 @@ void timer_ui_quit(void*vp)
 {
     vp;//fix warning
     pause_music();
+}
+
+void timer_ui_process_event(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+
+    if(keyA4_up){
+        cur_task_timer_started = !cur_task_timer_started;
+    }
+    common_process_event(vp);
 }
 
 void timeout_input_quit(void*vp)
@@ -482,10 +498,10 @@ __code const ui_info all_ui[]={
     {//4 timer
         "Timer",
         timer_ui_init,//func_p ui_init;
-        common_process_event,//func_p ui_process_event;
+        timer_ui_process_event,//func_p ui_process_event;
         timer_ui_quit,//func_p ui_quit;
         0,//int timeout;
-        TIME_DISP_EN|TIME_DISP_LEFT|TIME_OUT_INPUT|TIME_OUT_EN,//uint8 time_disp_mode;
+        TIMER_TRIGGER_START|TIME_DISP_EN|TIME_DISP_LEFT|TIME_OUT_INPUT|TIME_OUT_EN,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
         {-1,3,-1,-1,-1,3,-1},//int8 ui_event_transfer[EVENT_MAX];
