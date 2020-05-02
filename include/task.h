@@ -1,7 +1,7 @@
 #ifndef _TASK_H
 #define _TASK_H
 
-#define NO_KEY_DOWN_CT_MAX 10
+#define NO_KEY_DOWN_CT_MAX 100
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
