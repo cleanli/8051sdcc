@@ -25,6 +25,7 @@ __pdata unsigned char disp_mem[33];
 __pdata uint tcops = TIMER0_COUNT_PER_SECOND;
 __pdata uint wheelr = WHEEL_R;
 bool reset_flag;
+bool lcd_detected = false;
 
 __pdata uint8 ksts;
 /*eerom*/
@@ -199,14 +200,20 @@ void init_check()
 
 void system_init()
 {
+    set_led1(true);
+    set_led2(true);
     init_check();
     serial_init();
     //printf("p4sw is %x\n", P4SW);
     P4SW = 0x70;//open P4 io function for LCD
-    LCD_Init();
-    memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
-    lcd_update(disp_mem);
-    ms_delay(1000);
+    if(lcd_detected = LCD_Init()){
+        memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
+        lcd_update(disp_mem);
+        ms_delay(500);
+    }
+    else{
+        printf("LCD detected failed!\r\n");
+    }
     //AUXR1 |= 0x04;//high 2 bits of ADC result in ADC_RES
     P0M0 = 0x10;//P04 set to 20mA
     //PCA init

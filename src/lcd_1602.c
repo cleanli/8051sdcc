@@ -141,10 +141,29 @@ void TimeDelay(int Time)
         Time --;
     }
 }
-void LCD_Init(void)
+
+bool LCD_detect()
+{
+    unsigned char uiTemp=0;
+    unsigned char retries = 5;
+    while(retries--){
+        uiTemp = LCD_StatusRead();
+        //printf("lcdstsrd %02x\n", (int)uiTemp);
+        if(uiTemp == 0x80){
+            return true;
+        }
+        TimeDelay(100);
+    }
+    return false;
+}
+
+bool LCD_Init(void)
 {
     unsigned char uiTemp=0,i;
     unsigned char * Point;
+    if(!LCD_detect()){
+        return false;
+    }
     //LCD驱动所使用到的端口的初始化
     Point = (unsigned char *)LCD_InitialCode; //获取初始化序列数据的首地址
     LCD_EP = 0;
@@ -161,6 +180,7 @@ void LCD_Init(void)
     LCD_RegWrite(*Point++);
     LCD_RegWrite(*Point++);
     LCD_RegWrite(*Point++);
+    return true;
 }
 void lcd_update(unsigned char * s)
 {

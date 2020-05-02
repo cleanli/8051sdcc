@@ -12,6 +12,7 @@ extern bool reset_flag;
 
 extern volatile ulong timer_ct;
 extern volatile ulong saved_int_timer_ct;
+extern bool lcd_detected;
 void isr_pca0(void) __interrupt 7 __using 3;
 void isr_int1(void) __interrupt 2 __using 2;
 void isrtimer0(void) __interrupt 1 __using 1;

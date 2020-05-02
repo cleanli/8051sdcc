@@ -210,7 +210,7 @@ void task_timer(struct task*vp)
 void task_disp(struct task*vp)
 {
     vp;//fix unused variable warning
-    if(disp_mem_update){
+    if(lcd_detected && disp_mem_update){
         //saved_timer_ct = timer_ct;
         lcd_update(disp_mem);
         //printf("lcd update %lu\r\n", timer_ct -saved_timer_ct);

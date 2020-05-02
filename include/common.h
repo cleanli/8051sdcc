@@ -17,7 +17,7 @@ struct s_lfs_data{
 extern __pdata struct s_lfs_data float_sprintf;
 void local_float_sprintf(struct s_lfs_data* lfsd);
 
-void LCD_Init();
+bool LCD_Init();
 void lcd_update(unsigned char*);
 void lcd_cursor(uint8 d);
 
