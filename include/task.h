@@ -1,6 +1,7 @@
 #ifndef _TASK_H
 #define _TASK_H
 
+#define NO_KEY_DOWN_CT_MAX 10
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
@@ -8,6 +9,7 @@ enum EVENT_TYPE{
     EVENT_KEYA4_UP,
     EVENT_UI_TIMEOUT,
     EVENT_MUSIC_PLAY_END,
+    EVENT_NOKEYCT_MAXREACHED,
     EVENT_MAX
 };
 struct task;
@@ -47,6 +49,7 @@ extern __pdata uint last_keyA1_down_ct;
 extern __pdata uint last_keyA2_down_ct;
 extern __pdata uint last_keyA3_down_ct;
 extern __pdata uint last_keyA4_down_ct;
+extern __pdata uint no_key_down_ct;
 
 void task_init();
 void task_ui(struct task*v);

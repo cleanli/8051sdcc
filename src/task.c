@@ -50,6 +50,7 @@ __pdata uint keyA1_down_ct;
 __pdata uint keyA2_down_ct;
 __pdata uint keyA3_down_ct;
 __pdata uint keyA4_down_ct;
+__pdata uint no_key_down_ct = 0;
 void local_float_sprintf(struct s_lfs_data* lfsd)
 {
     if(lfsd->fv > 65535){
@@ -120,6 +121,15 @@ void task_key_status(struct task*vp)
 {
     vp;//fix unused variable warning
     drv_update_key_status();
+    if(!hw_no_key_down()){
+        no_key_down_ct = 0;
+    }
+    else if(g_flag_1s){
+        no_key_down_ct++;
+        if(no_key_down_ct > NO_KEY_DOWN_CT_MAX){
+            cur_task_event_flag |= 1<<EVENT_NOKEYCT_MAXREACHED;
+        }
+    }
     CHECK_KEY(A1)
     CHECK_KEY(A2)
     CHECK_KEY(A3)

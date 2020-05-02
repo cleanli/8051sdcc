@@ -25,6 +25,7 @@ bool hw_key_A1_down();
 bool hw_key_A2_down();
 bool hw_key_A3_down();
 bool hw_key_A4_down();
+bool hw_no_key_down();
 void drv_power_task_loop();
 uint8 get_key_status_raw();
 void sound_en(bool en);

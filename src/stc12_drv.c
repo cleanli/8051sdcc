@@ -240,6 +240,11 @@ void drv_update_key_status()
     ksts = get_key_status_raw();
 }
 
+bool hw_no_key_down()
+{
+    return ksts == NO_KEY_DOWN;
+}
+
 void drv_trigger_AD()
 {
     //printf("ADC_CONTR %x\r\n", ADC_CONTR);
