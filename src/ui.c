@@ -163,8 +163,8 @@ void common_process_event(void*vp)
     cur_task_event_flag = 0;
 }
 
-//first
-void first_init(void*vp)
+//version
+void version_init(void*vp)
 {
     common_ui_init(vp);
     sprintf(disp_mem, "%s%s", VERSION, GIT_SHA1);
@@ -173,7 +173,7 @@ void first_init(void*vp)
     disp_mem_update = true;
 }
 
-void first_process_event(void*vp)
+void version_process_event(void*vp)
 {
     common_process_event(vp);
 }
@@ -184,8 +184,8 @@ void delayed_ui_transfer(void*p)
     ui_transfer(*up);
 }
 
-//second
-void second_init(void*vp)
+//five_min
+void five_min_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     ui_common_uint8 = 1;//round of 5min
@@ -197,7 +197,7 @@ void second_init(void*vp)
     play_music(uif->timeout_music);
 }
 
-void second_process_event(void*vp)
+void five_min_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
     if(cur_task_event_flag & (1<<EVENT_UI_TIMEOUT)){
@@ -502,10 +502,10 @@ __code const ui_info all_ui[]={
         {-1,-1,-1,-1,-1,-1,9},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
-    {//1 second
+    {//1 five_min
         "5 mins",
-        second_init,
-        second_process_event,
+        five_min_init,
+        five_min_process_event,
         NULL,
         300,
         TIME_DISP_EN|TIME_DISP_LEFT|TIME_OUT_EN,
@@ -610,10 +610,10 @@ __code const ui_info all_ui[]={
         {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         pwroff_music,//__code char*timeout_music;
     },
-    {//10 first
+    {//10 version
         "Version",
-        first_init,
-        first_process_event,
+        version_init,
+        version_process_event,
         NULL,
         0,//int timeout;
         0,
