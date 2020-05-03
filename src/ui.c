@@ -14,7 +14,7 @@ bool disp_mem_update = false;
 bool g_flag_1s = false;
 bool g_flag_10ms = false;
 __pdata int8 cur_ui_index = 0;
-__pdata int8 last_ui_index = 2;
+__pdata int8 last_ui_index = 1;
 __pdata struct s_lfs_data float_sprintf;
 __pdata uint input_timeout = 60;
 
@@ -502,19 +502,7 @@ __code const ui_info all_ui[]={
         {-1,-1,-1,-1,-1,-1,9},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
-    {//1 first
-        "Version",
-        first_init,
-        first_process_event,
-        NULL,
-        0,//int timeout;
-        0,
-        0,
-        33,
-        {-1,0,-1,3,2,-1,9},
-        NULL,
-    },
-    {//2 second
+    {//1 second
         "5 mins",
         second_init,
         second_process_event,
@@ -525,6 +513,18 @@ __code const ui_info all_ui[]={
         27,
         {-1,0,-1,-1,-1,-1,-1},
         notice_music,
+    },
+    {//2 predefined timer
+        "Predefined timer",
+        predefined_timer_ui_init,
+        predefined_timer_process_event,
+        NULL,
+        0,//int timeout;
+        0,
+        33,
+        10,
+        {-1,0,-1,4,-1,-1,9},
+        NULL,
     },
     {//3 input timeout
         "Set timeout",
@@ -547,7 +547,7 @@ __code const ui_info all_ui[]={
         TIMER_TRIGGER_START|TIME_DISP_EN|TIME_DISP_LEFT|TIME_OUT_INPUT|TIME_OUT_EN,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,3,-1,-1,-1,3,-1},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,3,-1},//int8 ui_event_transfer[EVENT_MAX];
         xianglian,//__code char*timeout_music;
     },
     {//5 lcj
@@ -610,6 +610,18 @@ __code const ui_info all_ui[]={
         {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
         pwroff_music,//__code char*timeout_music;
     },
+    {//10 first
+        "Version",
+        first_init,
+        first_process_event,
+        NULL,
+        0,//int timeout;
+        0,
+        0,
+        33,
+        {-1,0,-1,3,2,-1,9},
+        NULL,
+    },
 #if 0
     {//n input timeout
         "",
@@ -636,6 +648,7 @@ const char* __pdata const menu_str[]={
     all_ui[7].ui_name,
     all_ui[8].ui_name,
     all_ui[9].ui_name,
+    all_ui[10].ui_name,
 };
 const char* __code const cali_str[]={
     "timer cal",
@@ -652,11 +665,18 @@ void disp_ui_menu(const char** m_s, uint8 size, uint8 id)
     for(uint8 i = 0; i< size; i++){
         disp_mem[i] = '_';
     }
+    disp_mem[size] = ' ';
     position = id-1;
     if(position > MAX_UI_MENU_SIZE - 1){
         position = MAX_UI_MENU_SIZE - 1;
     }
-    disp_mem[position]=id+0x30;
+    if(id>9){
+        disp_mem[position]=id/10+0x30;
+        disp_mem[position+1]=id%10+0x30;
+    }
+    else{
+        disp_mem[position]=id+0x30;
+    }
     memset(disp_mem+16, 0, 16);
     sprintf(disp_mem+16, "%s", m_s[id-1]);
     disp_mem_update = true;
@@ -699,10 +719,6 @@ void menu_process_event(void*vp)
     ui_info* uif =(ui_info*)vp;
     common_process_event(vp);
     menu_moving(menu_str, NUMBER_OF_STRARR(menu_str));
-    if(keyA2_up){
-        ui_transfer(2);
-        printf("key A2 up\r\n");
-    }
     if(keyA4_up){
         ui_transfer(ui_common_uint8);
         printf("key A4 up\r\n");
@@ -892,6 +908,53 @@ void pwroff_ui_process_event(void*vp)
     }
     if(g_flag_1s){
         play_music_note(8, 100);
+    }
+    common_process_event(vp);
+}
+
+const char* __code const predefined_timer_str[]={
+    "5s",
+    "30s",
+    "1 min",
+    "2 min",
+    "5 min",
+    "10 min",
+    "15 min",
+    "20 min",
+    "30 min",
+    "1 hour",
+    "2 hour",
+};
+__code const uint predefined_timer_value_list[]={
+    5,
+    30,
+    60,
+    120,
+    300,
+    600,
+    900,
+    1200,
+    1800,
+    3600,
+    7200,
+};
+void predefined_timer_ui_init(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    common_ui_init(vp);
+    ui_common_uint8 = 1;
+    disp_ui_menu(predefined_timer_str, NUMBER_OF_STRARR(predefined_timer_str), ui_common_uint8);
+}
+
+void predefined_timer_process_event(void*vp)
+{
+    ui_info* uif =(ui_info*)vp;
+    menu_moving(predefined_timer_str, NUMBER_OF_STRARR(predefined_timer_str));
+    if(keyA2_up){
+        ui_transfer(0);
+    }
+    if(keyA4_up){
+        input_timeout = predefined_timer_value_list[ui_common_uint8-1];
     }
     common_process_event(vp);
 }
