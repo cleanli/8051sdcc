@@ -148,8 +148,8 @@ bool LCD_detect()
     unsigned char retries = 5;
     while(retries--){
         uiTemp = LCD_StatusRead();
-        //printf("lcdstsrd %02x\n", (int)uiTemp);
-        if(uiTemp == 0x80){
+        printf("lcdstsrd %02x\n", (int)uiTemp);
+        if(uiTemp == 0x80 || uiTemp == 0x51){
             return true;
         }
         TimeDelay(100);
