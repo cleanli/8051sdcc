@@ -36,7 +36,7 @@ __code struct task all_tasks[]=
 void main()
 {
     system_init();
-    task_init();
+    ui_start();
     while(1){
         for(int i = 0; i<sizeof(all_tasks)/sizeof(struct task); i++){
             all_tasks[i].t_func(&all_tasks[i]);

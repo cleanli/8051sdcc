@@ -18,7 +18,7 @@ __pdata int8 last_ui_index = 2;
 __pdata struct s_lfs_data float_sprintf;
 __pdata uint input_timeout = 60;
 
-__code const ui_info* __pdata current_ui=NULL;
+__pdata ui_info* __pdata current_ui=NULL;
 __pdata float speed = 0.0f;
 __pdata float mileage = 0.0f;
 __pdata ulong last_saved_int_timer_ct = 0;
@@ -31,10 +31,19 @@ __pdata uint ui_common_uint = 0;
 __pdata int8 ui_common_int8 = 0;
 __pdata int ui_common_int = 0;
 __pdata ulong ui_common_ulong = 0;
+__pdata ui_info working_ui_info;
 uint* __pdata ui_common_uint_p = NULL;
 bool ui_common_bit = false;
 bool led_flash_per_second = false;
 //common
+
+void ui_start()
+{
+    memcpy(&working_ui_info, &all_ui[0], sizeof(ui_info));
+    current_ui = &working_ui_info;
+    current_ui->ui_init(current_ui);
+}
+
 void common_ui_init(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
@@ -67,7 +76,8 @@ void ui_transfer(uint8 ui_id)
     }
     last_ui_index = cur_ui_index;
     cur_ui_index = ui_id;
-    current_ui = &all_ui[cur_ui_index];
+    memcpy(&working_ui_info, &all_ui[cur_ui_index], sizeof(ui_info));
+    current_ui = &working_ui_info;
     if(current_ui->ui_init){
         current_ui->ui_init(current_ui);
     }

@@ -52,7 +52,6 @@ extern __pdata uint last_keyA3_down_ct;
 extern __pdata uint last_keyA4_down_ct;
 extern __pdata uint no_key_down_ct;
 
-void task_init();
 void task_ui(struct task*v);
 void task_key_status(struct task*v);
 void task_timer(struct task*v);

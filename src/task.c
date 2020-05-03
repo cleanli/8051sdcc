@@ -353,9 +353,3 @@ void task_misc(struct task*vp)
         }
     }
 }
-
-void task_init()
-{
-    current_ui = &all_ui[0];
-    current_ui->ui_init(current_ui);
-}
