@@ -2,7 +2,7 @@
 #define _COMMON_H
 
 #define CDB printf("line%d\r\n", __LINE__)
-#define VERSION "2.0"
+#define VERSION "2.1"
 #define WHEEL_R 197 //mm
 #define WHEEL_CIRCUMFERENCE (wheelr*2*3.14159f)
 #define TIMER0_COUNT_PER_SECOND 8303
