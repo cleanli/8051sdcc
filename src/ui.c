@@ -642,14 +642,21 @@ const char* __code const cali_str[]={
     "wheel cal",
 };
 #define NUMBER_OF_STRARR(str) (sizeof(str)/sizeof(char*))
+#define MAX_UI_MENU_SIZE 7
 void disp_ui_menu(const char** m_s, uint8 size, uint8 id)
 {
+    uint8 position;
+    if(size > MAX_UI_MENU_SIZE){
+        size = MAX_UI_MENU_SIZE;
+    }
     for(uint8 i = 0; i< size; i++){
         disp_mem[i] = '_';
-        if(i == (id-1)){
-            disp_mem[i] = id+0x30;
-        }
     }
+    position = id-1;
+    if(position > MAX_UI_MENU_SIZE - 1){
+        position = MAX_UI_MENU_SIZE - 1;
+    }
+    disp_mem[position]=id+0x30;
     memset(disp_mem+16, 0, 16);
     sprintf(disp_mem+16, "%s", m_s[id-1]);
     disp_mem_update = true;
