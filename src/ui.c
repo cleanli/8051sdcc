@@ -104,6 +104,7 @@ void common_process_event(void*vp)
     ui_info* uif =(ui_info*)vp;
     if(!(uif->time_disp_mode & NO_LED_FLASH_EVENT)){
         if(cur_task_event_flag && !is_playing_music()){
+            play_music_note(1, 50);
             flash_led(2, 5);
         }
     }
@@ -857,7 +858,6 @@ void pwroff_ui_init(void*vp)
     common_ui_init(vp);
     strcpy(disp_mem, "PwrOffCountDown");
     disp_mem_update = true;
-    play_music(count_down_music);
 }
 
 void pwroff_ui_process_event(void*vp)
@@ -868,6 +868,9 @@ void pwroff_ui_process_event(void*vp)
     }
     if(keyA2_up){
         pause_music();
+    }
+    if(g_flag_1s){
+        play_music_note(8, 100);
     }
     common_process_event(vp);
 }
