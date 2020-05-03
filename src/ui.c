@@ -583,7 +583,7 @@ __code const ui_info all_ui[]={
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         10,//uint8 power_position_of_dispmem;
-        {-1,0,-1,-1,-1,-1,9},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,-1,-1,-1,-1,-1,9},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
     {//8 watch dog warning
@@ -746,7 +746,6 @@ void cali_ui_init(void*vp)
 void cali_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
-    common_process_event(vp);
     if(ui_common_int8 == 0){
         menu_moving(cali_str, NUMBER_OF_STRARR(cali_str));
         if(keyA2_up){
@@ -813,6 +812,7 @@ void cali_process_event(void*vp)
             ui_transfer(last_ui_index);
         }
     }
+    common_process_event(vp);
 }
 
 const char* __code const music_str[]={
