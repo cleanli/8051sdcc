@@ -8,6 +8,7 @@
 #define TIME_OUT_INPUT (1<<3)
 #define TIME_OUT_EN (1<<4)
 #define TIMER_TRIGGER_START (1<<5)
+#define NO_LED_FLASH_EVENT (1<<6)
 
 #define UI_TRANSFER_DEFAULT (-2)
 #define UI_RESET_TIMEOUT (-3)

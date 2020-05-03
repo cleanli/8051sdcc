@@ -102,8 +102,10 @@ void common_process_event(void*vp)
 {
     //bool dg = g_flag_1s;
     ui_info* uif =(ui_info*)vp;
-    if(cur_task_event_flag && !is_playing_music()){
-        flash_led(2, 5);
+    if(!(uif->time_disp_mode & NO_LED_FLASH_EVENT)){
+        if(cur_task_event_flag && !is_playing_music()){
+            flash_led(2, 5);
+        }
     }
     for(int8 i = 0; i < EVENT_MAX; i++){
         uint8 evt_flag=1<<i;
@@ -455,6 +457,7 @@ void lcj_process_event(void*vp)
         else if(saved_int_timer_ct != 0){
             last_saved_int_timer_ct = saved_int_timer_ct;
         }
+        flash_led(2, 5);
     }
     else if(g_flag_1s){
         lcj_compute_speed(timer_ct);
@@ -464,7 +467,6 @@ void lcj_process_event(void*vp)
             last_speed = speed;
         }
     }
-    set_led1(!get_lcj_signal());
     common_process_event(vp);
 }
 
@@ -535,7 +537,7 @@ __code const ui_info all_ui[]={
         lcj_process_event,//func_p ui_process_event;
         NULL,//func_p ui_quit;
         INT_MAX,//int timeout;
-        TIME_DISP_EN|TIME_OUT_EN,//uint8 time_disp_mode;
+        NO_LED_FLASH_EVENT |TIME_DISP_EN|TIME_OUT_EN,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
         {-1,0,-1,-1,-1,-1,-1},//int8 ui_event_transfer[EVENT_MAX];
