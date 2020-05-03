@@ -102,9 +102,9 @@ void common_process_event(void*vp)
 {
     //bool dg = g_flag_1s;
     ui_info* uif =(ui_info*)vp;
-    if(!(uif->time_disp_mode & NO_LED_FLASH_EVENT)){
-        if(cur_task_event_flag && !is_playing_music()){
-            play_music_note(1, 50);
+    if(cur_task_event_flag && !is_playing_music()){
+        play_music_note(1, 50);
+        if(!(uif->time_disp_mode & NO_LED_FLASH_EVENT)){
             flash_led(2, 5);
         }
     }
