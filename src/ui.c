@@ -56,6 +56,8 @@ void common_ui_init(void*vp)
     memset(disp_mem, 0, 33);
     disp_mem_update = true;
     no_key_down_ct = 0;
+    set_led1(false);
+    set_led2(false);
 }
 
 void ui_transfer(uint8 ui_id)
@@ -72,16 +74,37 @@ void ui_transfer(uint8 ui_id)
     printf("ui %u->%u\r\n", last_ui_index, ui_id);
 }
 
-void delayed_close_led(void*p)
+void delayed_close_led1(void*p)
 {
     p;
     set_led1(false);
+}
+
+void delayed_close_led2(void*p)
+{
+    p;
+    set_led2(false);
+}
+
+void flash_led(uint8 led_index, uint mss)
+{
+    if(led_index == 1){
+        set_led1(true);
+        set_delayed_work(mss, delayed_close_led1, NULL);
+    }
+    else{
+        set_led2(true);
+        set_delayed_work(mss, delayed_close_led2, NULL);
+    }
 }
 
 void common_process_event(void*vp)
 {
     //bool dg = g_flag_1s;
     ui_info* uif =(ui_info*)vp;
+    if(cur_task_event_flag && !is_playing_music()){
+        flash_led(2, 5);
+    }
     for(int8 i = 0; i < EVENT_MAX; i++){
         uint8 evt_flag=1<<i;
         //if(dg) printf("ev flag %x %x i %x\r\n", cur_task_event_flag, evt_flag, i);
@@ -113,8 +136,7 @@ void common_process_event(void*vp)
     }
     if(led_flash_per_second && !is_playing_music()){
         if(g_flag_1s){
-            set_led1(true);
-            set_delayed_work(5, delayed_close_led, NULL);
+            flash_led(1, 5);
         }
     }
     cur_task_event_flag = 0;
