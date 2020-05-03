@@ -12,10 +12,16 @@ enum MUSIC_STATUS {
 struct music_play_info{
     __code char*pu;
     uint pu_index;
-    ulong last_note_start_timerct;
     uint8 music_status;
 };
 
+struct music_note_play_info{
+    int8 music_note;
+    uint period_ms_ct;
+    ulong note_start_timerct;
+};
+
+extern __pdata struct music_note_play_info music_note_task_play_info;
 extern __pdata struct music_play_info music_task_play_info;
 extern __code const uint musical_scale_regv[];
 

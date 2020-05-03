@@ -222,39 +222,77 @@ void task_disp(struct task*vp)
     }
 }
 
+void reset_music_note()
+{
+    music_note_task_play_info.music_note = 0;
+    music_note_task_play_info.note_start_timerct = 0;
+    music_note_task_play_info.period_ms_ct = 0;
+}
+
+bool is_music_idle()
+{
+    return (music_note_task_play_info.period_ms_ct == 0);
+}
+
+bool play_music_note(int8 note, uint8 period)
+{
+    if(music_note_task_play_info.period_ms_ct == 0){
+        music_note_task_play_info.music_note = note;
+        music_note_task_play_info.note_start_timerct = 0;
+        music_note_task_play_info.period_ms_ct = period;
+        return true;
+    }
+    return false;
+}
+
 void task_music(struct task*vp)
 {
     vp;//fix unused variable warning
-    uint8 music_note;
+    int8 music_note;
     uint music_register_value;
-    if(music_task_play_info.pu == NULL ||
-            music_task_play_info.music_status != MUSIC_PLAYING ||
-            ((timer_ct - music_task_play_info.last_note_start_timerct) < 25*COUNT10MS)
-      ){
-        return;
+    if(music_task_play_info.pu != NULL &&
+            music_task_play_info.music_status == MUSIC_PLAYING &&
+            is_music_idle()){
+        music_flash = !music_flash;
+        set_led1(music_flash);
+        set_led2(!music_flash);
+        //printf("pu_index %u status %x\r\n", music_task_play_info.pu_index, music_task_play_info.music_status);
+        music_note = music_task_play_info.pu[music_task_play_info.pu_index++];
+        if(music_note==SCORE_END){
+            music_task_play_info.music_status = MUSIC_END;
+            cur_task_event_flag |= 1<<EVENT_MUSIC_PLAY_END;
+            set_led1(false);
+            set_led2(false);
+            printf("play end\r\n");
+            sound_en(0);
+        }
+        else{
+            play_music_note(music_note, 250);
+        }
+
     }
-    music_flash = !music_flash;
-    set_led1(music_flash);
-    set_led2(!music_flash);
-    //printf("pu_index %u status %x\r\n", music_task_play_info.pu_index, music_task_play_info.music_status);
-    music_note = music_task_play_info.pu[music_task_play_info.pu_index++];
-    music_task_play_info.last_note_start_timerct = timer_ct;
-    if(music_note==SCORE_END){
-        music_task_play_info.music_status = MUSIC_END;
-        cur_task_event_flag |= 1<<EVENT_MUSIC_PLAY_END;
-        set_led1(false);
-        set_led2(false);
-        printf("play end\r\n");
-        sound_en(0);
-    }
-    else if(music_note == 0){
-        sound_en(0);
+
+    if(music_note_task_play_info.period_ms_ct){
+        if(music_note_task_play_info.note_start_timerct == 0){
+            music_note_task_play_info.note_start_timerct = timer_ct;
+            if(music_note_task_play_info.music_note == 0){
+                sound_en(0);
+            }
+            else{
+                music_register_value =
+                    musical_scale_regv[get_note_index(music_note_task_play_info.music_note)];
+                sound_en(1);
+                update_music_note_register(music_register_value);
+            }
+        }
+        else if((timer_ct - music_note_task_play_info.note_start_timerct) >=
+                (ulong)music_note_task_play_info.period_ms_ct*COUNT10MS/10){
+            music_note_task_play_info.period_ms_ct = 0;
+            sound_en(0);
+        }
     }
     else{
-        music_register_value = musical_scale_regv[get_note_index(music_note)];
-        //printf("note %x\r\n", music_note);
-        sound_en(1);
-        update_music_note_register(music_register_value);
+        sound_en(0);
     }
 }
 
@@ -282,7 +320,6 @@ void play_music(__code const signed char* pu)
 {
     music_task_play_info.pu = pu;
     music_task_play_info.pu_index = 0;
-    music_task_play_info.last_note_start_timerct = 0;
     music_task_play_info.music_status = MUSIC_PLAYING;
 }
 

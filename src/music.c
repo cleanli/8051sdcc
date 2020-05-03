@@ -5,6 +5,12 @@
 #include "common.h"
 #include "music.h"
 
+__pdata struct music_note_play_info music_note_task_play_info={
+    0,
+    0,
+    0
+};
+
 __pdata struct music_play_info music_task_play_info={
     NULL,
     0,
