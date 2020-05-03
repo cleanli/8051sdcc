@@ -113,7 +113,15 @@ void common_process_event(void*vp)
     //bool dg = g_flag_1s;
     ui_info* uif =(ui_info*)vp;
     if(cur_task_event_flag && !is_playing_music()){
-        play_music_note(1, 50);
+        if(keyA2_up){
+            play_music_note(50, 50);
+        }
+        if(keyA4_up){
+            play_music_note(5, 50);
+        }
+        if(keyA1_up || keyA3_up){
+            play_music_note(1, 50);
+        }
         if(!(uif->time_disp_mode & NO_LED_FLASH_EVENT)){
             flash_led(2, 5);
         }
@@ -855,10 +863,6 @@ void wtd_ui_process_event(void*vp)
     if(keyA4_up){
         stop_feed_wtd = true;
         printf("test watch dog reset\r\n");
-    }
-    if(keyA3_up){
-        printf("power off\r\n");
-        power_off();
     }
     common_process_event(vp);
 }
