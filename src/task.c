@@ -51,6 +51,10 @@ __pdata uint keyA1_down_ct;
 __pdata uint keyA2_down_ct;
 __pdata uint keyA3_down_ct;
 __pdata uint keyA4_down_ct;
+__pdata uint8 keyA1_up_ct;
+__pdata uint8 keyA2_up_ct;
+__pdata uint8 keyA3_up_ct;
+__pdata uint8 keyA4_up_ct;
 __pdata uint no_key_down_ct = 0;
 void local_float_sprintf(struct s_lfs_data* lfsd)
 {
@@ -100,19 +104,25 @@ void task_ui(struct task*vp)
         if(key##AN##_down_ct<65535)key##AN##_down_ct++; \
     } \
     else{ \
-        if(key##AN##_down==true){ \
-            key##AN##_down=false; \
-            key##AN##_up=true; \
-            last_key##AN##_down_ct = key##AN##_down_ct; \
-            cur_task_event_flag |= 1<<EVENT_KEY##AN##_UP; \
+        if(key##AN##_up_ct<255)key##AN##_up_ct++; \
+        if(key##AN##_up_ct > KEY_CONFIRM_TIMER_CT){ \
+            if(key##AN##_down==true){ \
+                key##AN##_down=false; \
+                key##AN##_up=true; \
+                last_key##AN##_down_ct = key##AN##_down_ct; \
+                cur_task_event_flag |= 1<<EVENT_KEY##AN##_UP; \
+            } \
+            else{ \
+                key##AN##_up=false; \
+            } \
+            key##AN##_down_ct = 0; \
         } \
-        else{ \
-            key##AN##_up=false; \
-        } \
-        key##AN##_down_ct = 0; \
     } \
     if(key##AN##_down_ct > KEY_CONFIRM_TIMER_CT){ \
-        key##AN##_down=true; \
+        if(key##AN##_down==false){ \
+            key##AN##_up_ct = 0; \
+            key##AN##_down=true; \
+        } \
     } \
     else{ \
         key##AN##_down=false; \
@@ -132,6 +142,12 @@ void task_key_status(struct task*vp)
             cur_task_event_flag |= 1<<EVENT_NOKEYCT_MAXREACHED;
         }
     }
+#if 0
+    if(g_flag_1s){
+        printf("%u\r\n", keyA1_down_ct);
+        printf("%u\r\n", keyA1_up_ct);
+    }
+#endif
     CHECK_KEY(A1)
     CHECK_KEY(A2)
     CHECK_KEY(A3)
