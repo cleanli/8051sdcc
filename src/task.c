@@ -283,6 +283,7 @@ void task_music(struct task*vp)
             set_led2(false);
             printf("play end\r\n");
             sound_en(0);
+            set_music_note_period(250);//recover default note period
         }
         else if(music_note==HALF_PERIOD){
             default_music_note_period /= 2;
@@ -320,6 +321,11 @@ void task_music(struct task*vp)
     else{
         sound_en(0);
     }
+}
+
+void set_music_note_period(uint p)
+{
+    default_music_note_period = p;
 }
 
 bool is_playing_music()

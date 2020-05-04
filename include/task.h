@@ -61,6 +61,7 @@ void task_power(struct task*v);
 void task_misc(struct task*v);
 
 void set_delayed_work(uint tct, func_p f, void*pa);
+void set_music_note_period(uint p);
 void reset_music_note();
 bool play_music_note(int8 note, uint8 period);
 void pause_music();
