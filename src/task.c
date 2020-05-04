@@ -20,6 +20,7 @@ __pdata uint8 last_count_10ms = 0;
 __pdata uint count_1s=0;
 __pdata uint8 count_10ms=0;
 __pdata uint8 cursor_cmd = 0;
+__pdata uint default_music_note_period = 250;
 __pdata struct delay_work_info delayed_works[]={
     {
         NULL,
@@ -283,8 +284,14 @@ void task_music(struct task*vp)
             printf("play end\r\n");
             sound_en(0);
         }
+        else if(music_note==HALF_PERIOD){
+            default_music_note_period /= 2;
+        }
+        else if(music_note==HALF_PERIOD){
+            default_music_note_period *= 2;
+        }
         else{
-            play_music_note(music_note, 250);
+            play_music_note(music_note, default_music_note_period);
         }
 
     }
@@ -305,7 +312,9 @@ void task_music(struct task*vp)
         else if((timer_ct - music_note_task_play_info.note_start_timerct) >=
                 (ulong)music_note_task_play_info.period_ms_ct*COUNT10MS/10){
             music_note_task_play_info.period_ms_ct = 0;
-            sound_en(0);
+            if(!is_playing_music()){
+                sound_en(0);
+            }
         }
     }
     else{

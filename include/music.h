@@ -9,6 +9,10 @@ enum MUSIC_STATUS {
 };
 
 #define SCORE_END 127
+#define HALF_PERIOD 126
+#define DOUBLE_PERIOD 125
+#define HP HALF_PERIOD
+#define DP DOUBLE_PERIOD
 struct music_play_info{
     __code char*pu;
     uint pu_index;
