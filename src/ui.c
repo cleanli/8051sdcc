@@ -571,7 +571,7 @@ __code const ui_info all_ui[]={
         0,//uint8 time_disp_mode;
         33,//uint8 time_position_of_dispmem;
         10,//uint8 power_position_of_dispmem;
-        {-1,0,-1,-1,-1,-1,9},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,-1,-1,-1,-1,-1,9},//int8 ui_event_transfer[EVENT_MAX];
         NULL,//__code char*timeout_music;
     },
     {//7 eerom modify
