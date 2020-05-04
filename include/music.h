@@ -11,12 +11,19 @@ enum MUSIC_STATUS {
 #define SCORE_END 127
 #define HALF_PERIOD 126
 #define DOUBLE_PERIOD 125
+#define FLAGSTART 124
+#define GOSTART 123
+#define DIVERT 122
 #define HP HALF_PERIOD
 #define DP DOUBLE_PERIOD
+
+#define NO_DIVERT 0xffff
 struct music_play_info{
     __code char*pu;
     uint pu_index;
     uint8 music_status;
+    uint divert_index;
+    uint restart_index;
 };
 
 struct music_note_play_info{

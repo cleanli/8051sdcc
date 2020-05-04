@@ -291,6 +291,19 @@ void task_music(struct task*vp)
         else if(music_note==DOUBLE_PERIOD){
             default_music_note_period *= 2;
         }
+        else if(music_note==DIVERT){
+            if(music_task_play_info.divert_index != NO_DIVERT){
+                music_task_play_info.pu_index = music_task_play_info.divert_index;
+                music_task_play_info.divert_index = NO_DIVERT;
+            }
+        }
+        else if(music_note==GOSTART){
+                music_task_play_info.divert_index = music_task_play_info.pu_index;
+                music_task_play_info.pu_index = music_task_play_info.restart_index;
+        }
+        else if(music_note==FLAGSTART){
+            music_task_play_info.restart_index = music_task_play_info.pu_index;
+        }
         else{
             play_music_note(music_note, default_music_note_period);
         }
@@ -353,6 +366,8 @@ void play_music(__code const signed char* pu)
     music_task_play_info.pu = pu;
     music_task_play_info.pu_index = 0;
     music_task_play_info.music_status = MUSIC_PLAYING;
+    music_task_play_info.divert_index = NO_DIVERT;
+    music_task_play_info.restart_index = 0;
 }
 
 void set_delayed_work(uint tct, func_p f, void*pa)
