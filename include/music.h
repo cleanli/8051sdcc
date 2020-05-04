@@ -18,6 +18,7 @@ enum MUSIC_STATUS {
 #define DP DOUBLE_PERIOD
 
 #define NO_DIVERT 0xffff
+#define DEFAULT_MUSIC_NOTE_PERIOD 312
 struct music_play_info{
     __code char*pu;
     uint pu_index;

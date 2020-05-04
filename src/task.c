@@ -20,7 +20,7 @@ __pdata uint8 last_count_10ms = 0;
 __pdata uint count_1s=0;
 __pdata uint8 count_10ms=0;
 __pdata uint8 cursor_cmd = 0;
-__pdata uint default_music_note_period = 250;
+__pdata uint default_music_note_period = DEFAULT_MUSIC_NOTE_PERIOD;
 __pdata struct delay_work_info delayed_works[]={
     {
         NULL,
@@ -252,7 +252,7 @@ bool is_music_idle()
     return (music_note_task_play_info.period_ms_ct == 0);
 }
 
-bool play_music_note(int8 note, uint8 period)
+bool play_music_note(int8 note, uint period)
 {
     if(music_note_task_play_info.period_ms_ct == 0){
         music_note_task_play_info.music_note = note;
@@ -283,7 +283,7 @@ void task_music(struct task*vp)
             set_led2(false);
             printf("play end\r\n");
             sound_en(0);
-            set_music_note_period(250);//recover default note period
+            set_music_note_period(DEFAULT_MUSIC_NOTE_PERIOD);//recover default note period
         }
         else if(music_note==HALF_PERIOD){
             default_music_note_period /= 2;
