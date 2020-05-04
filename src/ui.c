@@ -257,7 +257,7 @@ void timer_ui_process_event(void*vp)
 {
     ui_info* uif =(ui_info*)vp;
 
-    if(keyA4_up){
+    if(keyA3_up){
         cur_task_timer_started = !cur_task_timer_started;
     }
     common_process_event(vp);
