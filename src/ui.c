@@ -151,7 +151,7 @@ void common_process_event(void*vp)
             }
             //printf("ev flag %x EVUTO %x\r\n", evt_flag, EVENT_UI_TIMEOUT);
             if(evt_flag == (1<<EVENT_UI_TIMEOUT) && uif->timeout_music){
-                play_music(uif->timeout_music);
+                play_music(uif->timeout_music, 0);
             }
         }
     }
@@ -194,7 +194,7 @@ void five_min_init(void*vp)
     sprintf(disp_mem+12, "%u", ui_common_uint8);
     time_hms(disp_mem, uif->timeout);
     disp_mem_update = true;
-    play_music(uif->timeout_music);
+    play_music(uif->timeout_music, 0);
 }
 
 void five_min_process_event(void*vp)
@@ -841,7 +841,7 @@ void music_ui_init(void*vp)
 void delayed_music(void *p)
 {
     __code const signed char*music = (__code const signed char*)p;
-    play_music(music);
+    play_music(music, 0);
 }
 
 void music_process_event(void*vp)
@@ -858,7 +858,7 @@ void music_process_event(void*vp)
         printf("key A2 up\r\n");
     }
     if(keyA4_up){
-        play_music(music_list[ui_common_uint8-1]);
+        play_music(music_list[ui_common_uint8-1], 0);
         printf("key A4 up\r\n");
     }
     if(cur_task_event_flag & (1<<EVENT_MUSIC_PLAY_END)){

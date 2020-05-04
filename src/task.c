@@ -361,13 +361,17 @@ void continue_music()
     }
 }
 
-void play_music(__code const signed char* pu)
+void play_music(__code const signed char* pu, uint note_period)
 {
     music_task_play_info.pu = pu;
     music_task_play_info.pu_index = 0;
     music_task_play_info.music_status = MUSIC_PLAYING;
     music_task_play_info.divert_index = NO_DIVERT;
     music_task_play_info.restart_index = 0;
+    if(note_period == 0){
+        note_period = DEFAULT_MUSIC_NOTE_PERIOD;
+    }
+    set_music_note_period(note_period);
 }
 
 void set_delayed_work(uint tct, func_p f, void*pa)

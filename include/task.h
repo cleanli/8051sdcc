@@ -67,7 +67,7 @@ bool play_music_note(int8 note, uint period);
 void pause_music();
 void continue_music();
 bool is_playing_music();
-void play_music(__code const signed char* pu);
+void play_music(__code const signed char* pu, uint note_period);
 void time_hms(char*buf, uint t);
 void local_float_sprintf(struct s_lfs_data* lfsd);
 #endif
