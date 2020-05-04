@@ -288,7 +288,7 @@ void task_music(struct task*vp)
         else if(music_note==HALF_PERIOD){
             default_music_note_period /= 2;
         }
-        else if(music_note==HALF_PERIOD){
+        else if(music_note==DOUBLE_PERIOD){
             default_music_note_period *= 2;
         }
         else{
