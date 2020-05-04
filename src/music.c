@@ -111,7 +111,10 @@ __code const signed char warning[] = {
 };
 
 __code const signed char pwroff_music[] = {
-    8,7,6,5,4,3,2,1,SCORE_END
+    HP,
+    8,7,6,5,4,3,2,1,
+    DP,
+    SCORE_END
 };
 
 __code const signed char count_down_music[] = {
