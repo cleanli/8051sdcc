@@ -140,6 +140,7 @@ void task_key_status(struct task*vp)
         printf("nokeydown %u\r\n", no_key_down_ct);
         if(no_key_down_ct > NO_KEY_DOWN_CT_MAX){
             cur_task_event_flag |= 1<<EVENT_NOKEYCT_MAXREACHED;
+            no_key_down_ct = 0;
         }
     }
 #if 0
