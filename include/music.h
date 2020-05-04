@@ -38,6 +38,7 @@ extern __code const signed char warning[];
 extern __code const signed char xiyouji1[];
 extern __code const signed char pwroff_music[];
 extern __code const signed char count_down_music[];
+extern __code const signed char YouJianChuiYan[];
 
 uint8 get_note_index(signed char value);
 #endif

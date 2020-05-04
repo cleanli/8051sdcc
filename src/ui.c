@@ -820,12 +820,14 @@ const char* __code const music_str[]={
     "XiangLian",
     "HappyBirthDay",
     "XiYouJi_1",
+    "YouJianChuiYan",
 };
 __code const signed char* __code const music_list[]={
     shaolshi,
     xianglian,
     fu,
     xiyouji1,
+    YouJianChuiYan,
 };
 void music_ui_init(void*vp)
 {
