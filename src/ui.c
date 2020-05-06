@@ -259,6 +259,7 @@ void timer_ui_process_event(void*vp)
 
     if(keyA3_up){
         cur_task_timer_started = !cur_task_timer_started;
+        uif->ui_event_transfer[EVENT_NOKEYCT_MAXREACHED] = -1;
     }
     common_process_event(vp);
 }
@@ -547,7 +548,7 @@ __code const ui_info all_ui[]={
         TIMER_TRIGGER_START|TIME_DISP_EN|TIME_DISP_LEFT|TIME_OUT_INPUT|TIME_OUT_EN,//uint8 time_disp_mode;
         16,//uint8 time_position_of_dispmem;
         27,//uint8 power_position_of_dispmem;
-        {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,UI_TRANSFER_DEFAULT,-1},//int8 ui_event_transfer[EVENT_MAX];
+        {-1,UI_TRANSFER_DEFAULT,-1,-1,-1,UI_TRANSFER_DEFAULT,9},//int8 ui_event_transfer[EVENT_MAX];
         xianglian,//__code char*timeout_music;
     },
     {//5 lcj
