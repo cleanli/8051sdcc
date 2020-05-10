@@ -6,6 +6,7 @@
 #include "stc12_drv.h"
 #include "common.h"
 
+#define VERBOSE
 #if 0
 #define DBG(fmt,arg...)
 #else
@@ -111,8 +112,10 @@ uint8 read_cmd(bool cmd)
     ret = P2;
     RT21_RD = 1;
     RT21_EN = 1;
+#ifdef VERBOSE
     if(cmd)DBG("rcmd %02x\r\n", ret);
     else DBG("rdat %02x\r\n", ret);
+#endif
     return ret;
 }
 
@@ -131,15 +134,21 @@ void write_cmd(uint8 c, bool cmd)
     us_delay(1);
     RT21_WR = 1;
     RT21_EN = 1;
+#ifdef VERBOSE
     if(cmd)DBG("wcmd %02x\r\n", c);
     else DBG("wdat %02x\r\n", c);
+#endif
 }
 
 void wait_rw_rdy()
 {
+#ifdef VERBOSE
     DBG("%s+\r\n", __func__);
+#endif
     while((read_cmd(true) & 0x3) != 3);
+#ifdef VERBOSE
     DBG("%s-\r\n", __func__);
+#endif
 }
 
 void commd1(uint8 c)
@@ -152,6 +161,12 @@ void data(uint8 d)
 {
     wait_rw_rdy();
     write_cmd(d, false);
+}
+
+uint8 read_data()
+{
+    wait_rw_rdy();
+    return read_cmd(false);
 }
 
 void commd2(uint8 d1, uint8 c)
@@ -177,10 +192,10 @@ void lcd_reset()
 void lcd_rt240128a_init()
 {
     CDB;
+    uint ct = 0x2000;
     DBG("stat %02x. Resetting\r\n", read_cmd(true));
     lcd_reset();
     commd1(0x80);//OR mode
-#if 1
     commd3(0,0,0x40);//text home
     commd3(40,0,0x41);//text area
     commd3(10,0,0x42);//graphic home
@@ -188,10 +203,14 @@ void lcd_rt240128a_init()
     commd1(0xa3);//cursor choose
     commd3(0,0,0x21);//cursor home
     commd1(0x97);//text on, curson enable & flash
+#if 0
     commd3(0,0,0x24);//set addr
-    commd2('A',0xc0);//set addr
-    commd2('B',0xc0);//set addr
-    //commd3(0,0,0x24);//addr setting
+    commd1(0xb0);
+    while(ct--){
+        data(0);
+    }
+    commd1(0xb2);
+    //commd1(0x9c);
 #endif
     ms_delay(1000);
     DBG("pause\r\n");
