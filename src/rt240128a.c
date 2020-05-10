@@ -192,19 +192,19 @@ void lcd_reset()
 void lcd_rt240128a_init()
 {
     CDB;
-    uint ct = 0x2000;
+    uint ct = 40*100;
     DBG("stat %02x. Resetting\r\n", read_cmd(true));
     lcd_reset();
     commd1(0x80);//OR mode
     commd3(0,0,0x40);//text home
     commd3(40,0,0x41);//text area
-    commd3(10,0,0x42);//graphic home
+    commd3(0x10,0,0x42);//graphic home
     commd3(40,0,0x43);//graphic area
     commd1(0xa3);//cursor choose
     commd3(0,0,0x21);//cursor home
-    commd1(0x97);//text on, curson enable & flash
-#if 0
-    commd3(0,0,0x24);//set addr
+    commd1(0x98);//text on, curson enable & flash
+#if 1
+    commd3(0x10,0,0x24);//set addr
     commd1(0xb0);
     while(ct--){
         data(0);
