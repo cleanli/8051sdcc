@@ -135,8 +135,7 @@ void common_process_event(void*vp)
                 return;
             }
             if(uif->ui_event_transfer[i]==UI_TRANSFER_DEFAULT){
-                if(evt_flag == (1<<EVENT_KEYA2_UP) &&
-                        last_ui_index != cur_ui_index){
+                if(last_ui_index != cur_ui_index){
                     ui_transfer(last_ui_index);
                     return;
                 }
