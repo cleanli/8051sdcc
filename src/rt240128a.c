@@ -113,8 +113,8 @@ uint8 read_cmd(bool cmd)
     RT21_RD = 1;
     RT21_EN = 1;
 #ifdef VERBOSE
-    //if(cmd)DBG("rcmd %02x\r\n", ret);
-    //else DBG("rdat %02x\r\n", ret);
+    if(cmd)DBG("rc%02x\r\n", ret);
+    else DBG("rd%02x\r\n", ret);
 #endif
     return ret;
 }
@@ -135,8 +135,9 @@ void write_cmd(uint8 c, bool cmd)
     RT21_WR = 1;
     RT21_EN = 1;
 #ifdef VERBOSE
-    if(cmd)DBG("wcmd %02x\r\n", c);
-    else DBG("wdat %02x\r\n", c);
+    //CDB;
+    //if(cmd)DBG("wc%02x\r\n", c);
+    //else DBG("wd%02x\r\n", c);
 #endif
 }
 
@@ -187,6 +188,7 @@ void lcd_reset()
     RT21_RESET = 0;
     ms_delay(2);
     RT21_RESET = 1;
+    ms_delay(20);
 }
 
 void lcd_rt240128a_init()
