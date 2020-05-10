@@ -196,6 +196,7 @@ void draw_point(uint x, uint y, bool p)
 {
     uint  addr;
     uint8 cmd = 0xf0;
+    if(x > 240 || y > 128)return;
     printf("cmd %02x\r\n", cmd);
     cmd +=  p<<3;
     printf("cmd %02x\r\n", cmd);
@@ -241,6 +242,17 @@ void lcd_rt240128a_init()
     draw_point(5,5,0);
     draw_point(6,6,0);
     draw_point(7,7,0);
+    /*
+    for(uint i=0;i<20;i++){
+        float t = (float)i/3;
+        t*= t;
+        draw_point((uint)t, i, 0);
+    }
+    */
+    for(uint i=0;i<20;i++){
+        uint t = i*i;
+        draw_point((uint)t, i, 0);
+    }
     ms_delay(1000);
     DBG("pause\r\n");
     while(1);
