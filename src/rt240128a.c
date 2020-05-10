@@ -167,17 +167,26 @@ void commd3(uint8 d1, uint8 d2, uint8 c)
     commd1(c);
 }
 
+void lcd_reset()
+{
+    RT21_RESET = 0;
+    ms_delay(2);
+    RT21_RESET = 1;
+}
+
 void lcd_rt240128a_init()
 {
     CDB;
-    DBG("stat %02x\r\n", read_cmd(true));
-#if 0
-    commd1(0x90);//disp off
+    DBG("stat %02x. Resetting\r\n", read_cmd(true));
+    lcd_reset();
+    commd1(0x80);//OR mode
+#if 1
     commd3(0,0,0x40);//text home
     commd3(40,0,0x41);//text area
     commd3(10,0,0x42);//graphic home
     commd3(40,0,0x43);//graphic area
     commd1(0xa3);//cursor choose
+    commd3(0,0,0x21);//cursor home
     commd1(0x97);//text on, curson enable & flash
     commd3(0,0,0x24);//set addr
     commd2('A',0xc0);//set addr
