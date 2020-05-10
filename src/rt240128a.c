@@ -6,6 +6,7 @@
 #include "stc12_drv.h"
 #include "common.h"
 
+#define GUI_LCM_XMAX 240
 #define VERBOSE
 #if 0
 #define DBG(fmt,arg...)
@@ -191,22 +192,41 @@ void lcd_reset()
     ms_delay(20);
 }
 
+void draw_point(uint x, uint y, bool p)
+{
+    uint  addr;
+    uint8 cmd = 0xf0;
+    printf("cmd %02x\r\n", cmd);
+    cmd +=  p<<3;
+    printf("cmd %02x\r\n", cmd);
+    cmd += 6-(y%6);
+    printf("cmd %02x\r\n", cmd);
+
+    /* 找出目标地址 */
+    addr = y*(GUI_LCM_XMAX/6) + (x/6);
+    printf("addr %04x %u\r\n", addr, addr);
+    commd3(addr&0xFF, addr>>8, 0x24);    // 置地址指针
+
+    /* 输出数据 */
+    commd1(cmd);
+}
+
 void lcd_rt240128a_init()
 {
     CDB;
-    uint ct = 40*100;
+    uint ct = 40*128;
     DBG("stat %02x. Resetting\r\n", read_cmd(true));
     lcd_reset();
     commd1(0x80);//OR mode
-    commd3(0,0,0x40);//text home
+    commd3(0x10,0,0x40);//text home
     commd3(40,0,0x41);//text area
-    commd3(0x10,0,0x42);//graphic home
+    commd3(0,0,0x42);//graphic home
     commd3(40,0,0x43);//graphic area
     commd1(0xa3);//cursor choose
     commd3(0,0,0x21);//cursor home
     commd1(0x98);//text on, curson enable & flash
 #if 1
-    commd3(0x10,0,0x24);//set addr
+    commd3(0,0,0x24);//set addr
     commd1(0xb0);
     while(ct--){
         data(0xff);
@@ -214,6 +234,13 @@ void lcd_rt240128a_init()
     commd1(0xb2);
     //commd1(0x9c);
 #endif
+    draw_point(1,1,0);
+    draw_point(2,2,1);
+    draw_point(3,3,0);
+    draw_point(4,4,1);
+    draw_point(5,5,0);
+    draw_point(6,6,1);
+    draw_point(7,7,0);
     ms_delay(1000);
     DBG("pause\r\n");
     while(1);
