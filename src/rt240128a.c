@@ -199,7 +199,7 @@ void draw_point(uint x, uint y, bool p)
     printf("cmd %02x\r\n", cmd);
     cmd +=  p<<3;
     printf("cmd %02x\r\n", cmd);
-    cmd += 6-(y%6);
+    cmd += 5-(y%6);
     printf("cmd %02x\r\n", cmd);
 
     /* 找出目标地址 */
@@ -235,11 +235,11 @@ void lcd_rt240128a_init()
     //commd1(0x9c);
 #endif
     draw_point(1,1,0);
-    draw_point(2,2,1);
+    draw_point(2,2,0);
     draw_point(3,3,0);
-    draw_point(4,4,1);
+    draw_point(4,4,0);
     draw_point(5,5,0);
-    draw_point(6,6,1);
+    draw_point(6,6,0);
     draw_point(7,7,0);
     ms_delay(1000);
     DBG("pause\r\n");
