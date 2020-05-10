@@ -135,11 +135,56 @@ void write_cmd(uint8 c, bool cmd)
     else DBG("wdat %02x\r\n", c);
 }
 
+void wait_rw_rdy()
+{
+    DBG("%s+\r\n", __func__);
+    while((read_cmd(true) & 0x3) != 3);
+    DBG("%s-\r\n", __func__);
+}
+
+void commd1(uint8 c)
+{
+    wait_rw_rdy();
+    write_cmd(c, true);
+}
+
+void data(uint8 d)
+{
+    wait_rw_rdy();
+    write_cmd(d, false);
+}
+
+void commd2(uint8 d1, uint8 c)
+{
+    data(d1);
+    commd1(c);
+}
+
+void commd3(uint8 d1, uint8 d2, uint8 c)
+{
+    data(d1);
+    data(d2);
+    commd1(c);
+}
+
 void lcd_rt240128a_init()
 {
     CDB;
-    while(1){
-        DBG("stat %02x\r\n", read_cmd(true));
-        ms_delay(1000);
-    }
+    DBG("stat %02x\r\n", read_cmd(true));
+#if 0
+    commd1(0x90);//disp off
+    commd3(0,0,0x40);//text home
+    commd3(40,0,0x41);//text area
+    commd3(10,0,0x42);//graphic home
+    commd3(40,0,0x43);//graphic area
+    commd1(0xa3);//cursor choose
+    commd1(0x97);//text on, curson enable & flash
+    commd3(0,0,0x24);//set addr
+    commd2('A',0xc0);//set addr
+    commd2('B',0xc0);//set addr
+    //commd3(0,0,0x24);//addr setting
+#endif
+    ms_delay(1000);
+    DBG("pause\r\n");
+    while(1);
 }
