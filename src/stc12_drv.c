@@ -4,6 +4,7 @@
 #include <string.h>
 #include "stc12_drv.h"
 #include "common.h"
+#include "rt240128a.h"
 
 #define KEY_A1 P3_2
 #define KEY_A2 P0_7
@@ -204,8 +205,9 @@ void system_init()
     set_led2(true);
     init_check();
     serial_init();
-    //printf("p4sw is %x\n", P4SW);
+    printf("p4sw is %x\r\n", P4SW);
     P4SW = 0x70;//open P4 io function for LCD
+#if 0
     if(lcd_detected = LCD_Init()){
         memcpy(disp_mem, "0123456789abcdef~@#$%^&*()_+|-=\\", 32);
         lcd_update(disp_mem);
@@ -214,6 +216,8 @@ void system_init()
     else{
         printf("LCD detected failed!\r\n");
     }
+#endif
+    lcd_rt240128a_init();
     //AUXR1 |= 0x04;//high 2 bits of ADC result in ADC_RES
     P0M0 = 0x10;//P04 set to 20mA
     //PCA init
