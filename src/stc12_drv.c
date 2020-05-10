@@ -306,6 +306,9 @@ void set_led2(bool light)
 void sound_en(bool en)
 {
     CR = en;
+    if(!en){
+        BEEPER = 1;
+    }
 }
 
 void update_music_note_register(uint v)
