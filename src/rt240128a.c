@@ -113,8 +113,8 @@ uint8 read_cmd(bool cmd)
     RT21_RD = 1;
     RT21_EN = 1;
 #ifdef VERBOSE
-    if(cmd)DBG("rcmd %02x\r\n", ret);
-    else DBG("rdat %02x\r\n", ret);
+    //if(cmd)DBG("rcmd %02x\r\n", ret);
+    //else DBG("rdat %02x\r\n", ret);
 #endif
     return ret;
 }
@@ -143,11 +143,11 @@ void write_cmd(uint8 c, bool cmd)
 void wait_rw_rdy()
 {
 #ifdef VERBOSE
-    DBG("%s+\r\n", __func__);
+    //DBG("%s+\r\n", __func__);
 #endif
     while((read_cmd(true) & 0x3) != 3);
 #ifdef VERBOSE
-    DBG("%s-\r\n", __func__);
+    //DBG("%s-\r\n", __func__);
 #endif
 }
 
@@ -207,7 +207,7 @@ void lcd_rt240128a_init()
     commd3(0x10,0,0x24);//set addr
     commd1(0xb0);
     while(ct--){
-        data(0);
+        data(0xff);
     }
     commd1(0xb2);
     //commd1(0x9c);
