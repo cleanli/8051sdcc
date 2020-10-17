@@ -915,29 +915,29 @@ void pwroff_ui_process_event(void*vp)
 }
 
 const char* __code const predefined_timer_str[]={
+    "15 min",
+    "1 hour",
+    "30 min",
     "5s",
     "30s",
     "1 min",
     "2 min",
     "5 min",
     "10 min",
-    "15 min",
     "20 min",
-    "30 min",
-    "1 hour",
     "2 hour",
 };
 __code const uint predefined_timer_value_list[]={
+    900,
+    3600,
+    1800,
     5,
     30,
     60,
     120,
     300,
     600,
-    900,
     1200,
-    1800,
-    3600,
     7200,
 };
 void predefined_timer_ui_init(void*vp)
