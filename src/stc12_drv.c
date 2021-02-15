@@ -204,6 +204,11 @@ void enable_lcd_bklight(bool on)
     LCD_BKLIGHT_PIN = !on;
 }
 
+void toggle_lcd_bklight()
+{
+    LCD_BKLIGHT_PIN = !LCD_BKLIGHT_PIN;
+}
+
 void system_init()
 {
     enable_lcd_bklight(true);

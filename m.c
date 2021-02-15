@@ -29,6 +29,9 @@ __code struct task all_tasks[]=
         task_power,
     },
     {
+        task_lcd_bklight,
+    },
+    {
         task_misc,
     },
 };

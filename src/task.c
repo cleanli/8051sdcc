@@ -57,6 +57,7 @@ __pdata uint8 keyA2_up_ct;
 __pdata uint8 keyA3_up_ct;
 __pdata uint8 keyA4_up_ct;
 __pdata uint no_key_down_ct = 0;
+__pdata uint no_key_down_ct_lcd = 0;
 void local_float_sprintf(struct s_lfs_data* lfsd)
 {
     if(lfsd->fv > 65535){
@@ -154,6 +155,23 @@ void task_key_status(struct task*vp)
     CHECK_KEY(A2)
     CHECK_KEY(A3)
     CHECK_KEY(A4)
+}
+
+void task_lcd_bklight(struct task*vp)
+{
+    vp;//fix unused variable warning
+    drv_update_key_status();
+    if(!hw_no_key_down()){
+        no_key_down_ct_lcd = 0;
+    }
+    else if(g_flag_1s){
+        no_key_down_ct_lcd++;
+        printf("nokeydownlcd %u\r\n", no_key_down_ct_lcd);
+        if(no_key_down_ct_lcd > 5){
+            toggle_lcd_bklight();
+            no_key_down_ct_lcd = 0;
+        }
+    }
 }
 
 void task_power(struct task*vp)

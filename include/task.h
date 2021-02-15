@@ -58,6 +58,7 @@ void task_timer(struct task*v);
 void task_disp(struct task*v);
 void task_music(struct task*v);
 void task_power(struct task*v);
+void task_lcd_bklight(struct task*vp);
 void task_misc(struct task*v);
 
 void set_delayed_work(uint tct, func_p f, void*pa);
