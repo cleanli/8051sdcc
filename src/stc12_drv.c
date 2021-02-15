@@ -10,6 +10,7 @@
 #define KEY_A3 P0_6
 #define KEY_A4 P0_5
 #define POWER_DOWN_PIN P1_3
+#define LCD_BKLIGHT_PIN P1_4
 #define LED1 P0_0
 #define LED2 P0_1
 #define BEEPER P0_4
@@ -198,8 +199,14 @@ void init_check()
     reset_flag = (PCON & 0x10) == 0;
 }
 
+void enable_lcd_bklight(bool on)
+{
+    LCD_BKLIGHT_PIN = !on;
+}
+
 void system_init()
 {
+    enable_lcd_bklight(true);
     set_led1(true);
     set_led2(true);
     init_check();
