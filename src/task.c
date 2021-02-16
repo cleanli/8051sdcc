@@ -155,7 +155,9 @@ void task_key_status(struct task*vp)
         }
         //printf("nokeydown %u\r\n", no_key_down_ct);
         if(no_key_down_ct > NO_KEY_DOWN_PWSAVE_MAX){
-            enable_power_save(true);
+            if(!save_power_mode){
+                enable_power_save(true);
+            }
         }
         if(no_key_down_ct > NO_KEY_DOWN_CT_MAX){
             cur_task_event_flag |= 1<<EVENT_NOKEYCT_MAXREACHED;
@@ -182,12 +184,14 @@ void task_lcd_bklight(struct task*vp)
     if(save_power_mode){
         if(get_lcd_bklight()){
             if(no_key_down_ct_lcd > (LCD_POWER_SAVE_CYCLE/LCD_POWER_SAVE_RATIO)){
+                printf("lcd_\r\n");
                 no_key_down_ct_lcd = 0;
                 toggle_lcd_bklight();
             }
         }
         else{
             if(no_key_down_ct_lcd > (LCD_POWER_SAVE_CYCLE)){
+                printf("lcd^\r\n");
                 no_key_down_ct_lcd = 0;
                 toggle_lcd_bklight();
             }
