@@ -150,7 +150,10 @@ void task_key_status(struct task*vp)
     }
     else if(g_flag_1s){
         no_key_down_ct++;
-        printf("nokeydown %u\r\n", no_key_down_ct);
+        if(save_power_mode){
+            no_key_down_ct_lcd++;
+        }
+        //printf("nokeydown %u\r\n", no_key_down_ct);
         if(no_key_down_ct > NO_KEY_DOWN_PWSAVE_MAX){
             enable_power_save(true);
         }
@@ -158,9 +161,6 @@ void task_key_status(struct task*vp)
             cur_task_event_flag |= 1<<EVENT_NOKEYCT_MAXREACHED;
             no_key_down_ct = 0;
         }
-    }
-    if(save_power_mode && g_flag_10ms){
-        no_key_down_ct_lcd++;
     }
 #if 0
     if(g_flag_1s){
@@ -181,13 +181,13 @@ void task_lcd_bklight(struct task*vp)
     vp;//fix unused variable warning
     if(save_power_mode){
         if(get_lcd_bklight()){
-            if(no_key_down_ct_lcd > (LCD_POWER_SAVE_CYCLE*100/LCD_POWER_SAVE_RATIO)){
+            if(no_key_down_ct_lcd > (LCD_POWER_SAVE_CYCLE/LCD_POWER_SAVE_RATIO)){
                 no_key_down_ct_lcd = 0;
                 toggle_lcd_bklight();
             }
         }
         else{
-            if(no_key_down_ct_lcd > (LCD_POWER_SAVE_CYCLE*100)){
+            if(no_key_down_ct_lcd > (LCD_POWER_SAVE_CYCLE)){
                 no_key_down_ct_lcd = 0;
                 toggle_lcd_bklight();
             }
@@ -236,7 +236,7 @@ void task_timer(struct task*vp)
     }
     if(count_1s != last_count_1s){
         g_flag_1s = true;
-        printf("task timect %u\r\n", cur_task_timeout_ct);
+        //printf("task timect %u\r\n", cur_task_timeout_ct);
         if(cur_task_timeout_ct > 0 && (current_ui->time_disp_mode & TIME_OUT_EN)){
             if(cur_task_timer_started){
                 cur_task_timeout_ct--;
