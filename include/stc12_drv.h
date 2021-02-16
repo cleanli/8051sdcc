@@ -42,6 +42,7 @@ bool get_lcj_signal();
 void power_off();
 void enable_lcd_bklight(bool on);
 void toggle_lcd_bklight();
+bool get_lcd_bklight();
 
 uint8 read_rom(uint addr);
 bool write_rom(uint addr, uint8 c);

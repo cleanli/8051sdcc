@@ -199,6 +199,11 @@ void init_check()
     reset_flag = (PCON & 0x10) == 0;
 }
 
+bool get_lcd_bklight()
+{
+    return !LCD_BKLIGHT_PIN;
+}
+
 void enable_lcd_bklight(bool on)
 {
     LCD_BKLIGHT_PIN = !on;

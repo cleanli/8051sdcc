@@ -12,6 +12,8 @@ bool power_meas_trigged = false;
 bool stop_feed_wtd = false;
 bool music_flash = false;
 bool cur_task_timer_started = false;
+bool g_flag_1s = false;
+bool g_flag_10ms = false;
 __pdata float power_voltage;
 __pdata uint cur_task_timeout_ct;
 __pdata uint8 cur_task_event_flag;
@@ -44,6 +46,7 @@ bool keyA1_up = false;
 bool keyA2_up = false;
 bool keyA3_up = false;
 bool keyA4_up = false;
+bool save_power_mode = false;
 __pdata uint last_keyA1_down_ct;
 __pdata uint last_keyA2_down_ct;
 __pdata uint last_keyA3_down_ct;
@@ -130,20 +133,34 @@ void task_ui(struct task*vp)
         key##AN##_down=false; \
     }
 
+void enable_power_save(bool en)
+{
+    save_power_mode = en;
+    enable_lcd_bklight(!en);
+}
+
 void task_key_status(struct task*vp)
 {
     vp;//fix unused variable warning
     drv_update_key_status();
     if(!hw_no_key_down()){
         no_key_down_ct = 0;
+        no_key_down_ct_lcd = 0;
+        enable_power_save(false);
     }
     else if(g_flag_1s){
         no_key_down_ct++;
         printf("nokeydown %u\r\n", no_key_down_ct);
+        if(no_key_down_ct > NO_KEY_DOWN_PWSAVE_MAX){
+            enable_power_save(true);
+        }
         if(no_key_down_ct > NO_KEY_DOWN_CT_MAX){
             cur_task_event_flag |= 1<<EVENT_NOKEYCT_MAXREACHED;
             no_key_down_ct = 0;
         }
+    }
+    if(save_power_mode && g_flag_10ms){
+        no_key_down_ct_lcd++;
     }
 #if 0
     if(g_flag_1s){
@@ -157,19 +174,23 @@ void task_key_status(struct task*vp)
     CHECK_KEY(A4)
 }
 
+#define LCD_POWER_SAVE_CYCLE 20
+#define LCD_POWER_SAVE_RATIO 10
 void task_lcd_bklight(struct task*vp)
 {
     vp;//fix unused variable warning
-    drv_update_key_status();
-    if(!hw_no_key_down()){
-        no_key_down_ct_lcd = 0;
-    }
-    else if(g_flag_1s){
-        no_key_down_ct_lcd++;
-        printf("nokeydownlcd %u\r\n", no_key_down_ct_lcd);
-        if(no_key_down_ct_lcd > 5){
-            toggle_lcd_bklight();
-            no_key_down_ct_lcd = 0;
+    if(save_power_mode){
+        if(get_lcd_bklight()){
+            if(no_key_down_ct_lcd > (LCD_POWER_SAVE_CYCLE*100/LCD_POWER_SAVE_RATIO)){
+                no_key_down_ct_lcd = 0;
+                toggle_lcd_bklight();
+            }
+        }
+        else{
+            if(no_key_down_ct_lcd > (LCD_POWER_SAVE_CYCLE*100)){
+                no_key_down_ct_lcd = 0;
+                toggle_lcd_bklight();
+            }
         }
     }
 }

@@ -11,8 +11,6 @@
 __pdata float mileage;
 __pdata float last_speed;
 bool disp_mem_update = false;
-bool g_flag_1s = false;
-bool g_flag_10ms = false;
 __pdata int8 cur_ui_index = 0;
 __pdata int8 last_ui_index = 1;
 __pdata struct s_lfs_data float_sprintf;

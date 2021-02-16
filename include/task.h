@@ -2,6 +2,7 @@
 #define _TASK_H
 
 #define NO_KEY_DOWN_CT_MAX 100
+#define NO_KEY_DOWN_PWSAVE_MAX 20
 enum EVENT_TYPE{
     EVENT_KEYA1_UP,
     EVENT_KEYA2_UP,
