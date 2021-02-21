@@ -176,8 +176,6 @@ void task_key_status(struct task*vp)
     CHECK_KEY(A4)
 }
 
-#define LCD_POWER_SAVE_CYCLE 20
-#define LCD_POWER_SAVE_RATIO 10
 void task_lcd_bklight(struct task*vp)
 {
     vp;//fix unused variable warning
