@@ -216,6 +216,11 @@ void toggle_lcd_bklight()
 
 void system_init()
 {
+#ifdef CD4013_POWER_CTRL
+    //P1_3 input
+    P1M0 = 0x00;
+    P1M1 = 0x08;
+#endif
     enable_lcd_bklight(true);
     set_led1(true);
     set_led2(true);
@@ -241,7 +246,19 @@ void system_init()
 
 void power_off()
 {
+    printf("P1M0/1: %x %x\r\n", P1M0, P1M1);
+#ifdef CD4013_POWER_CTRL
+    //P1_3 output
+    P1M0 = 0x00;
+    P1M1 = 0x00;
+    POWER_DOWN_PIN = 1;
+    us_delay(100);
     POWER_DOWN_PIN = 0;
+    us_delay(100);
+    POWER_DOWN_PIN = 1;
+#else
+    POWER_DOWN_PIN = 0;
+#endif
 }
 
 uint8 get_key_status_raw()

@@ -6,7 +6,14 @@ GIT_SHA1="$(shell git log --format='_%h ' -1)"
 DIRTY="$(shell git diff --quiet || echo 'dirty')"
 CLEAN="$(shell git diff --quiet && echo 'clean')"
 CFLAGS =-DUSE_FLOATS=1 --stack-auto -Iinclude
+
+ifeq ($(CD4013_POWER_CTRL),)
 CFLAGS+=-DGIT_SHA1=\"$(GIT_SHA1)$(DIRTY)$(CLEAN)\"
+else
+$(warning CD4013_POWER_CTRL defined!!!)
+CFLAGS+=-DGIT_SHA1=\"C$(GIT_SHA1)$(DIRTY)$(CLEAN)\"
+CFLAGS+=-DCD4013_POWER_CTRL
+endif
 
 m.hex:m.ihx
 	packihx m.ihx > m.hex

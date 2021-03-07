@@ -34,3 +34,6 @@ MinGW for windows development environment
 found, and download the hex to chip
 7 MCU will run immediately after the download complete
 
+4 Compile
+make
+make CD4013_POWER_CTRL=1
